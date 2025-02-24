@@ -2,7 +2,7 @@ import { MessariClient } from "@messari-kit/api";
 import { createChatCompletionParameters } from "@messari-kit/types";
 
 // Stub API key (replace with your actual API key in a real application)
-const API_KEY = "your-api-key-here";
+const API_KEY = "<your-api-key-here>";
 
 // Initialize the Messari client
 const client = new MessariClient({
@@ -17,19 +17,11 @@ async function runChatCompletionExample() {
     const params: createChatCompletionParameters = {
       messages: [
         {
-          role: "system",
-          content:
-            "You are a helpful assistant that provides information about blockchain and crypto.",
-        },
-        {
           role: "user",
-          content: "What is Ethereum?",
+          content:
+            "What companies have both paradigm and multicoin on their cap table?",
         },
       ],
-      // Optional parameters
-      response_format: "text",
-      verbosity: "normal",
-      stream: false,
     };
 
     console.log("Sending chat completion request...");
