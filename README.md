@@ -13,12 +13,6 @@ MessariKit is the official TypeScript/JavaScript SDK for interacting with Messar
 ## Installation
 
 ```bash
-# Using npm
-npm install messari-kit
-
-# Using yarn
-yarn add messari-kit
-
 # Using pnpm
 pnpm add messari-kit
 ```
