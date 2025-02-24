@@ -1,7 +1,2 @@
-// Export your API functions here
-export const createMessariClient = () => {
-  // Implementation will go here
-  return {
-    // Add client methods here
-  };
-};
+// Export the MessariClient from client.ts
+export { MessariClient, MessariClientOptions } from "./client";

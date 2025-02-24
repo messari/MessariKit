@@ -77,32 +77,37 @@ function generateOperationTypes(operationId: string, operation: any): string {
         .pop()}']`
     : "void";
 
-  const parameterLines = [
-    operation.parameters
-      ?.filter((p: any) => p.in === "query")
-      .map((p: any) => `${p.name}${p.required ? "" : "?"}: string;`)
-      .join("\n  "),
-    operation.parameters
-      ?.filter((p: any) => p.in === "path")
-      .map((p: any) => `${p.name}: string;`)
-      .join("\n  "),
-    operation.requestBody
-      ? `body: components['schemas']['${operation.requestBody.content[
-          "application/json"
-        ].schema.$ref
-          .split("/")
-          .pop()}'];`
-      : "",
-    "auth?: { apiKey: string };",
-  ].filter(Boolean);
+  const queryParams = operation.parameters
+    ?.filter((p: any) => p.in === "query" && p.name !== "x-messari-api-key")
+    .map((p: any) => `${p.name}${p.required ? "" : "?"}: string`)
+    .join(" & ");
+
+  const pathParams = operation.parameters
+    ?.filter((p: any) => p.in === "path")
+    .map((p: any) => `${p.name}: string`)
+    .join(" & ");
+
+  const bodyType = operation.requestBody
+    ? `components['schemas']['${operation.requestBody.content[
+        "application/json"
+      ].schema.$ref
+        .split("/")
+        .pop()}']`
+    : null;
+
+  const typeIntersection = [
+    bodyType,
+    queryParams ? `{ ${queryParams} }` : null,
+    pathParams ? `{ ${pathParams} }` : null,
+  ]
+    .filter(Boolean)
+    .join(" & ");
 
   return `
 export type ${operationId}Response = ${responseType};
 export type ${operationId}Error = components['schemas']['APIError'];
 
-export interface ${operationId}Parameters {
-  ${parameterLines.join("\n  ")}
-}`;
+export type ${operationId}Parameters = ${typeIntersection};`;
 }
 
 function generateOperationObject(
@@ -117,11 +122,18 @@ function generateOperationObject(
     spec
   );
 
+  // Filter out the API key from query parameters
+  const filteredQueryParams = queryParams.filter(
+    (p) => p !== "x-messari-api-key"
+  );
+
   return `
 export const ${operationId} = {
   method: '${method.toUpperCase()}' as const,
   pathParams: [${pathParams.map((p) => `'${p}'`).join(", ")}] as const,
-  queryParams: [${queryParams.map((p) => `'${p}'`).join(", ")}] as const,
+  queryParams: [${filteredQueryParams
+    .map((p) => `'${p}'`)
+    .join(", ")}] as const,
   bodyParams: [${bodyParams.map((p) => `'${p}'`).join(", ")}] as const,
   path: ${generatePathFunction(pathTemplate, pathParams.length > 0)}
 } as const;`;

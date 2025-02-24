@@ -5,10 +5,7 @@ import { components } from './ai';
 export type createChatCompletionResponse = components['schemas']['ChatCompletionResponse'];
 export type createChatCompletionError = components['schemas']['APIError'];
 
-export interface createChatCompletionParameters {
-  body: components['schemas']['ChatCompletionRequest'];
-  auth?: { apiKey: string };
-}
+export type createChatCompletionParameters = components['schemas']['ChatCompletionRequest'];
 
 
 export const createChatCompletion = {
@@ -23,10 +20,7 @@ export const createChatCompletion = {
 export type extractEntitiesResponse = components['schemas']['ExtractResponse'];
 export type extractEntitiesError = components['schemas']['APIError'];
 
-export interface extractEntitiesParameters {
-  body: components['schemas']['ExtractRequest'];
-  auth?: { apiKey: string };
-}
+export type extractEntitiesParameters = components['schemas']['ExtractRequest'];
 
 
 export const extractEntities = {
