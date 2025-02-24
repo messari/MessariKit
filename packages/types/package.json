@@ -3,13 +3,31 @@
   "version": "0.0.1",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      }
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "scripts": {
     "build": "tsc",
     "clean": "rimraf dist",
-    "test": "jest"
+    "test": "jest",
+    "dev": "tsx"
   },
   "devDependencies": {
     "typescript": "^5.3.3",
-    "rimraf": "^5.0.5"
+    "rimraf": "^5.0.5",
+    "tsx": "^4.7.1"
   }
 } 
