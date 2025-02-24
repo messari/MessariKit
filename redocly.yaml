@@ -1,0 +1,35 @@
+apis:
+  ai@0.0.1:
+    root: ./typegen/openapi/services/ai/openapi.yaml
+    rules:
+      no-unused-components: off
+      operation-description: error
+      operation-operationId: error
+      operation-summary: error
+      no-unresolved-refs: error
+      struct: error
+      no-server-example.com: off
+    output: ./typegen/openapi/dist
+
+extends:
+  - recommended
+
+rules:
+  no-unused-components: off
+  operation-description: error
+  operation-operationId: error
+  operation-summary: error
+  no-unresolved-refs: error
+  struct: error
+  no-server-example.com: off
+
+theme:
+  openapi:
+    disableSearch: false
+    expandResponses: "200"
+    hideDownloadButton: false
+    hideLoading: false
+    hideSchemaPattern: false
+    jsonSampleExpandLevel: 3
+    showExtensions: false
+    sortPropsAlphabetically: false 

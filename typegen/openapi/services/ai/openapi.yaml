@@ -1,0 +1,264 @@
+openapi: 3.1.0
+info:
+  title: Messari AI Service API
+  description: |
+    API for AI-powered services including chat completions and entity extraction.
+    This service provides intelligent chat interactions and entity recognition capabilities.
+  version: 0.0.1
+  contact:
+    name: Messari Engineering
+    url: https://messari.io
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://api.messari.io/ai
+    description: Production server
+  - url: https://api.staging.messari.io/ai
+    description: Staging server
+  - url: http://localhost:8080/ai
+    description: Local development server
+
+tags:
+  - name: Chat
+    description: Chat completion endpoints
+  - name: Classification
+    description: Entity extraction and classification endpoints
+
+paths:
+  /v1/chat/completions:
+    post:
+      operationId: createChatCompletion
+      summary: Create a chat completion
+      description: |
+        Creates a completion for the chat message. Supports both streaming and non-streaming responses.
+        The last message must be from the user role.
+      tags:
+        - Chat
+      parameters:
+        - $ref: '../../common/parameters.yaml#/components/parameters/apiKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatCompletionRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../../common/components.yaml#/components/schemas/APIResponseWithMetadata'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/ChatCompletionResponse'
+                      metadata:
+                        $ref: '#/components/schemas/ChatCompletionResponseMetadata'
+            text/event-stream:
+              schema:
+                type: string
+                description: Server-sent events stream for chat completion
+        '4XX':
+          description: Client error response
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+
+  /v1/classification/extraction:
+    post:
+      operationId: extractEntities
+      summary: Extract entities from text
+      description: |
+        Extracts entities from the provided text content using AI models and database lookups.
+        Supports various entity types and can return similar entities based on the extracted names.
+      tags:
+        - Classification
+      parameters:
+        - $ref: '../../common/parameters.yaml#/components/parameters/apiKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExtractRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../../common/components.yaml#/components/schemas/APIResponseWithMetadata'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/ExtractResponse'
+                      metadata:
+                        $ref: '#/components/schemas/ExtractResponseMetadata'
+        '4XX':
+          description: Client error response
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+
+components:
+  schemas:
+    ChatCompletionMessage:
+      type: object
+      required:
+        - role
+        - content
+      properties:
+        role:
+          type: string
+          enum: [system, user, assistant]
+          description: The role of the message sender
+        content:
+          type: string
+          description: The message content
+
+    ChatCompletionRequest:
+      type: object
+      required:
+        - messages
+      properties:
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChatCompletionMessage'
+          maxItems: 6
+          description: Array of messages in the conversation
+        verbosity:
+          type: string
+          enum: [concise, normal, detailed]
+          description: Controls how verbose the response should be
+        response_format:
+          type: string
+          enum: [text, json, markdown]
+          description: Desired format of the response
+        stream:
+          type: boolean
+          default: false
+          description: Whether to stream the response
+
+    ChatCompletionResponse:
+      type: object
+      required:
+        - messages
+      properties:
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChatCompletionMessage'
+          description: Array of response messages
+
+    ChatCompletionResponseMetadata:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          description: Current status of the chat completion
+
+    EntityType:
+      type: string
+      enum:
+        - acquired_entity
+        - acquiring_entity
+        - asset
+        - x_user
+        - funded_entity
+        - investor
+        - network
+        - person
+        - exchange
+        - organization
+        - project
+        - protocol
+        - nft_collection
+      description: Type of entity being extracted or referenced
+
+    ExtractRequest:
+      type: object
+      required:
+        - content
+      properties:
+        content:
+          type: string
+          description: Text content to extract entities from
+        entityTypes:
+          type: array
+          items:
+            $ref: '#/components/schemas/EntityType'
+          description: Types of entities to extract
+        allSimilarEntities:
+          type: boolean
+          default: false
+          description: Whether to return all similar entities or just the best matches
+
+    Entity:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the entity
+        name:
+          type: string
+          description: Name of the entity
+        type:
+          $ref: '#/components/schemas/EntityType'
+        confidence:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+          description: Confidence score of the entity match
+
+    GroupedEntity:
+      type: object
+      properties:
+        extractedName:
+          type: string
+          description: The name extracted from the content
+        similarEntities:
+          type: array
+          items:
+            $ref: '#/components/schemas/Entity'
+          description: List of similar entities found
+        selectedEntity:
+          $ref: '#/components/schemas/Entity'
+          description: The selected/best matching entity if available
+
+    ExtractResponse:
+      type: object
+      required:
+        - extractedEntities
+      properties:
+        extractedEntities:
+          type: array
+          items:
+            $ref: '#/components/schemas/GroupedEntity'
+          description: List of extracted entities with their matches
+
+    ExtractResponseMetadata:
+      type: object
+      properties:
+        status:
+          type: string
+          description: Current status of the extraction request
+
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-messari-api-key
+
+security:
+  - ApiKeyAuth: [] 

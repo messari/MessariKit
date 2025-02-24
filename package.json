@@ -1,0 +1,24 @@
+{
+  "name": "messari-kit",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "build": "pnpm -r build",
+    "test": "pnpm -r test",
+    "clean": "pnpm -r clean",
+    "api:validate": "redocly lint typegen/openapi/**/*.yaml",
+    "api:bundle": "for f in typegen/openapi/services/*/openapi.yaml; do redocly bundle \"$f\" --output \"typegen/openapi/dist/$(basename $(dirname \"$f\")).yaml\"; done",
+    "api:docs": "redocly preview-docs typegen/openapi/services/ai/openapi.yaml",
+    "api:types": "./typegen/scripts/generate-types.sh && tsx typegen/scripts/generate-operation-types.ts",
+    "api:build": "pnpm run api:validate && pnpm run api:bundle && pnpm run api:types"
+  },
+  "devDependencies": {
+    "@redocly/cli": "^1.8.1",
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^20.11.24",
+    "js-yaml": "^4.1.0",
+    "openapi-typescript": "^6.7.4",
+    "tsx": "^4.7.1",
+    "typescript": "^5.3.3"
+  }
+} 

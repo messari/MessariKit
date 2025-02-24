@@ -1,0 +1,44 @@
+openapi: 3.1.0
+info:
+  title: Common Components
+  version: 0.0.1
+  description: Common components for Messari API services
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+components:
+  schemas:
+    APIError:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          description: Error message when something goes wrong
+          example: "Internal server error, please try again"
+
+    APIResponseWithMetadata:
+      type: object
+      description: Standard response wrapper with additional metadata
+      required:
+        - data
+      properties:
+        error:
+          type: string
+          description: Error message if request failed
+        data:
+          type: object
+          description: Response payload
+        metadata:
+          type: object
+          description: Additional metadata about the response
+
+servers:
+  - url: https://api.messari.io
+    description: Production server
+  - url: https://api.staging.messari.io
+    description: Staging server
+  - url: http://localhost:8080
+    description: Local development server 

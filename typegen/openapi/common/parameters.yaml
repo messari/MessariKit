@@ -1,0 +1,104 @@
+openapi: 3.1.0
+info:
+  title: Common Parameters
+  version: 0.0.1
+  description: Common parameters for Messari API services
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://api.messari.io
+    description: Production server
+  - url: https://api.staging.messari.io
+    description: Staging server
+  - url: http://localhost:8080
+    description: Local development server
+
+components:
+  parameters:
+
+    apiKey:
+      name: x-messari-api-key
+      in: header
+      description: API key for authentication
+      required: true
+      schema:
+        type: string
+        format: uuid
+        example: "abcdef12-3456-7890-abcd-ef1234567890"
+
+    # Pagination parameters
+    page:
+      name: page
+      in: query
+      description: Page number for pagination (1-based)
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+        example: 1
+
+    limit:
+      name: limit
+      in: query
+      description: Number of items per page
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+        example: 20
+
+    # Sorting parameters
+    sortBy:
+      name: sort_by
+      in: query
+      description: Field to sort by
+      required: false
+      schema:
+        type: string
+        example: "created_at"
+
+    sortOrder:
+      name: sort_order
+      in: query
+      description: Sort order (asc or desc)
+      required: false
+      schema:
+        type: string
+        enum: [asc, desc]
+        default: desc
+        example: "desc"
+
+    # Filtering parameters
+    search:
+      name: search
+      in: query
+      description: Search query string
+      required: false
+      schema:
+        type: string
+        example: "bitcoin"
+
+    startDate:
+      name: start_date
+      in: query
+      description: Start date for filtering (ISO 8601 format)
+      required: false
+      schema:
+        type: string
+        format: date-time
+        example: "2024-01-01T00:00:00Z"
+
+    endDate:
+      name: end_date
+      in: query
+      description: End date for filtering (ISO 8601 format)
+      required: false
+      schema:
+        type: string
+        format: date-time
+        example: "2024-12-31T23:59:59Z" 
