@@ -15,7 +15,9 @@ export function pick<O, K extends AllKeys<O>>(
   base: O,
   keys: readonly K[]
 ): Pick<O, K> {
-  const entries = keys.map((key) => [key, base?.[key]]);
+  const entries = keys
+    .map((key) => [key, base?.[key]])
+    .filter(([_, value]) => value !== undefined);
   return Object.fromEntries(entries);
 }
 

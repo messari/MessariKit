@@ -5,7 +5,7 @@
 
 
 export type paths = {
-  "/v1/chat/completions": {
+  "/ai/v1/chat/completions": {
     /**
      * Create a chat completion
      * @description Creates a completion for the chat message. Supports both streaming and non-streaming responses.
@@ -13,7 +13,7 @@ export type paths = {
      */
     post: operations["createChatCompletion"];
   };
-  "/v1/classification/extraction": {
+  "/ai/v1/classification/extraction": {
     /**
      * Extract entities from text
      * @description Extracts entities from the provided text content using AI models and database lookups.

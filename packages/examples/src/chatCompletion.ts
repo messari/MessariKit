@@ -8,7 +8,7 @@ const API_KEY = "<your-api-key-here>";
 const client = new MessariClient({
   apiKey: API_KEY,
   // Optional: Override the base URL if needed
-  // baseUrl: "https://api.messari.io/ai",
+  // baseUrl: "https://api.messari.io",
 });
 
 async function runChatCompletionExample() {

@@ -5,9 +5,7 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "clean": "rimraf dist",
-    "start": "tsx src/chatCompletion.ts",
-    "dev": "tsx"
+    "clean": "rimraf dist"
   },
   "dependencies": {
     "@messari-kit/api": "workspace:*",

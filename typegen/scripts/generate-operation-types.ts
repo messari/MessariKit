@@ -67,33 +67,40 @@ function extractParameterNames(
   return { queryParams, pathParams, bodyParams };
 }
 
-function generateOperationTypes(operationId: string, operation: any): string {
-  const responseType = operation.responses["200"]?.content["application/json"]
-    ?.schema
-    ? `components['schemas']['${operation.responses["200"].content[
-        "application/json"
-      ].schema.allOf[1].properties.data.$ref
-        .split("/")
-        .pop()}']`
-    : "void";
+function generateOperationTypes(
+  operationId: string,
+  operation: any,
+  serviceName: string
+): string {
+  // Get the schema name from the response
+  const schemaRef =
+    operation.responses["200"]?.content["application/json"]?.schema?.allOf?.[1]
+      ?.properties?.data?.$ref;
+
+  let responseType = "void";
+
+  if (schemaRef) {
+    const schemaName = schemaRef.split("/").pop();
+    responseType = `${serviceName}Components['schemas']['${schemaName}']`;
+  }
 
   const queryParams = operation.parameters
     ?.filter((p: any) => p.in === "query" && p.name !== "x-messari-api-key")
     .map((p: any) => `${p.name}${p.required ? "" : "?"}: string`)
-    .join(" & ");
+    .join("; ");
 
   const pathParams = operation.parameters
     ?.filter((p: any) => p.in === "path")
     .map((p: any) => `${p.name}: string`)
-    .join(" & ");
+    .join("; ");
 
-  const bodyType = operation.requestBody
-    ? `components['schemas']['${operation.requestBody.content[
-        "application/json"
-      ].schema.$ref
-        .split("/")
-        .pop()}']`
-    : null;
+  let bodyType = null;
+  if (operation.requestBody) {
+    const bodySchemaRef =
+      operation.requestBody.content["application/json"].schema.$ref;
+    const bodySchemaName = bodySchemaRef.split("/").pop();
+    bodyType = `${serviceName}Components['schemas']['${bodySchemaName}']`;
+  }
 
   const typeIntersection = [
     bodyType,
@@ -101,11 +108,11 @@ function generateOperationTypes(operationId: string, operation: any): string {
     pathParams ? `{ ${pathParams} }` : null,
   ]
     .filter(Boolean)
-    .join(" & ");
+    .join("; ");
 
   return `
 export type ${operationId}Response = ${responseType};
-export type ${operationId}Error = components['schemas']['APIError'];
+export type ${operationId}Error = ${serviceName}Components['schemas']['APIError'];
 
 export type ${operationId}Parameters = ${typeIntersection};`;
 }
@@ -144,11 +151,14 @@ function processOpenAPIFile(filePath: string): string[] {
   const spec = yaml.load(fileContent) as OpenAPISpec;
   const operations: string[] = [];
 
+  // Extract service name from file path
+  const serviceName = path.basename(filePath, ".yaml");
+
   Object.entries(spec.paths).forEach(([path, pathObj]) => {
     Object.entries(pathObj).forEach(([method, operation]) => {
       if (operation.operationId) {
         operations.push(
-          generateOperationTypes(operation.operationId, operation)
+          generateOperationTypes(operation.operationId, operation, serviceName)
         );
         operations.push(
           generateOperationObject(
@@ -171,16 +181,34 @@ function generateIndex(): void {
   const outputDir = path.join(process.cwd(), "packages", "types", "src");
 
   const operations: string[] = [];
+  const serviceFiles: string[] = [];
 
   fs.readdirSync(distDir)
     .filter((file) => file.endsWith(".yaml"))
     .forEach((file) => {
+      const serviceName = file.replace(".yaml", "");
+      serviceFiles.push(serviceName);
       const filePath = path.join(distDir, file);
       operations.push(...processOpenAPIFile(filePath));
     });
 
+  // Generate imports for all services
+  const imports = serviceFiles
+    .map(
+      (service) =>
+        `import { components as ${service}Components } from './${service}';`
+    )
+    .join("\n");
+
+  // Create a components type that uses the first service's components as the base
+  // This assumes common types like APIError are the same across services
+  const baseService = serviceFiles[0] || "ai";
+  const componentsType = `type components = ${baseService}Components;`;
+
   const indexContent = `// This file is auto-generated. DO NOT EDIT
-import { components } from './ai';
+${imports}
+
+${componentsType}
 
 ${operations.join("\n\n")}
 `;

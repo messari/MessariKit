@@ -27,7 +27,7 @@ tags:
     description: Entity extraction and classification endpoints
 
 paths:
-  /v1/chat/completions:
+  /ai/v1/chat/completions:
     post:
       operationId: createChatCompletion
       summary: Create a chat completion
@@ -69,7 +69,7 @@ paths:
               schema:
                 $ref: '../../common/components.yaml#/components/schemas/APIError'
 
-  /v1/classification/extraction:
+  /ai/v1/classification/extraction:
     post:
       operationId: extractEntities
       summary: Extract entities from text

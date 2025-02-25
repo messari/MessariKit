@@ -5,6 +5,15 @@ import {
   extractEntities,
   extractEntitiesParameters,
   extractEntitiesResponse,
+  getNewsFeed,
+  getNewsFeedParameters,
+  getNewsFeedResponse,
+  getNewsSources,
+  getNewsSourcesParameters,
+  getNewsSourcesResponse,
+  getNewsFeedAssets,
+  getNewsFeedAssetsParameters,
+  getNewsFeedAssetsResponse,
 } from "@messari-kit/types";
 import { pick } from "./utils";
 
@@ -19,7 +28,7 @@ export class MessariClient {
 
   constructor(options: MessariClientOptions) {
     this.apiKey = options.apiKey;
-    this.baseUrl = options.baseUrl || "https://api.messari.io/ai";
+    this.baseUrl = options.baseUrl || "https://api.messari.io";
   }
 
   private async request<T>({
@@ -72,6 +81,27 @@ export class MessariClient {
         method: extractEntities.method,
         path: extractEntities.path(),
         body: pick(params, extractEntities.bodyParams),
+      }),
+  };
+
+  public readonly news = {
+    getNewsFeed: (params: getNewsFeedParameters) =>
+      this.request<getNewsFeedResponse>({
+        method: getNewsFeed.method,
+        path: getNewsFeed.path(),
+        queryParams: pick(params, getNewsFeed.queryParams),
+      }),
+    getNewsFeedAssets: (params: getNewsFeedAssetsParameters) =>
+      this.request<getNewsFeedAssetsResponse>({
+        method: getNewsFeedAssets.method,
+        path: getNewsFeedAssets.path(),
+        queryParams: pick(params, getNewsFeedAssets.queryParams),
+      }),
+    getNewsSources: (params: getNewsSourcesParameters) =>
+      this.request<getNewsSourcesResponse>({
+        method: getNewsSources.method,
+        path: getNewsSources.path(),
+        queryParams: pick(params, getNewsSources.queryParams),
       }),
   };
 }

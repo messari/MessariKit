@@ -1,0 +1,370 @@
+openapi: 3.1.0
+info:
+  title: Messari News Service API
+  description: |
+    API for news-related services including news feed, assets, and sources.
+    This service provides access to news articles, assets mentioned in news, and news sources.
+  version: 0.0.1
+  contact:
+    name: Messari Engineering
+    url: https://messari.io
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://api.messari.io/news
+    description: Production server
+  - url: https://api.staging.messari.io/news
+    description: Staging server
+  - url: http://localhost:8080/news
+    description: Local development server
+
+tags:
+  - name: News
+    description: News feed and related endpoints
+
+paths:
+  /news/v1/news/assets:
+    get:
+      operationId: getNewsFeedAssets
+      summary: Get assets mentioned in news
+      description: |
+        Returns a list of assets that are mentioned in news articles.
+        Supports pagination and filtering by asset name or symbol.
+      tags:
+        - News
+      security:
+        - apiKey: []
+      parameters:
+        - $ref: '../../common/parameters.yaml#/components/parameters/apiKey'
+        - name: nameOrSymbol
+          in: query
+          description: A case-sensitive text to search by asset name, i.e. Bitcoin, or priority symbol, i.e. BTC
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: Number of results per page
+          required: false
+          schema:
+            type: integer
+            default: 25
+            minimum: 1
+            maximum: 100
+        - name: page
+          in: query
+          description: Page number
+          required: false
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../../common/components.yaml#/components/schemas/APIResponseWithMetadata'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/AssetList'
+                      metadata:
+                        $ref: '#/components/schemas/PaginationResult'
+        '4XX':
+          description: Client error response
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+
+  /news/v1/news/feed:
+    get:
+      operationId: getNewsFeed
+      summary: Get news feed
+      description: |
+        Returns a list of news articles.
+        Supports pagination and filtering by various parameters.
+      tags:
+        - News
+      security:
+        - apiKey: []
+      parameters:
+        - $ref: '../../common/parameters.yaml#/components/parameters/apiKey'
+        - name: publishedBefore
+          in: query
+          description: Timestamp in milliseconds UTC. If publishedBefore is provided, publishedAfter must be greater.
+          required: false
+          schema:
+            type: integer
+            format: int64
+        - name: publishedAfter
+          in: query
+          description: Timestamp in milliseconds UTC.
+          required: false
+          schema:
+            type: integer
+            format: int64
+        - name: sourceTypes
+          in: query
+          description: List of source types to filter by. If provided, the results will be filtered by these source types.
+          required: false
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+              enum: [Blog, Forum, News]
+        - name: sourceIds
+          in: query
+          description: List of source IDs to filter by. If provided, the results will be filtered by these source IDs.
+          required: false
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+              format: uuid
+            maxItems: 50
+        - name: assetIds
+          in: query
+          description: List of asset IDs to filter by. If provided, the results will be filtered by these asset IDs.
+          required: false
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+              format: uuid
+            maxItems: 50
+        - name: sort
+          in: query
+          description: Sort by publish time in ascending or descending order. 2 (DESC) by default.
+          required: false
+          schema:
+            type: integer
+            enum: [1, 2]
+            default: 2
+        - name: limit
+          in: query
+          description: Number of results per page
+          required: false
+          schema:
+            type: integer
+            default: 25
+            minimum: 1
+            maximum: 100
+        - name: page
+          in: query
+          description: Page number
+          required: false
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../../common/components.yaml#/components/schemas/APIResponseWithMetadata'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/DocumentList'
+                      metadata:
+                        $ref: '#/components/schemas/PaginationResult'
+        '4XX':
+          description: Client error response
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+
+  /news/v1/news/sources:
+    get:
+      operationId: getNewsSources
+      summary: Get news sources
+      description: |
+        Returns a list of news sources.
+        Supports pagination and filtering by source name.
+      tags:
+        - News
+      security:
+        - apiKey: []
+      parameters:
+        - $ref: '../../common/parameters.yaml#/components/parameters/apiKey'
+        - name: sourceName
+          in: query
+          description: A case-sensitive text to search by source name, i.e. CoinDesk
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: Number of results per page
+          required: false
+          schema:
+            type: integer
+            default: 25
+            minimum: 1
+            maximum: 100
+        - name: page
+          in: query
+          description: Page number
+          required: false
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../../common/components.yaml#/components/schemas/APIResponseWithMetadata'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/SourceList'
+                      metadata:
+                        $ref: '#/components/schemas/PaginationResult'
+        '4XX':
+          description: Client error response
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+
+components:
+  securitySchemes:
+    apiKey:
+      type: apiKey
+      name: x-messari-api-key
+      in: header
+      description: API key for authentication
+  
+  schemas:
+    SourceType:
+      type: string
+      enum: [News, Forum, Blog]
+      description: Type of news source
+
+    Source:
+      type: object
+      required:
+        - id
+        - sourceName
+        - sourceType
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the source
+        sourceName:
+          type: string
+          description: Name of the source
+        sourceType:
+          $ref: '#/components/schemas/SourceType'
+          description: Type of the source
+
+    SourceList:
+      type: array
+      items:
+        $ref: '#/components/schemas/Source'
+      description: List of news sources
+
+    Asset:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the asset
+        name:
+          type: string
+          description: Name of the asset
+        symbol:
+          type: string
+          description: Symbol of the asset
+
+    AssetList:
+      type: array
+      items:
+        $ref: '#/components/schemas/Asset'
+      description: List of assets
+
+    Document:
+      type: object
+      required:
+        - id
+        - title
+        - publishedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the document
+        title:
+          type: string
+          description: Title of the document
+        content:
+          type: string
+          description: Content of the document
+        url:
+          type: string
+          format: uri
+          description: URL of the document
+        publishedAt:
+          type: integer
+          format: int64
+          description: Published timestamp in milliseconds UTC
+        source:
+          $ref: '#/components/schemas/Source'
+          description: Source of the document
+        assets:
+          type: array
+          items:
+            $ref: '#/components/schemas/Asset'
+          description: Assets mentioned in the document
+
+    DocumentList:
+      type: array
+      items:
+        $ref: '#/components/schemas/Document'
+      description: List of news documents
+
+    PaginationResult:
+      type: object
+      required:
+        - totalItems
+        - totalPages
+        - currentPage
+        - itemsPerPage
+      properties:
+        totalItems:
+          type: integer
+          description: Total number of items
+        totalPages:
+          type: integer
+          description: Total number of pages
+        currentPage:
+          type: integer
+          description: Current page number
+        itemsPerPage:
+          type: integer
+          description: Number of items per page 
