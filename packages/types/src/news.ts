@@ -42,7 +42,11 @@ export type components = {
        */
       error: string;
     };
-    /** @description Standard response wrapper with additional metadata */
+    /**
+     * @description Standard response wrapper with additional metadata.
+     * This type should be treated as generic in TypeScript: APIResponseWithMetadata<T, M>.
+     * T represents the data type, M represents the metadata type.
+     */
     APIResponseWithMetadata: {
       /** @description Response payload */
       data: Record<string, never>;
@@ -78,7 +82,7 @@ export type components = {
        * Format: int64
        * @description Published timestamp in milliseconds UTC
        */
-      publishedAt: number;
+      publishTimeMillis: number;
       /** @description Source of the document */
       source?: components["schemas"]["Source"];
       /** @description Title of the document */
@@ -92,14 +96,14 @@ export type components = {
     /** @description List of news documents */
     DocumentList: components["schemas"]["Document"][];
     PaginationResult: {
-      /** @description Current page number */
-      currentPage: number;
       /** @description Number of items per page */
-      itemsPerPage: number;
-      /** @description Total number of items */
-      totalItems: number;
+      limit: number;
+      /** @description Current page number */
+      page: number;
       /** @description Total number of pages */
       totalPages: number;
+      /** @description Total number of items */
+      totalRows: number;
     };
     Source: {
       /**

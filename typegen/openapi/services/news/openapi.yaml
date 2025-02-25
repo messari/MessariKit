@@ -313,7 +313,7 @@ components:
       required:
         - id
         - title
-        - publishedAt
+        - publishTimeMillis
       properties:
         id:
           type: string
@@ -329,7 +329,7 @@ components:
           type: string
           format: uri
           description: URL of the document
-        publishedAt:
+        publishTimeMillis:
           type: integer
           format: int64
           description: Published timestamp in milliseconds UTC
@@ -351,20 +351,20 @@ components:
     PaginationResult:
       type: object
       required:
-        - totalItems
+        - totalRows
         - totalPages
-        - currentPage
-        - itemsPerPage
+        - page
+        - limit
       properties:
-        totalItems:
+        totalRows:
           type: integer
           description: Total number of items
         totalPages:
           type: integer
           description: Total number of pages
-        currentPage:
+        page:
           type: integer
           description: Current page number
-        itemsPerPage:
+        limit:
           type: integer
           description: Number of items per page 

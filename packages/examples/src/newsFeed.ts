@@ -1,81 +1,33 @@
-import {
-  MessariClient,
-  PaginatedResult,
-  PaginationMetadata,
-} from "@messari-kit/api";
+import { MessariClient } from "@messari-kit/api";
 import {
   getNewsFeedParameters,
   getNewsFeedAssetsParameters,
   getNewsSourcesParameters,
-  getNewsFeedResponse,
-  getNewsFeedAssetsResponse,
-  getNewsSourcesResponse,
+  newsAsset,
+  newsSource,
+  newsDocument,
 } from "@messari-kit/types";
+import dotenv from "dotenv";
 
-// Define interfaces for type safety
-interface Asset {
-  id: string;
-  name: string;
-  symbol?: string;
+// Load environment variables from .env file
+dotenv.config();
+
+// Get API key from environment variable
+const API_KEY = process.env.MESSARI_API_KEY;
+
+// Check if API key is available
+if (!API_KEY) {
+  console.error("Error: MESSARI_API_KEY environment variable is not set.");
+  console.error(
+    "Please create a .env file with your API key or set it in your environment."
+  );
+  process.exit(1);
 }
-
-interface Source {
-  id: string;
-  sourceName: string;
-  sourceType: string;
-}
-
-interface Document {
-  id: string;
-  title: string;
-  content?: string;
-  url?: string;
-  publishedAt: number;
-  source?: Source;
-  assets?: Asset[];
-}
-
-// Stub API key (replace with your actual API key in a real application)
-const API_KEY = "<your-api-key-here>";
 
 // Initialize the Messari client
 const client = new MessariClient({
   apiKey: API_KEY,
-  // Optional: Override the base URL if needed
-  // baseUrl: "https://api.messari.io",
 });
-
-// Type assertion to add the news property to the client
-// This is necessary because the TypeScript definitions might not be updated yet
-interface NewsClient {
-  news: {
-    getNewsFeed: (
-      params: getNewsFeedParameters
-    ) => Promise<getNewsFeedResponse>;
-    getNewsFeedAssets: (
-      params: getNewsFeedAssetsParameters
-    ) => Promise<getNewsFeedAssetsResponse>;
-    getNewsSources: (
-      params: getNewsSourcesParameters
-    ) => Promise<getNewsSourcesResponse>;
-    getNewsFeedPaginated: (
-      params: getNewsFeedParameters
-    ) => Promise<PaginatedResult<getNewsFeedResponse, getNewsFeedParameters>>;
-    getNewsFeedAssetsPaginated: (
-      params: getNewsFeedAssetsParameters
-    ) => Promise<
-      PaginatedResult<getNewsFeedAssetsResponse, getNewsFeedAssetsParameters>
-    >;
-    getNewsSourcesPaginated: (
-      params: getNewsSourcesParameters
-    ) => Promise<
-      PaginatedResult<getNewsSourcesResponse, getNewsSourcesParameters>
-    >;
-  };
-}
-
-// Cast the client to include the news property
-const typedClient = client as unknown as NewsClient;
 
 async function runNewsFeedExample() {
   try {
@@ -96,7 +48,7 @@ async function runNewsFeedExample() {
     };
 
     // Call the getNewsFeedPaginated endpoint
-    const paginatedArticles = await typedClient.news.getNewsFeedPaginated(
+    const paginatedArticles = await client.news.getNewsFeedPaginated(
       newsFeedParams
     );
 
@@ -105,8 +57,6 @@ async function runNewsFeedExample() {
     console.log(
       `Page ${paginatedArticles.metadata?.page} of ${paginatedArticles.metadata?.totalPages}`
     );
-    console.log(`Has next page: ${paginatedArticles.hasNextPage}`);
-    console.log(`Has previous page: ${paginatedArticles.hasPreviousPage}`);
     console.log(`Total items: ${paginatedArticles.metadata?.totalRows}`);
     console.log(`Items per page: ${paginatedArticles.metadata?.limit}`);
 
@@ -138,14 +88,12 @@ async function runNewsFeedExample() {
     console.log("\n2. Fetching assets mentioned in news with pagination...");
 
     const assetsParams: getNewsFeedAssetsParameters = {
-      // Optional: Filter by name or symbol
-      // nameOrSymbol: "Bitcoin",
       limit: "10",
       page: "1",
     };
 
     // Call the getNewsFeedAssetsPaginated endpoint
-    const paginatedAssets = await typedClient.news.getNewsFeedAssetsPaginated(
+    const paginatedAssets = await client.news.getNewsFeedAssetsPaginated(
       assetsParams
     );
 
@@ -167,30 +115,18 @@ async function runNewsFeedExample() {
         `Page ${page2.metadata?.page} of ${page2.metadata?.totalPages}`
       );
       displayAssets(page2.data);
-
-      // Get the third page
-      if (page2.hasNextPage) {
-        console.log("\nFetching page 3...");
-        const page3 = await page2.nextPage();
-        console.log(
-          `Page ${page3.metadata?.page} of ${page3.metadata?.totalPages}`
-        );
-        displayAssets(page3.data);
-      }
     }
 
     // Finally, fetch news sources with pagination
     console.log("\n3. Fetching news sources with pagination...");
 
     const sourcesParams: getNewsSourcesParameters = {
-      // Optional: Filter by source name
-      // sourceName: "CoinDesk",
       limit: "10",
       page: "1",
     };
 
     // Call the getNewsSourcesPaginated endpoint
-    const paginatedSources = await typedClient.news.getNewsSourcesPaginated(
+    const paginatedSources = await client.news.getNewsSourcesPaginated(
       sourcesParams
     );
 
@@ -211,38 +147,36 @@ async function runNewsFeedExample() {
       console.log(
         `Page ${page2.metadata?.page} of ${page2.metadata?.totalPages}`
       );
-      displaySources(page2.data);
-
-      // Get the third page
-      if (page2.hasNextPage) {
-        console.log("\nFetching page 3...");
-        const page3 = await page2.nextPage();
-        console.log(
-          `Page ${page3.metadata?.page} of ${page3.metadata?.totalPages}`
-        );
-        displaySources(page3.data);
-      }
     }
   } catch (error) {
-    console.error("Error calling news service:", error);
-    if (error instanceof Error) {
-      console.error("Error message:", error.message);
-    }
+    console.error("Error running news feed example:", error);
   }
 }
 
 // Helper function to display articles
-function displayArticles(articles: Document[]) {
-  console.log(`Found ${articles.length} articles`);
+function displayArticles(articles: newsDocument[]) {
+  // Handle both direct arrays and APIResponseWithMetadata
+  const articlesArray = articles;
 
-  articles.forEach((article: Document, index: number) => {
-    const publishDate = new Date(article.publishedAt).toLocaleString();
+  console.log(`Found ${articlesArray.length} articles`);
+
+  articlesArray.forEach((article: newsDocument, index: number) => {
+    // Handle missing publishTimeMillis values
+    let publishDate = "No date available";
+    if (article.publishTimeMillis) {
+      try {
+        publishDate = new Date(article.publishTimeMillis).toLocaleString();
+      } catch (e) {
+        publishDate = "Invalid date format";
+      }
+    }
+
     console.log(`${index + 1}. ${article.title} (${publishDate})`);
     console.log(`   Source: ${article.source?.sourceName}`);
     if (article.assets && article.assets.length > 0) {
       console.log(
         `   Mentioned assets: ${article.assets
-          .map((a: Asset) => a.name)
+          .map((a: newsAsset) => a.name)
           .join(", ")}`
       );
     }
@@ -252,22 +186,25 @@ function displayArticles(articles: Document[]) {
 }
 
 // Helper function to display assets
-function displayAssets(assets: Asset[]) {
-  console.log(`Found ${assets.length} assets`);
+function displayAssets(assets: newsAsset[]) {
+  const assetsArray = assets;
 
-  assets.forEach((asset: Asset, index: number) => {
+  console.log(`Found ${assetsArray.length} assets`);
+
+  assetsArray.forEach((asset: newsAsset, index: number) => {
     console.log(`${index + 1}. ${asset.name} (${asset.symbol || "No symbol"})`);
   });
 }
 
 // Helper function to display sources
-function displaySources(sources: Source[]) {
-  console.log(`Found ${sources.length} sources`);
+function displaySources(sources: newsSource[]) {
+  const sourcesArray = sources;
 
-  sources.forEach((source: Source, index: number) => {
+  console.log(`Found ${sourcesArray.length} sources`);
+
+  sourcesArray.forEach((source: newsSource, index: number) => {
     console.log(`${index + 1}. ${source.sourceName} (${source.sourceType})`);
   });
 }
 
-// Run the example
 runNewsFeedExample();

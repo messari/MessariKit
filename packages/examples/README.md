@@ -1,52 +1,39 @@
-# Messari Kit Examples
+# Messari API Examples
 
-This package contains examples demonstrating how to use the Messari Kit API client.
+This package contains examples of how to use the Messari API client.
 
-## Available Examples
+## Setup
 
-### Chat Completion
+1. Install dependencies:
+   ```bash
+   pnpm install
+   ```
 
-The `chatCompletion.ts` example demonstrates how to use the MessariClient to call the createChatCompletion endpoint.
+2. Set up environment variables:
+   - Copy `.env.example` to `.env`
+   - Add your Messari API key to the `.env` file:
+     ```
+     MESSARI_API_KEY=your_api_key_here
+     ```
 
-```typescript
-// Import the MessariClient and types
-import { MessariClient } from "@messari-kit/api";
-import { createChatCompletionParameters } from "@messari-kit/types";
+## Running Examples
 
-// Initialize the client with your API key
-const client = new MessariClient({
-  apiKey: "your-api-key-here",
-});
+### News Feed Example
 
-// Call the createChatCompletion endpoint
-const response = await client.ai.createChatCompletion({
-  messages: [
-    {
-      role: "system",
-      content: "You are a helpful assistant.",
-    },
-    {
-      role: "user",
-      content: "What is Ethereum?",
-    },
-  ],
-});
-```
-
-## Running the Examples
-
-To run the examples, first build the packages:
+This example demonstrates how to use the News API to fetch news articles, assets, and sources with pagination.
 
 ```bash
-pnpm build
+npx tsx src/newsFeed.ts
 ```
 
-Then run the specific example:
+### Chat Completion Example
+
+This example demonstrates how to use the AI API to create chat completions.
 
 ```bash
-pnpm -F @messari-kit/examples start
+npx tsx src/chatCompletion.ts
 ```
 
-## API Key
+## API Documentation
 
-Replace the stubbed API key in the examples with your actual Messari API key when running the examples. 
+For more information about the Messari API, refer to the official documentation. 

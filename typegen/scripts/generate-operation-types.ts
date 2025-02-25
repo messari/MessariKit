@@ -73,15 +73,31 @@ function generateOperationTypes(
   serviceName: string
 ): string {
   // Get the schema name from the response
-  const schemaRef =
-    operation.responses["200"]?.content["application/json"]?.schema?.allOf?.[1]
-      ?.properties?.data?.$ref;
+  const responseSchema =
+    operation.responses["200"]?.content["application/json"]?.schema;
+  const schemaRef = responseSchema?.allOf?.[1]?.properties?.data?.$ref;
+  const metadataRef = responseSchema?.allOf?.[1]?.properties?.metadata?.$ref;
 
   let responseType = "void";
+  let metadataType = null;
 
   if (schemaRef) {
     const schemaName = schemaRef.split("/").pop();
     responseType = `${serviceName}Components['schemas']['${schemaName}']`;
+  }
+
+  if (metadataRef) {
+    const metadataSchemaName = metadataRef.split("/").pop();
+    metadataType = `${serviceName}Components['schemas']['${metadataSchemaName}']`;
+  }
+
+  // Check if this is a paginated response
+  const isPaginated = metadataRef && metadataRef.includes("PaginationResult");
+
+  // Generate the final response type
+  let finalResponseType = responseType;
+  if (isPaginated) {
+    finalResponseType = `APIResponseWithMetadata<${responseType}, ${metadataType}>`;
   }
 
   const queryParams = operation.parameters
@@ -111,7 +127,7 @@ function generateOperationTypes(
     .join("; ");
 
   return `
-export type ${operationId}Response = ${responseType};
+export type ${operationId}Response = ${finalResponseType};
 export type ${operationId}Error = ${serviceName}Components['schemas']['APIError'];
 
 export type ${operationId}Parameters = ${typeIntersection};`;
@@ -182,12 +198,30 @@ function generateIndex(): void {
 
   const operations: string[] = [];
   const serviceFiles: string[] = [];
+  const serviceSchemas: Record<string, string[]> = {};
 
+  // First pass: collect all schema names for each service
   fs.readdirSync(distDir)
     .filter((file) => file.endsWith(".yaml"))
     .forEach((file) => {
       const serviceName = file.replace(".yaml", "");
+      const filePath = path.join(distDir, file);
+      const fileContent = fs.readFileSync(filePath, "utf8");
+      const spec = yaml.load(fileContent) as OpenAPISpec;
+
+      // Get all schema names from the components section
+      const schemaNames = spec.components?.schemas
+        ? Object.keys(spec.components.schemas)
+        : [];
+      serviceSchemas[serviceName] = schemaNames;
       serviceFiles.push(serviceName);
+    });
+
+  // Second pass: process operations
+  fs.readdirSync(distDir)
+    .filter((file) => file.endsWith(".yaml"))
+    .forEach((file) => {
+      const serviceName = file.replace(".yaml", "");
       const filePath = path.join(distDir, file);
       operations.push(...processOpenAPIFile(filePath));
     });
@@ -205,10 +239,40 @@ function generateIndex(): void {
   const baseService = serviceFiles[0] || "ai";
   const componentsType = `type components = ${baseService}Components;`;
 
+  // Export the components with service name prefixes
+  let exportedComponents = serviceFiles
+    .map(
+      (service) =>
+        `export type ${service}ComponentsType = ${service}Components;`
+    )
+    .join("\n");
+
+  // Export all schema types for each service
+  for (const service of serviceFiles) {
+    const schemas = serviceSchemas[service];
+    if (schemas && schemas.length > 0) {
+      exportedComponents += "\n\n// " + service + " types\n";
+      for (const schema of schemas) {
+        exportedComponents += `export type ${service}${schema} = ${service}Components['schemas']['${schema}'];\n`;
+      }
+    }
+  }
+
+  // Add the APIResponseWithMetadata generic type
+  const apiResponseWithMetadataType = `
+// Generic type for API responses with metadata
+export interface APIResponseWithMetadata<T, M> {
+  data: T;
+  metadata?: M;
+  error?: string;
+}`;
+
   const indexContent = `// This file is auto-generated. DO NOT EDIT
 ${imports}
 
 ${componentsType}
+${exportedComponents}
+${apiResponseWithMetadataType}
 
 ${operations.join("\n\n")}
 `;

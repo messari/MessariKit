@@ -3,6 +3,43 @@ import { components as aiComponents } from './ai';
 import { components as newsComponents } from './news';
 
 type components = aiComponents;
+export type aiComponentsType = aiComponents;
+export type newsComponentsType = newsComponents;
+
+// ai types
+export type aiChatCompletionMessage = aiComponents['schemas']['ChatCompletionMessage'];
+export type aiChatCompletionRequest = aiComponents['schemas']['ChatCompletionRequest'];
+export type aiChatCompletionResponse = aiComponents['schemas']['ChatCompletionResponse'];
+export type aiChatCompletionResponseMetadata = aiComponents['schemas']['ChatCompletionResponseMetadata'];
+export type aiEntityType = aiComponents['schemas']['EntityType'];
+export type aiExtractRequest = aiComponents['schemas']['ExtractRequest'];
+export type aiEntity = aiComponents['schemas']['Entity'];
+export type aiGroupedEntity = aiComponents['schemas']['GroupedEntity'];
+export type aiExtractResponse = aiComponents['schemas']['ExtractResponse'];
+export type aiExtractResponseMetadata = aiComponents['schemas']['ExtractResponseMetadata'];
+export type aiAPIResponseWithMetadata = aiComponents['schemas']['APIResponseWithMetadata'];
+export type aiAPIError = aiComponents['schemas']['APIError'];
+
+
+// news types
+export type newsSourceType = newsComponents['schemas']['SourceType'];
+export type newsSource = newsComponents['schemas']['Source'];
+export type newsSourceList = newsComponents['schemas']['SourceList'];
+export type newsAsset = newsComponents['schemas']['Asset'];
+export type newsAssetList = newsComponents['schemas']['AssetList'];
+export type newsDocument = newsComponents['schemas']['Document'];
+export type newsDocumentList = newsComponents['schemas']['DocumentList'];
+export type newsPaginationResult = newsComponents['schemas']['PaginationResult'];
+export type newsAPIResponseWithMetadata = newsComponents['schemas']['APIResponseWithMetadata'];
+export type newsAPIError = newsComponents['schemas']['APIError'];
+
+
+// Generic type for API responses with metadata
+export interface APIResponseWithMetadata<T, M> {
+  data: T;
+  metadata?: M;
+  error?: string;
+}
 
 
 export type createChatCompletionResponse = aiComponents['schemas']['ChatCompletionResponse'];
@@ -35,7 +72,7 @@ export const extractEntities = {
 } as const;
 
 
-export type getNewsFeedAssetsResponse = newsComponents['schemas']['AssetList'];
+export type getNewsFeedAssetsResponse = APIResponseWithMetadata<newsComponents['schemas']['AssetList'], newsComponents['schemas']['PaginationResult']>;
 export type getNewsFeedAssetsError = newsComponents['schemas']['APIError'];
 
 export type getNewsFeedAssetsParameters = { nameOrSymbol?: string; limit?: string; page?: string };
@@ -50,7 +87,7 @@ export const getNewsFeedAssets = {
 } as const;
 
 
-export type getNewsFeedResponse = newsComponents['schemas']['DocumentList'];
+export type getNewsFeedResponse = APIResponseWithMetadata<newsComponents['schemas']['DocumentList'], newsComponents['schemas']['PaginationResult']>;
 export type getNewsFeedError = newsComponents['schemas']['APIError'];
 
 export type getNewsFeedParameters = { publishedBefore?: string; publishedAfter?: string; sourceTypes?: string; sourceIds?: string; assetIds?: string; sort?: string; limit?: string; page?: string };
@@ -65,7 +102,7 @@ export const getNewsFeed = {
 } as const;
 
 
-export type getNewsSourcesResponse = newsComponents['schemas']['SourceList'];
+export type getNewsSourcesResponse = APIResponseWithMetadata<newsComponents['schemas']['SourceList'], newsComponents['schemas']['PaginationResult']>;
 export type getNewsSourcesError = newsComponents['schemas']['APIError'];
 
 export type getNewsSourcesParameters = { sourceName?: string; limit?: string; page?: string };

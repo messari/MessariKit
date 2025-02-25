@@ -9,11 +9,12 @@
   },
   "dependencies": {
     "@messari-kit/api": "workspace:*",
-    "@messari-kit/types": "workspace:*"
+    "@messari-kit/types": "workspace:*",
+    "dotenv": "^16.4.7"
   },
   "devDependencies": {
-    "typescript": "^5.3.3",
     "rimraf": "^5.0.5",
-    "tsx": "^4.7.1"
+    "tsx": "^4.7.1",
+    "typescript": "^5.3.3"
   }
-} 
+}

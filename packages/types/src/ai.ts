@@ -34,7 +34,11 @@ export type components = {
        */
       error: string;
     };
-    /** @description Standard response wrapper with additional metadata */
+    /**
+     * @description Standard response wrapper with additional metadata.
+     * This type should be treated as generic in TypeScript: APIResponseWithMetadata<T, M>.
+     * T represents the data type, M represents the metadata type.
+     */
     APIResponseWithMetadata: {
       /** @description Response payload */
       data: Record<string, never>;

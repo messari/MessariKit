@@ -1,8 +1,21 @@
 import { MessariClient } from "@messari-kit/api";
 import { createChatCompletionParameters } from "@messari-kit/types";
+import dotenv from "dotenv";
 
-// Stub API key (replace with your actual API key in a real application)
-const API_KEY = "<your-api-key-here>";
+// Load environment variables from .env file
+dotenv.config();
+
+// Get API key from environment variable
+const API_KEY = process.env.MESSARI_API_KEY;
+
+// Check if API key is available
+if (!API_KEY) {
+  console.error("Error: MESSARI_API_KEY environment variable is not set.");
+  console.error(
+    "Please create a .env file with your API key or set it in your environment."
+  );
+  process.exit(1);
+}
 
 // Initialize the Messari client
 const client = new MessariClient({

@@ -14,6 +14,7 @@ import {
   getNewsFeedAssets,
   getNewsFeedAssetsParameters,
   getNewsFeedAssetsResponse,
+  APIResponseWithMetadata,
 } from "@messari-kit/types";
 import { pick } from "./utils";
 
@@ -34,10 +35,10 @@ export interface PaginationMetadata {
   totalPages: number;
 }
 
-export interface PaginatedResponse<T> {
-  data: T;
-  metadata?: PaginationMetadata;
-}
+export type PaginatedResponse<T> = APIResponseWithMetadata<
+  T,
+  PaginationMetadata
+>;
 
 export interface PaginationHelpers<T, P extends PaginationParameters> {
   hasNextPage: boolean;
@@ -48,10 +49,11 @@ export interface PaginationHelpers<T, P extends PaginationParameters> {
   getAllPages: () => Promise<T[]>;
 }
 
-export type PaginatedResult<
-  T,
-  P extends PaginationParameters
-> = PaginatedResponse<T> & PaginationHelpers<T, P>;
+export type PaginatedResult<T, P extends PaginationParameters> = {
+  data: T;
+  metadata?: PaginationMetadata;
+  error?: string;
+} & PaginationHelpers<T, P>;
 
 export class MessariClient {
   private readonly apiKey: string;
@@ -110,7 +112,7 @@ export class MessariClient {
     path: string;
     body?: any;
     queryParams?: Record<string, string>;
-  }): Promise<{ data: T; metadata?: M }> {
+  }): Promise<APIResponseWithMetadata<T, M>> {
     const queryString = Object.entries(queryParams)
       .map(
         ([key, value]) =>
@@ -143,12 +145,14 @@ export class MessariClient {
 
   private paginate<T, P extends PaginationParameters>(
     params: P,
-    fetchFn: (params: P) => Promise<PaginatedResponse<T>>,
-    initialResponse: PaginatedResponse<T>
+    fetchFn: (
+      params: P
+    ) => Promise<APIResponseWithMetadata<T, PaginationMetadata>>,
+    initialResponse: APIResponseWithMetadata<T, PaginationMetadata>
   ): PaginatedResult<T, P> {
     // This method adds pagination helpers to the response
     const createPaginationHelpers = (
-      response: PaginatedResponse<T>
+      response: APIResponseWithMetadata<T, PaginationMetadata>
     ): PaginationHelpers<T, P> => {
       const metadata = response.metadata;
       const currentPage = metadata?.page || 1;
@@ -160,7 +164,9 @@ export class MessariClient {
       const nextPage = async (): Promise<PaginatedResult<T, P>> => {
         if (!hasNextPage) {
           return {
-            ...response,
+            data: response.data,
+            metadata: response.metadata,
+            error: response.error,
             ...createPaginationHelpers(response),
           };
         }
@@ -170,7 +176,9 @@ export class MessariClient {
         };
         const nextPageResponse = await fetchFn(nextPageParams as P);
         return {
-          ...nextPageResponse,
+          data: nextPageResponse.data,
+          metadata: nextPageResponse.metadata,
+          error: nextPageResponse.error,
           ...createPaginationHelpers(nextPageResponse),
         };
       };
@@ -178,7 +186,9 @@ export class MessariClient {
       const previousPage = async (): Promise<PaginatedResult<T, P>> => {
         if (!hasPreviousPage) {
           return {
-            ...response,
+            data: response.data,
+            metadata: response.metadata,
+            error: response.error,
             ...createPaginationHelpers(response),
           };
         }
@@ -188,7 +198,9 @@ export class MessariClient {
         };
         const prevPageResponse = await fetchFn(prevPageParams as P);
         return {
-          ...prevPageResponse,
+          data: prevPageResponse.data,
+          metadata: prevPageResponse.metadata,
+          error: prevPageResponse.error,
           ...createPaginationHelpers(prevPageResponse),
         };
       };
@@ -203,7 +215,9 @@ export class MessariClient {
         };
         const pageResponse = await fetchFn(pageParams as P);
         return {
-          ...pageResponse,
+          data: pageResponse.data,
+          metadata: pageResponse.metadata,
+          error: pageResponse.error,
           ...createPaginationHelpers(pageResponse),
         };
       };
@@ -240,7 +254,9 @@ export class MessariClient {
     };
 
     return {
-      ...initialResponse,
+      data: initialResponse.data,
+      metadata: initialResponse.metadata,
+      error: initialResponse.error,
       ...createPaginationHelpers(initialResponse),
     };
   }
@@ -265,7 +281,7 @@ export class MessariClient {
     getNewsFeedPaginated: async (params: getNewsFeedParameters) => {
       const fetchPage = async (p: getNewsFeedParameters) => {
         return this.requestWithMetadata<
-          getNewsFeedResponse,
+          getNewsFeedResponse["data"],
           PaginationMetadata
         >({
           method: getNewsFeed.method,
@@ -275,21 +291,17 @@ export class MessariClient {
       };
 
       const initialResponse = await fetchPage(params);
-      const paginationHelpers = this.paginate<
-        getNewsFeedResponse,
-        getNewsFeedParameters
-      >(params, fetchPage, initialResponse);
-
-      return {
-        ...initialResponse,
-        ...paginationHelpers,
-      };
+      return this.paginate<getNewsFeedResponse["data"], getNewsFeedParameters>(
+        params,
+        fetchPage,
+        initialResponse
+      );
     },
 
     getNewsFeedAssetsPaginated: async (params: getNewsFeedAssetsParameters) => {
       const fetchPage = async (p: getNewsFeedAssetsParameters) => {
         return this.requestWithMetadata<
-          getNewsFeedAssetsResponse,
+          getNewsFeedAssetsResponse["data"],
           PaginationMetadata
         >({
           method: getNewsFeedAssets.method,
@@ -299,21 +311,16 @@ export class MessariClient {
       };
 
       const initialResponse = await fetchPage(params);
-      const paginationHelpers = this.paginate<
-        getNewsFeedAssetsResponse,
+      return this.paginate<
+        getNewsFeedAssetsResponse["data"],
         getNewsFeedAssetsParameters
       >(params, fetchPage, initialResponse);
-
-      return {
-        ...initialResponse,
-        ...paginationHelpers,
-      };
     },
 
     getNewsSourcesPaginated: async (params: getNewsSourcesParameters) => {
       const fetchPage = async (p: getNewsSourcesParameters) => {
         return this.requestWithMetadata<
-          getNewsSourcesResponse,
+          getNewsSourcesResponse["data"],
           PaginationMetadata
         >({
           method: getNewsSources.method,
@@ -323,15 +330,10 @@ export class MessariClient {
       };
 
       const initialResponse = await fetchPage(params);
-      const paginationHelpers = this.paginate<
-        getNewsSourcesResponse,
+      return this.paginate<
+        getNewsSourcesResponse["data"],
         getNewsSourcesParameters
       >(params, fetchPage, initialResponse);
-
-      return {
-        ...initialResponse,
-        ...paginationHelpers,
-      };
     },
   };
 }
