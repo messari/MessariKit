@@ -1,6 +1,7 @@
 node_modules
 **/dist/
 
+.cursorrules
 # Environment variables
 .env
 .env.local

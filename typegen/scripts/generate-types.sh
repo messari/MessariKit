@@ -1,5 +1,18 @@
 #!/bin/bash
 
+# ⚠️ WARNING: DO NOT RUN THIS SCRIPT DIRECTLY ⚠️
+#
+# This script is part of the type generation process and should only be run
+# through the package.json scripts from the root directory:
+#
+# - pnpm api:build - Runs the complete build process
+# - pnpm api:types - Generates TypeScript types
+#
+# Running this script directly may result in incomplete type generation,
+# missing pagination parameters, or other issues with the generated types.
+#
+# See the README.md in the typegen directory for more information.
+
 # Ensure the output directory exists
 mkdir -p packages/types/src
 

@@ -1,3 +1,18 @@
+/**
+ * ⚠️ WARNING: DO NOT RUN THIS SCRIPT DIRECTLY ⚠️
+ *
+ * This script is part of the type generation process and should only be run
+ * through the package.json scripts from the root directory:
+ *
+ * - pnpm api:build - Runs the complete build process
+ * - pnpm api:types - Generates TypeScript types
+ *
+ * Running this script directly may result in incomplete type generation,
+ * missing pagination parameters, or other issues with the generated types.
+ *
+ * See the README.md in the typegen directory for more information.
+ */
+
 import fs from "fs";
 import path from "path";
 import yaml from "js-yaml";
@@ -50,15 +65,51 @@ function extractParameterNames(
   operation: any,
   spec: OpenAPISpec
 ): { queryParams: string[]; pathParams: string[]; bodyParams: string[] } {
-  const queryParams =
-    operation.parameters
-      ?.filter((p: any) => p.in === "query")
-      .map((p: any) => p.name) || [];
+  // Process parameters directly defined in the operation
+  const processParams = (params: any[]) => {
+    if (!params) return { queryParams: [], pathParams: [] };
 
-  const pathParams =
-    operation.parameters
-      ?.filter((p: any) => p.in === "path")
-      .map((p: any) => p.name) || [];
+    const queryParams: string[] = [];
+    const pathParams: string[] = [];
+
+    params.forEach((p: any) => {
+      // Handle parameter references
+      if (p.$ref) {
+        // For parameters like '#/components/parameters/page', we want to extract 'page'
+        const refParts = p.$ref.split("/");
+        const paramName = refParts[refParts.length - 1];
+
+        // Skip API key parameter
+        if (paramName === "apiKey" || paramName === "x-messari-api-key") {
+          return;
+        }
+
+        // Common pagination parameters
+        if (paramName === "page" || paramName === "limit") {
+          queryParams.push(paramName);
+        }
+        // Path parameters typically have 'path' in their name
+        else if (paramName.includes("path") || paramName.includes("Path")) {
+          pathParams.push(paramName);
+        }
+        // Default to query parameter for other cases
+        else {
+          queryParams.push(paramName);
+        }
+      } else {
+        // Handle directly defined parameters
+        if (p.in === "query" && p.name !== "x-messari-api-key") {
+          queryParams.push(p.name);
+        } else if (p.in === "path") {
+          pathParams.push(p.name);
+        }
+      }
+    });
+
+    return { queryParams, pathParams };
+  };
+
+  const { queryParams, pathParams } = processParams(operation.parameters || []);
 
   const bodySchema =
     operation.requestBody?.content?.["application/json"]?.schema;
@@ -78,12 +129,23 @@ function generateOperationTypes(
   const schemaRef = responseSchema?.allOf?.[1]?.properties?.data?.$ref;
   const metadataRef = responseSchema?.allOf?.[1]?.properties?.metadata?.$ref;
 
+  // Check for array type with items that have a $ref
+  const isArray =
+    responseSchema?.allOf?.[1]?.properties?.data?.type === "array";
+  const arrayItemsRef =
+    responseSchema?.allOf?.[1]?.properties?.data?.items?.$ref;
+
   let responseType = "void";
   let metadataType = null;
 
   if (schemaRef) {
+    // Direct reference case
     const schemaName = schemaRef.split("/").pop();
     responseType = `${serviceName}Components['schemas']['${schemaName}']`;
+  } else if (isArray && arrayItemsRef) {
+    // Array with items reference case
+    const itemSchemaName = arrayItemsRef.split("/").pop();
+    responseType = `${serviceName}Components['schemas']['${itemSchemaName}'][]`;
   }
 
   if (metadataRef) {
@@ -100,14 +162,87 @@ function generateOperationTypes(
     finalResponseType = `APIResponseWithMetadata<${responseType}, ${metadataType}>`;
   }
 
+  // Process parameters to generate the parameter type
   const queryParams = operation.parameters
-    ?.filter((p: any) => p.in === "query" && p.name !== "x-messari-api-key")
-    .map((p: any) => `${p.name}${p.required ? "" : "?"}: string`)
+    ?.filter((p: any) => {
+      // Skip API key parameter
+      if (p.name === "x-messari-api-key") return false;
+
+      // Include query parameters and referenced parameters that are likely query params
+      if (p.in === "query") return true;
+
+      // Handle referenced parameters
+      if (p.$ref) {
+        const refParts = p.$ref.split("/");
+        const paramName = refParts[refParts.length - 1];
+        // Include common pagination parameters and other non-path parameters
+        return (
+          paramName === "page" ||
+          paramName === "limit" ||
+          (!paramName.includes("path") &&
+            !paramName.includes("Path") &&
+            paramName !== "apiKey")
+        );
+      }
+
+      return false;
+    })
+    .map((p: any) => {
+      // Get parameter name
+      let paramName;
+      let paramSchema;
+
+      if (p.$ref) {
+        // Handle referenced parameter
+        const refParts = p.$ref.split("/");
+        paramName = refParts[refParts.length - 1];
+
+        // Set appropriate types for known parameters
+        if (paramName === "page" || paramName === "limit") {
+          return `${paramName}?: number`;
+        }
+      } else {
+        paramName = p.name;
+        paramSchema = p.schema;
+      }
+
+      // Get the parameter type from the schema
+      let paramType = "string";
+      if (paramSchema?.type) {
+        if (paramSchema.type === "integer" || paramSchema.type === "number") {
+          paramType = "number";
+        } else if (paramSchema.type === "boolean") {
+          paramType = "boolean";
+        } else if (paramSchema.type === "array") {
+          // Handle array types
+          let itemType = "string";
+          if (
+            paramSchema.items?.type === "integer" ||
+            paramSchema.items?.type === "number"
+          ) {
+            itemType = "number";
+          } else if (paramSchema.items?.type === "boolean") {
+            itemType = "boolean";
+          }
+          paramType = `${itemType}[]`;
+        }
+      }
+
+      return `${paramName}${p.required ? "" : "?"}: ${paramType}`;
+    })
     .join("; ");
 
   const pathParams = operation.parameters
-    ?.filter((p: any) => p.in === "path")
-    .map((p: any) => `${p.name}: string`)
+    ?.filter(
+      (p: any) =>
+        p.in === "path" ||
+        (p.$ref && (p.$ref.includes("path") || p.$ref.includes("Path")))
+    )
+    .map((p: any) => {
+      // Path parameters typically need to be strings for URL construction
+      const paramName = p.$ref ? p.$ref.split("/").pop() : p.name;
+      return `${paramName}: string`;
+    })
     .join("; ");
 
   let bodyType = null;
@@ -267,12 +402,18 @@ export interface APIResponseWithMetadata<T, M> {
   error?: string;
 }`;
 
+  // Add the PathParams type definition
+  const pathParamsType = `
+// Define PathParams type for path parameter functions
+export type PathParams = Record<string, string>;`;
+
   const indexContent = `// This file is auto-generated. DO NOT EDIT
 ${imports}
 
 ${componentsType}
 ${exportedComponents}
 ${apiResponseWithMetadataType}
+${pathParamsType}
 
 ${operations.join("\n\n")}
 `;

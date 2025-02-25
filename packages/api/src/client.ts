@@ -15,6 +15,18 @@ import {
   getNewsFeedAssetsParameters,
   getNewsFeedAssetsResponse,
   APIResponseWithMetadata,
+  getAllEvents,
+  getAllEventsParameters,
+  getEventAndHistory,
+  getEventAndHistoryParameters,
+  getEventAndHistoryResponse,
+  getAllAssets,
+  getAllAssetsParameters,
+  getAllAssetsResponse,
+  intelEvent,
+  getAllEventsResponse,
+  intelAsset,
+  intelPaginationResult,
 } from "@messari-kit/types";
 import { pick } from "./utils";
 
@@ -24,8 +36,8 @@ export interface MessariClientOptions {
 }
 
 export interface PaginationParameters {
-  limit?: string;
-  page?: string;
+  limit?: number;
+  page?: number;
 }
 
 export interface PaginationMetadata {
@@ -111,13 +123,27 @@ export class MessariClient {
     method: string;
     path: string;
     body?: any;
-    queryParams?: Record<string, string>;
+    queryParams?: Record<
+      string,
+      string | number | boolean | string[] | number[] | boolean[] | undefined
+    >;
   }): Promise<APIResponseWithMetadata<T, M>> {
     const queryString = Object.entries(queryParams)
-      .map(
-        ([key, value]) =>
-          `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
-      )
+      .filter(([_, value]) => value !== undefined)
+      .map(([key, value]) => {
+        // Handle array values
+        if (Array.isArray(value)) {
+          return value
+            .map(
+              (item) =>
+                `${encodeURIComponent(key)}=${encodeURIComponent(String(item))}`
+            )
+            .join("&");
+        }
+        return `${encodeURIComponent(key)}=${encodeURIComponent(
+          String(value)
+        )}`;
+      })
       .join("&");
 
     const url = `${this.baseUrl}${path}${queryString ? `?${queryString}` : ""}`;
@@ -172,7 +198,7 @@ export class MessariClient {
         }
         const nextPageParams = {
           ...params,
-          page: (currentPage + 1).toString(),
+          page: currentPage + 1,
         };
         const nextPageResponse = await fetchFn(nextPageParams as P);
         return {
@@ -194,7 +220,7 @@ export class MessariClient {
         }
         const prevPageParams = {
           ...params,
-          page: (currentPage - 1).toString(),
+          page: currentPage - 1,
         };
         const prevPageResponse = await fetchFn(prevPageParams as P);
         return {
@@ -211,7 +237,7 @@ export class MessariClient {
         }
         const pageParams = {
           ...params,
-          page: page.toString(),
+          page: page,
         };
         const pageResponse = await fetchFn(pageParams as P);
         return {
@@ -234,7 +260,7 @@ export class MessariClient {
           currentPageNum++;
           const pageParams = {
             ...params,
-            page: currentPageNum.toString(),
+            page: currentPageNum,
           };
           const pageResponse = await fetchFn(pageParams as P);
           allData.push(pageResponse.data);
@@ -274,6 +300,54 @@ export class MessariClient {
         path: extractEntities.path(),
         body: pick(params, extractEntities.bodyParams),
       }),
+  };
+
+  public readonly intel = {
+    getEventAndHistory: (params: getEventAndHistoryParameters) =>
+      this.request<getEventAndHistoryResponse>({
+        method: getEventAndHistory.method,
+        path: getEventAndHistory.path(params),
+      }),
+
+    getAllEvents: async (params: getAllEventsParameters) => {
+      const fetchPage = async (p: getAllEventsParameters) => {
+        return this.requestWithMetadata<
+          getAllEventsResponse["data"],
+          PaginationMetadata
+        >({
+          method: getAllEvents.method,
+          path: getAllEvents.path(),
+          body: pick(p, getAllEvents.bodyParams),
+        });
+      };
+
+      const initialResponse = await fetchPage(params);
+      return this.paginate<intelEvent[], getAllEventsParameters>(
+        params,
+        fetchPage,
+        initialResponse
+      );
+    },
+
+    getAllAssets: async (params: getAllAssetsParameters) => {
+      const fetchPage = async (p: getAllAssetsParameters) => {
+        return this.requestWithMetadata<
+          getAllAssetsResponse["data"],
+          intelPaginationResult
+        >({
+          method: getAllAssets.method,
+          path: getAllAssets.path(),
+          queryParams: pick(p, getAllAssets.queryParams),
+        });
+      };
+
+      const initialResponse = await fetchPage(params);
+      return this.paginate<intelAsset[], getAllAssetsParameters>(
+        params,
+        fetchPage,
+        initialResponse
+      );
+    },
   };
 
   public readonly news = {

@@ -36,15 +36,15 @@ async function runNewsFeedExample() {
     // Define the news feed parameters with a limit of 10
     const newsFeedParams: getNewsFeedParameters = {
       // Get articles published in the last 7 days
-      publishedAfter: (Date.now() - 7 * 24 * 60 * 60 * 1000).toString(),
+      publishedAfter: Date.now() - 7 * 24 * 60 * 60 * 1000,
       // Filter by source type
-      sourceTypes: "News",
+      sourceTypes: ["News"],
       // Sort by publish time in descending order (most recent first)
-      sort: "2",
+      sort: 2,
       // Limit to 10 articles per page
-      limit: "10",
+      limit: 10,
       // First page
-      page: "1",
+      page: 1,
     };
 
     // Call the getNewsFeedPaginated endpoint
@@ -88,8 +88,8 @@ async function runNewsFeedExample() {
     console.log("\n2. Fetching assets mentioned in news with pagination...");
 
     const assetsParams: getNewsFeedAssetsParameters = {
-      limit: "10",
-      page: "1",
+      limit: 10,
+      page: 1,
     };
 
     // Call the getNewsFeedAssetsPaginated endpoint
@@ -121,8 +121,8 @@ async function runNewsFeedExample() {
     console.log("\n3. Fetching news sources with pagination...");
 
     const sourcesParams: getNewsSourcesParameters = {
-      limit: "10",
-      page: "1",
+      limit: 10,
+      page: 1,
     };
 
     // Call the getNewsSourcesPaginated endpoint

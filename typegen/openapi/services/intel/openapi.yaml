@@ -1,0 +1,400 @@
+openapi: 3.1.0
+info:
+  title: Messari Intel Service API
+  description: |
+    API for Intel services including events and assets information.
+    This service provides access to crypto events and related assets data.
+  version: 0.0.1
+  contact:
+    name: Messari Engineering
+    url: https://messari.io
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://api.messari.io/intel
+    description: Production server
+  - url: https://api.staging.messari.io/intel
+    description: Staging server
+  - url: http://localhost:8080/intel
+    description: Local development server
+
+tags:
+  - name: Events
+    description: Event-related endpoints
+  - name: Assets
+    description: Asset-related endpoints
+
+security:
+  - apiKey: []
+
+paths:
+  /intel/v1/events:
+    post:
+      operationId: getAllEvents
+      summary: Get all events
+      description: |
+        Returns a list of events based on the provided filters.
+        Supports pagination and filtering by various parameters.
+      tags:
+        - Events
+      parameters:
+        - $ref: '../../common/parameters.yaml#/components/parameters/apiKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GetAllEventsRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../../common/components.yaml#/components/schemas/APIResponseWithMetadata'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Event'
+                      metadata:
+                        $ref: '#/components/schemas/PaginationResult'
+        '4XX':
+          description: Client error response
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+
+  /intel/v1/events/{eventId}:
+    get:
+      operationId: getEventAndHistory
+      summary: Get event and its history
+      description: |
+        Returns a specific event by ID along with its history.
+      tags:
+        - Events
+      parameters:
+        - $ref: '../../common/parameters.yaml#/components/parameters/apiKey'
+        - name: eventId
+          in: path
+          required: true
+          description: ID of the event to retrieve
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../../common/components.yaml#/components/schemas/APIResponseWithMetadata'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/GetEventResponse'
+        '4XX':
+          description: Client error response
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+
+  /intel/v1/assets:
+    get:
+      operationId: getAllAssets
+      summary: Get all assets
+      description: |
+        Returns a list of assets.
+        Supports pagination and filtering by name or symbol.
+      tags:
+        - Assets
+      parameters:
+        - $ref: '../../common/parameters.yaml#/components/parameters/apiKey'
+        - $ref: '../../common/parameters.yaml#/components/parameters/page'
+        - $ref: '../../common/parameters.yaml#/components/parameters/limit'
+        - name: symbol
+          in: query
+          required: false
+          description: Filter by asset symbols (comma-separated)
+          schema:
+            type: string
+        - name: name
+          in: query
+          required: false
+          description: Filter by asset names (comma-separated)
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../../common/components.yaml#/components/schemas/APIResponseWithMetadata'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Asset'
+                      metadata:
+                        $ref: '#/components/schemas/PaginationResult'
+        '4XX':
+          description: Client error response
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+
+components:
+  securitySchemes:
+    apiKey:
+      type: apiKey
+      name: x-messari-api-key
+      in: header
+      description: API key for authentication
+  schemas:
+    Asset:
+      type: object
+      required:
+        - id
+        - name
+        - slug
+        - symbol
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the asset
+        name:
+          type: string
+          description: Name of the asset
+        slug:
+          type: string
+          description: Slug of the asset
+        symbol:
+          type: string
+          description: Symbol of the asset
+
+    Resource:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          description: URL of the resource
+        title:
+          type: string
+          description: Title of the resource
+
+    Event:
+      type: object
+      required:
+        - id
+        - submissionDate
+        - eventName
+        - primaryAssets
+        - eventDetails
+        - status
+        - category
+        - subcategory
+        - tag
+        - importance
+        - globalEvent
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the event
+        submissionDate:
+          type: string
+          format: date-time
+          description: Date when the event was submitted
+        eventDate:
+          oneOf:
+            - type: string
+              format: date-time
+            - type: 'null'
+          description: Date when the event occurred or will occur
+        eventName:
+          type: string
+          description: Name of the event
+        primaryAssets:
+          type: array
+          items:
+            $ref: '#/components/schemas/Asset'
+          description: Primary assets related to the event
+        secondaryAssets:
+          type: array
+          items:
+            $ref: '#/components/schemas/Asset'
+          description: Secondary assets related to the event
+        eventDetails:
+          type: string
+          description: Detailed description of the event
+        updateDetails:
+          oneOf:
+            - type: string
+            - type: 'null'
+          description: Details about the latest update to the event
+        status:
+          type: string
+          description: Current status of the event
+        category:
+          type: string
+          description: Category of the event
+        subcategory:
+          type: string
+          description: Subcategory of the event
+        tag:
+          type: string
+          description: Tag associated with the event
+        importance:
+          type: string
+          description: Importance level of the event
+        resources:
+          type: array
+          items:
+            $ref: '#/components/schemas/Resource'
+          description: Resources related to the event
+        activationBlock:
+          oneOf:
+            - type: number
+              format: double
+            - type: 'null'
+          description: Block number when the event activates
+        globalEvent:
+          type: boolean
+          description: Whether the event is global
+
+    EventHistory:
+      type: object
+      required:
+        - submissionDate
+        - status
+        - importance
+      properties:
+        submissionDate:
+          type: string
+          format: date-time
+          description: Date when the history entry was submitted
+        updateDetails:
+          oneOf:
+            - type: string
+            - type: 'null'
+          description: Details about the update
+        status:
+          type: string
+          description: Status at this point in history
+        importance:
+          type: string
+          description: Importance level at this point in history
+
+    GetEventResponse:
+      type: object
+      required:
+        - event
+        - eventHistory
+      properties:
+        event:
+          $ref: '#/components/schemas/Event'
+          description: The event details
+        eventHistory:
+          type: array
+          items:
+            $ref: '#/components/schemas/EventHistory'
+          description: History of the event
+
+    GetAllEventsRequest:
+      type: object
+      properties:
+        page:
+          type: integer
+          minimum: 1
+          default: 1
+          description: Page number for pagination
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 20
+          description: Number of items per page
+        primaryAssets:
+          type: array
+          items:
+            type: string
+          description: Filter by primary assets
+        secondaryAssets:
+          type: array
+          items:
+            type: string
+          description: Filter by secondary assets
+        primaryOrSecondaryAssets:
+          type: array
+          items:
+            type: string
+          description: Filter by assets that are either primary or secondary
+        startTime:
+          type: string
+          format: date-time
+          description: Filter events after this time
+        endTime:
+          type: string
+          format: date-time
+          description: Filter events before this time
+        importance:
+          type: array
+          items:
+            type: string
+          description: Filter by importance levels
+        category:
+          type: array
+          items:
+            type: string
+          description: Filter by categories
+        subcategory:
+          type: array
+          items:
+            type: string
+          description: Filter by subcategories
+        tag:
+          type: array
+          items:
+            type: string
+          description: Filter by tags
+        status:
+          type: array
+          items:
+            type: string
+          description: Filter by status
+        globalEvent:
+          oneOf:
+            - type: boolean
+            - type: 'null'
+          description: Filter by whether the event is global
+
+    PaginationResult:
+      type: object
+      required:
+        - limit
+        - page
+        - totalPages
+        - totalRows
+      properties:
+        limit:
+          type: integer
+          description: Number of items per page
+        page:
+          type: integer
+          description: Current page number
+        totalPages:
+          type: integer
+          description: Total number of pages
+        totalRows:
+          type: integer
+          description: Total number of items 

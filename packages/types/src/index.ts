@@ -1,9 +1,11 @@
 // This file is auto-generated. DO NOT EDIT
 import { components as aiComponents } from './ai';
+import { components as intelComponents } from './intel';
 import { components as newsComponents } from './news';
 
 type components = aiComponents;
 export type aiComponentsType = aiComponents;
+export type intelComponentsType = intelComponents;
 export type newsComponentsType = newsComponents;
 
 // ai types
@@ -19,6 +21,18 @@ export type aiExtractResponse = aiComponents['schemas']['ExtractResponse'];
 export type aiExtractResponseMetadata = aiComponents['schemas']['ExtractResponseMetadata'];
 export type aiAPIResponseWithMetadata = aiComponents['schemas']['APIResponseWithMetadata'];
 export type aiAPIError = aiComponents['schemas']['APIError'];
+
+
+// intel types
+export type intelAsset = intelComponents['schemas']['Asset'];
+export type intelResource = intelComponents['schemas']['Resource'];
+export type intelEvent = intelComponents['schemas']['Event'];
+export type intelEventHistory = intelComponents['schemas']['EventHistory'];
+export type intelGetEventResponse = intelComponents['schemas']['GetEventResponse'];
+export type intelGetAllEventsRequest = intelComponents['schemas']['GetAllEventsRequest'];
+export type intelPaginationResult = intelComponents['schemas']['PaginationResult'];
+export type intelAPIResponseWithMetadata = intelComponents['schemas']['APIResponseWithMetadata'];
+export type intelAPIError = intelComponents['schemas']['APIError'];
 
 
 // news types
@@ -40,6 +54,9 @@ export interface APIResponseWithMetadata<T, M> {
   metadata?: M;
   error?: string;
 }
+
+// Define PathParams type for path parameter functions
+export type PathParams = Record<string, string>;
 
 
 export type createChatCompletionResponse = aiComponents['schemas']['ChatCompletionResponse'];
@@ -72,10 +89,55 @@ export const extractEntities = {
 } as const;
 
 
+export type getAllEventsResponse = APIResponseWithMetadata<intelComponents['schemas']['Event'][], intelComponents['schemas']['PaginationResult']>;
+export type getAllEventsError = intelComponents['schemas']['APIError'];
+
+export type getAllEventsParameters = intelComponents['schemas']['GetAllEventsRequest'];
+
+
+export const getAllEvents = {
+  method: 'POST' as const,
+  pathParams: [] as const,
+  queryParams: [] as const,
+  bodyParams: ['page', 'limit', 'primaryAssets', 'secondaryAssets', 'primaryOrSecondaryAssets', 'startTime', 'endTime', 'importance', 'category', 'subcategory', 'tag', 'status', 'globalEvent'] as const,
+  path: () => '/intel/v1/events'
+} as const;
+
+
+export type getEventAndHistoryResponse = intelComponents['schemas']['GetEventResponse'];
+export type getEventAndHistoryError = intelComponents['schemas']['APIError'];
+
+export type getEventAndHistoryParameters = { eventId: string };
+
+
+export const getEventAndHistory = {
+  method: 'GET' as const,
+  pathParams: ['eventId'] as const,
+  queryParams: [] as const,
+  bodyParams: [] as const,
+  path: (p: PathParams) => `/intel/v1/events/${p.eventId}`
+} as const;
+
+
+export type getAllAssetsResponse = APIResponseWithMetadata<intelComponents['schemas']['Asset'][], intelComponents['schemas']['PaginationResult']>;
+export type getAllAssetsError = intelComponents['schemas']['APIError'];
+
+export type getAllAssetsParameters = { page?: number; limit?: number; symbol?: string; name?: string };
+
+
+export const getAllAssets = {
+  method: 'GET' as const,
+  pathParams: [] as const,
+  queryParams: ['page', 'limit', 'symbol', 'name'] as const,
+  bodyParams: [] as const,
+  path: () => '/intel/v1/assets'
+} as const;
+
+
 export type getNewsFeedAssetsResponse = APIResponseWithMetadata<newsComponents['schemas']['AssetList'], newsComponents['schemas']['PaginationResult']>;
 export type getNewsFeedAssetsError = newsComponents['schemas']['APIError'];
 
-export type getNewsFeedAssetsParameters = { nameOrSymbol?: string; limit?: string; page?: string };
+export type getNewsFeedAssetsParameters = { nameOrSymbol?: string; limit?: number; page?: number };
 
 
 export const getNewsFeedAssets = {
@@ -90,7 +152,7 @@ export const getNewsFeedAssets = {
 export type getNewsFeedResponse = APIResponseWithMetadata<newsComponents['schemas']['DocumentList'], newsComponents['schemas']['PaginationResult']>;
 export type getNewsFeedError = newsComponents['schemas']['APIError'];
 
-export type getNewsFeedParameters = { publishedBefore?: string; publishedAfter?: string; sourceTypes?: string; sourceIds?: string; assetIds?: string; sort?: string; limit?: string; page?: string };
+export type getNewsFeedParameters = { publishedBefore?: number; publishedAfter?: number; sourceTypes?: string[]; sourceIds?: string[]; assetIds?: string[]; sort?: number; limit?: number; page?: number };
 
 
 export const getNewsFeed = {
@@ -105,7 +167,7 @@ export const getNewsFeed = {
 export type getNewsSourcesResponse = APIResponseWithMetadata<newsComponents['schemas']['SourceList'], newsComponents['schemas']['PaginationResult']>;
 export type getNewsSourcesError = newsComponents['schemas']['APIError'];
 
-export type getNewsSourcesParameters = { sourceName?: string; limit?: string; page?: string };
+export type getNewsSourcesParameters = { sourceName?: string; limit?: number; page?: number };
 
 
 export const getNewsSources = {
