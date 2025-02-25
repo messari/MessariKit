@@ -23,10 +23,8 @@ import {
   getAllAssets,
   getAllAssetsParameters,
   getAllAssetsResponse,
-  intelEvent,
   getAllEventsResponse,
-  intelAsset,
-  intelPaginationResult,
+  PathParams,
 } from "@messari-kit/types";
 import { pick } from "./utils";
 
@@ -43,14 +41,22 @@ export interface PaginationParameters {
 export interface PaginationMetadata {
   page: number;
   limit: number;
-  totalRows: number;
-  totalPages: number;
+  total?: number;
+  totalRows?: number;
+  totalPages?: number;
+  hasMore?: boolean;
 }
 
 export type PaginatedResponse<T> = APIResponseWithMetadata<
   T,
   PaginationMetadata
 >;
+
+export type PaginatedResult<T, P extends PaginationParameters> = {
+  data: T;
+  metadata?: PaginationMetadata;
+  error?: string;
+} & PaginationHelpers<T, P>;
 
 export interface PaginationHelpers<T, P extends PaginationParameters> {
   hasNextPage: boolean;
@@ -60,12 +66,6 @@ export interface PaginationHelpers<T, P extends PaginationParameters> {
   goToPage: (page: number) => Promise<PaginatedResult<T, P>>;
   getAllPages: () => Promise<T[]>;
 }
-
-export type PaginatedResult<T, P extends PaginationParameters> = {
-  data: T;
-  metadata?: PaginationMetadata;
-  error?: string;
-} & PaginationHelpers<T, P>;
 
 export class MessariClient {
   private readonly apiKey: string;
@@ -171,119 +171,236 @@ export class MessariClient {
 
   private paginate<T, P extends PaginationParameters>(
     params: P,
-    fetchFn: (
+    fetchPage: (
       params: P
     ) => Promise<APIResponseWithMetadata<T, PaginationMetadata>>,
-    initialResponse: APIResponseWithMetadata<T, PaginationMetadata>
+    response: APIResponseWithMetadata<T, PaginationMetadata>
   ): PaginatedResult<T, P> {
+    // Convert PaginationResult to PaginationMetadata
+    const metadata: PaginationMetadata = response.metadata
+      ? {
+          page: response.metadata.page || 1,
+          limit: response.metadata.limit || 10,
+          total: response.metadata.total || 0,
+          totalRows: response.metadata.total || 0,
+          totalPages: Math.ceil(
+            (response.metadata.total || 0) / (response.metadata.limit || 10)
+          ),
+          hasMore: response.metadata.hasMore || false,
+        }
+      : {
+          page: 1,
+          limit: 10,
+          total: 0,
+          totalRows: 0,
+          totalPages: 0,
+          hasMore: false,
+        };
+
+    const currentPage = metadata.page;
+    const hasNextPage =
+      metadata.hasMore || false || currentPage < (metadata.totalPages || 0);
+    const hasPreviousPage = currentPage > 1;
+
     // This method adds pagination helpers to the response
-    const createPaginationHelpers = (
-      response: APIResponseWithMetadata<T, PaginationMetadata>
-    ): PaginationHelpers<T, P> => {
-      const metadata = response.metadata;
-      const currentPage = metadata?.page || 1;
-      const totalPages = metadata?.totalPages || 1;
-
-      const hasNextPage = currentPage < totalPages;
-      const hasPreviousPage = currentPage > 1;
-
-      const nextPage = async (): Promise<PaginatedResult<T, P>> => {
-        if (!hasNextPage) {
-          return {
-            data: response.data,
-            metadata: response.metadata,
-            error: response.error,
-            ...createPaginationHelpers(response),
-          };
-        }
-        const nextPageParams = {
-          ...params,
-          page: currentPage + 1,
-        };
-        const nextPageResponse = await fetchFn(nextPageParams as P);
-        return {
-          data: nextPageResponse.data,
-          metadata: nextPageResponse.metadata,
-          error: nextPageResponse.error,
-          ...createPaginationHelpers(nextPageResponse),
-        };
-      };
-
-      const previousPage = async (): Promise<PaginatedResult<T, P>> => {
-        if (!hasPreviousPage) {
-          return {
-            data: response.data,
-            metadata: response.metadata,
-            error: response.error,
-            ...createPaginationHelpers(response),
-          };
-        }
-        const prevPageParams = {
-          ...params,
-          page: currentPage - 1,
-        };
-        const prevPageResponse = await fetchFn(prevPageParams as P);
-        return {
-          data: prevPageResponse.data,
-          metadata: prevPageResponse.metadata,
-          error: prevPageResponse.error,
-          ...createPaginationHelpers(prevPageResponse),
-        };
-      };
-
-      const goToPage = async (page: number): Promise<PaginatedResult<T, P>> => {
-        if (page < 1 || page > totalPages) {
-          throw new Error(`Page ${page} is out of range (1-${totalPages})`);
-        }
-        const pageParams = {
-          ...params,
-          page: page,
-        };
-        const pageResponse = await fetchFn(pageParams as P);
-        return {
-          data: pageResponse.data,
-          metadata: pageResponse.metadata,
-          error: pageResponse.error,
-          ...createPaginationHelpers(pageResponse),
-        };
-      };
-
-      const getAllPages = async (): Promise<T[]> => {
-        if (!metadata) {
-          return [response.data];
-        }
-
-        const allData: T[] = [response.data];
-        let currentPageNum = currentPage;
-
-        while (currentPageNum < totalPages) {
-          currentPageNum++;
-          const pageParams = {
-            ...params,
-            page: currentPageNum,
-          };
-          const pageResponse = await fetchFn(pageParams as P);
-          allData.push(pageResponse.data);
-        }
-
-        return allData;
-      };
-
+    const createPaginationHelpers = (): PaginationHelpers<T, P> => {
       return {
         hasNextPage,
         hasPreviousPage,
-        nextPage,
-        previousPage,
-        goToPage,
-        getAllPages,
+        nextPage: async () => {
+          if (!hasNextPage) {
+            return {
+              data: response.data,
+              metadata,
+              ...createPaginationHelpers(),
+            };
+          }
+
+          const nextPage = currentPage + 1;
+          const nextPageParams = {
+            ...params,
+            page: nextPage,
+          };
+
+          try {
+            const nextPageResponse = await fetchPage(nextPageParams);
+            const nextPageMetadata: PaginationMetadata =
+              nextPageResponse.metadata
+                ? {
+                    page: nextPageResponse.metadata.page || nextPage,
+                    limit: nextPageResponse.metadata.limit || metadata.limit,
+                    totalRows:
+                      nextPageResponse.metadata.total ||
+                      metadata.totalRows ||
+                      0,
+                    totalPages: Math.ceil(
+                      (nextPageResponse.metadata.total ||
+                        metadata.totalRows ||
+                        0) / (nextPageResponse.metadata.limit || metadata.limit)
+                    ),
+                  }
+                : {
+                    page: nextPage,
+                    limit: metadata.limit,
+                    totalRows: metadata.totalRows || 0,
+                    totalPages: metadata.totalPages || 0,
+                  };
+
+            return {
+              data: nextPageResponse.data,
+              metadata: nextPageMetadata,
+              ...createPaginationHelpers(),
+            };
+          } catch (error) {
+            throw error;
+          }
+        },
+        previousPage: async () => {
+          if (!hasPreviousPage) {
+            return {
+              data: response.data,
+              metadata,
+              ...createPaginationHelpers(),
+            };
+          }
+
+          const prevPage = currentPage - 1;
+          const prevPageParams = {
+            ...params,
+            page: prevPage,
+          };
+
+          try {
+            const prevPageResponse = await fetchPage(prevPageParams);
+            const prevPageMetadata: PaginationMetadata =
+              prevPageResponse.metadata
+                ? {
+                    page: prevPageResponse.metadata.page || prevPage,
+                    limit: prevPageResponse.metadata.limit || metadata.limit,
+                    totalRows:
+                      prevPageResponse.metadata.total ||
+                      metadata.totalRows ||
+                      0,
+                    totalPages: Math.ceil(
+                      (prevPageResponse.metadata.total ||
+                        metadata.totalRows ||
+                        0) / (prevPageResponse.metadata.limit || metadata.limit)
+                    ),
+                  }
+                : {
+                    page: prevPage,
+                    limit: metadata.limit,
+                    totalRows: metadata.totalRows || 0,
+                    totalPages: metadata.totalPages || 0,
+                  };
+
+            return {
+              data: prevPageResponse.data,
+              metadata: prevPageMetadata,
+              ...createPaginationHelpers(),
+            };
+          } catch (error) {
+            throw error;
+          }
+        },
+        goToPage: async (page: number) => {
+          if (page < 1 || (metadata.totalPages && page > metadata.totalPages)) {
+            throw new Error(
+              `Page ${page} is out of range. Valid range: 1-${
+                metadata.totalPages || "?"
+              }`
+            );
+          }
+
+          const pageParams = {
+            ...params,
+            page,
+          };
+
+          try {
+            const pageResponse = await fetchPage(pageParams);
+            const pageMetadata: PaginationMetadata = pageResponse.metadata
+              ? {
+                  page: pageResponse.metadata.page || page,
+                  limit: pageResponse.metadata.limit || metadata.limit,
+                  totalRows:
+                    pageResponse.metadata.total || metadata.totalRows || 0,
+                  totalPages: Math.ceil(
+                    (pageResponse.metadata.total || metadata.totalRows || 0) /
+                      (pageResponse.metadata.limit || metadata.limit)
+                  ),
+                }
+              : {
+                  page,
+                  limit: metadata.limit,
+                  totalRows: metadata.totalRows || 0,
+                  totalPages: metadata.totalPages || 0,
+                };
+
+            return {
+              data: pageResponse.data,
+              metadata: pageMetadata,
+              ...createPaginationHelpers(),
+            };
+          } catch (error) {
+            throw error;
+          }
+        },
+        getAllPages: async () => {
+          if (!metadata.totalPages) {
+            // If we don't know the total pages, just return the current page data
+            return Array.isArray(response.data)
+              ? response.data
+              : [response.data];
+          }
+
+          const allPages: T[] = [];
+          const totalPages = metadata.totalPages || 1;
+
+          // Add current page data
+          if (Array.isArray(response.data)) {
+            allPages.push(...response.data);
+          } else {
+            allPages.push(response.data);
+          }
+
+          // Fetch all other pages
+          const pagePromises: Promise<T[]>[] = [];
+          for (let page = 1; page <= totalPages; page++) {
+            if (page === currentPage) continue; // Skip current page
+
+            const goToPageFn = this.paginate(
+              params,
+              fetchPage,
+              response
+            ).goToPage;
+            pagePromises.push(
+              goToPageFn(page)
+                .then((pageResponse: PaginatedResult<T, P>) => {
+                  if (Array.isArray(pageResponse.data)) {
+                    return pageResponse.data;
+                  }
+                  return [pageResponse.data];
+                })
+                .catch(() => []) // Return empty array on error
+            );
+          }
+
+          const pageResults = await Promise.all(pagePromises);
+          pageResults.forEach((pageData) => {
+            allPages.push(...pageData);
+          });
+
+          return allPages;
+        },
       };
     };
 
     return {
-      data: initialResponse.data,
-      metadata: initialResponse.metadata,
-      error: initialResponse.error,
-      ...createPaginationHelpers(initialResponse),
+      data: response.data,
+      metadata,
+      error: response.error,
+      ...createPaginationHelpers(),
     };
   }
 
@@ -303,13 +420,7 @@ export class MessariClient {
   };
 
   public readonly intel = {
-    getEventAndHistory: (params: getEventAndHistoryParameters) =>
-      this.request<getEventAndHistoryResponse>({
-        method: getEventAndHistory.method,
-        path: getEventAndHistory.path(params),
-      }),
-
-    getAllEvents: async (params: getAllEventsParameters) => {
+    getAllEvents: async (params: getAllEventsParameters = {}) => {
       const fetchPage = async (p: getAllEventsParameters) => {
         return this.requestWithMetadata<
           getAllEventsResponse["data"],
@@ -321,19 +432,23 @@ export class MessariClient {
         });
       };
 
-      const initialResponse = await fetchPage(params);
-      return this.paginate<intelEvent[], getAllEventsParameters>(
-        params,
-        fetchPage,
-        initialResponse
-      );
+      const response = await fetchPage(params);
+      return this.paginate<
+        getAllEventsResponse["data"],
+        getAllEventsParameters
+      >(params, fetchPage, response);
     },
-
-    getAllAssets: async (params: getAllAssetsParameters) => {
+    getById: async (params: getEventAndHistoryParameters) => {
+      return this.request<getEventAndHistoryResponse>({
+        method: getEventAndHistory.method,
+        path: getEventAndHistory.path(params),
+      });
+    },
+    getAllAssets: async (params: getAllAssetsParameters = {}) => {
       const fetchPage = async (p: getAllAssetsParameters) => {
         return this.requestWithMetadata<
           getAllAssetsResponse["data"],
-          intelPaginationResult
+          PaginationMetadata
         >({
           method: getAllAssets.method,
           path: getAllAssets.path(),
@@ -341,12 +456,11 @@ export class MessariClient {
         });
       };
 
-      const initialResponse = await fetchPage(params);
-      return this.paginate<intelAsset[], getAllAssetsParameters>(
-        params,
-        fetchPage,
-        initialResponse
-      );
+      const response = await fetchPage(params);
+      return this.paginate<
+        getAllAssetsResponse["data"],
+        getAllAssetsParameters
+      >(params, fetchPage, response);
     },
   };
 

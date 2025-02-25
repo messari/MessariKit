@@ -3,9 +3,9 @@ import {
   getNewsFeedParameters,
   getNewsFeedAssetsParameters,
   getNewsSourcesParameters,
-  newsAsset,
-  newsSource,
-  newsDocument,
+  NewsAsset,
+  Document,
+  Source,
 } from "@messari-kit/types";
 import dotenv from "dotenv";
 
@@ -147,6 +147,7 @@ async function runNewsFeedExample() {
       console.log(
         `Page ${page2.metadata?.page} of ${page2.metadata?.totalPages}`
       );
+      displaySources(page2.data);
     }
   } catch (error) {
     console.error("Error running news feed example:", error);
@@ -154,13 +155,10 @@ async function runNewsFeedExample() {
 }
 
 // Helper function to display articles
-function displayArticles(articles: newsDocument[]) {
-  // Handle both direct arrays and APIResponseWithMetadata
-  const articlesArray = articles;
+function displayArticles(articles: Document[]) {
+  console.log(`Found ${articles.length} articles`);
 
-  console.log(`Found ${articlesArray.length} articles`);
-
-  articlesArray.forEach((article: newsDocument, index: number) => {
+  articles.forEach((article: Document, index: number) => {
     // Handle missing publishTimeMillis values
     let publishDate = "No date available";
     if (article.publishTimeMillis) {
@@ -176,7 +174,7 @@ function displayArticles(articles: newsDocument[]) {
     if (article.assets && article.assets.length > 0) {
       console.log(
         `   Mentioned assets: ${article.assets
-          .map((a: newsAsset) => a.name)
+          .map((a: NewsAsset) => a.name)
           .join(", ")}`
       );
     }
@@ -186,23 +184,19 @@ function displayArticles(articles: newsDocument[]) {
 }
 
 // Helper function to display assets
-function displayAssets(assets: newsAsset[]) {
-  const assetsArray = assets;
+function displayAssets(assets: NewsAsset[]) {
+  console.log(`Found ${assets.length} assets`);
 
-  console.log(`Found ${assetsArray.length} assets`);
-
-  assetsArray.forEach((asset: newsAsset, index: number) => {
+  assets.forEach((asset: NewsAsset, index: number) => {
     console.log(`${index + 1}. ${asset.name} (${asset.symbol || "No symbol"})`);
   });
 }
 
 // Helper function to display sources
-function displaySources(sources: newsSource[]) {
-  const sourcesArray = sources;
+function displaySources(sources: Source[]) {
+  console.log(`Found ${sources.length} sources`);
 
-  console.log(`Found ${sourcesArray.length} sources`);
-
-  sourcesArray.forEach((source: newsSource, index: number) => {
+  sources.forEach((source: Source, index: number) => {
     console.log(`${index + 1}. ${source.sourceName} (${source.sourceType})`);
   });
 }

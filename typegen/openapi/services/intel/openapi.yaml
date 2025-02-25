@@ -39,6 +39,8 @@ paths:
         Supports pagination and filtering by various parameters.
       tags:
         - Events
+      security:
+        - apiKey: []
       parameters:
         - $ref: '../../common/parameters.yaml#/components/parameters/apiKey'
       requestBody:
@@ -78,6 +80,8 @@ paths:
         Returns a specific event by ID along with its history.
       tags:
         - Events
+      security:
+        - apiKey: []
       parameters:
         - $ref: '../../common/parameters.yaml#/components/parameters/apiKey'
         - name: eventId
@@ -114,6 +118,8 @@ paths:
         Supports pagination and filtering by name or symbol.
       tags:
         - Assets
+      security:
+        - apiKey: []
       parameters:
         - $ref: '../../common/parameters.yaml#/components/parameters/apiKey'
         - $ref: '../../common/parameters.yaml#/components/parameters/page'
@@ -192,6 +198,9 @@ components:
         title:
           type: string
           description: Title of the resource
+
+    PaginationResult:
+      $ref: '../../common/components.yaml#/components/schemas/PaginationResult'
 
     Event:
       type: object
@@ -378,23 +387,5 @@ components:
             - type: 'null'
           description: Filter by whether the event is global
 
-    PaginationResult:
-      type: object
-      required:
-        - limit
-        - page
-        - totalPages
-        - totalRows
-      properties:
-        limit:
-          type: integer
-          description: Number of items per page
-        page:
-          type: integer
-          description: Current page number
-        totalPages:
-          type: integer
-          description: Total number of pages
-        totalRows:
-          type: integer
-          description: Total number of items 
+    # APIResponseWithMetadata moved to common/components.yaml
+    # APIError moved to common/components.yaml 

@@ -12,8 +12,8 @@
     "dev:types": "pnpm --filter @messari-kit/types dev",
     "start:examples": "pnpm --filter @messari-kit/examples start",
     "api:validate": "redocly lint typegen/openapi/**/*.yaml",
-    "api:bundle": "for f in typegen/openapi/services/*/openapi.yaml; do redocly bundle \"$f\" --output \"typegen/openapi/dist/$(basename $(dirname \"$f\")).yaml\"; done",
-    "api:docs": "redocly preview-docs typegen/openapi/services/ai/openapi.yaml",
+    "api:bundle": "redocly bundle typegen/openapi/index.yaml --output typegen/openapi/dist/combined.yaml",
+    "api:docs": "redocly preview-docs typegen/openapi/index.yaml",
     "api:types": "./typegen/scripts/generate-types.sh && tsx typegen/scripts/generate-operation-types.ts",
     "api:build": "pnpm run api:validate && pnpm run api:bundle && pnpm run api:types"
   },

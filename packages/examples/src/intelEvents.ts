@@ -1,147 +1,163 @@
 import { MessariClient } from "@messari-kit/api";
-import { intelEvent, intelAsset, intelEventHistory } from "@messari-kit/types";
+import {
+  getAllEventsParameters,
+  getEventAndHistoryParameters,
+  getAllAssetsParameters,
+  Event,
+  Asset,
+  EventHistory,
+} from "@messari-kit/types";
 import dotenv from "dotenv";
 
 // Load environment variables from .env file
 dotenv.config();
 
-// Get API key from environment variables
-const apiKey = process.env.MESSARI_API_KEY;
+// Get API key from environment variable
+const API_KEY = process.env.MESSARI_API_KEY;
 
-if (!apiKey) {
-  console.error("Please set MESSARI_API_KEY in your environment variables");
+// Check if API key is available
+if (!API_KEY) {
+  console.error("Error: MESSARI_API_KEY environment variable is not set.");
+  console.error(
+    "Please create a .env file with your API key or set it in your environment."
+  );
   process.exit(1);
 }
 
 // Initialize the Messari client
 const client = new MessariClient({
-  apiKey,
+  apiKey: API_KEY,
 });
 
-// Example 1: Get all events with pagination
 async function getAllEvents() {
   try {
-    // Get the first page of events
-    const eventsResponse = await client.intel.getAllEvents({
+    // Define the parameters for the getAllEvents endpoint
+    const params: getAllEventsParameters = {
       limit: 5,
       page: 1,
-      importance: ["High"],
-    });
+      importance: ["High"], // This should be an array of strings
+    };
 
-    console.log("Events (Page 1):");
-    console.log(`Total events: ${eventsResponse.metadata?.totalRows}`);
-    console.log(`Total pages: ${eventsResponse.metadata?.totalPages}`);
+    // Call the getAllEvents endpoint with pagination
+    const paginatedEvents = await client.intel.getAllEvents(params);
 
-    // Print the events
-    if (Array.isArray(eventsResponse.data)) {
-      eventsResponse.data.forEach((event: intelEvent) => {
-        console.log(`- ${event.eventName} (${event.importance})`);
-        console.log(
-          `  Primary assets: ${event.primaryAssets
-            .map((asset: intelAsset) => asset.symbol)
-            .join(", ")}`
-        );
-        console.log(`  Status: ${event.status}`);
-        console.log(`  Category: ${event.category}`);
-        console.log("  ---");
-      });
-    }
+    // Display pagination metadata
+    console.log("Pagination metadata:", paginatedEvents.metadata);
+    console.log(`Total events: ${paginatedEvents.metadata?.totalRows}`);
+    console.log(`Total pages: ${paginatedEvents.metadata?.totalPages}`);
 
-    // Get the next page
+    // Display the first page of events
+    console.log("\nPage 1 events:");
+    displayEvents(paginatedEvents.data);
+
+    // Get the second page if available
     if (
-      eventsResponse.metadata &&
-      eventsResponse.metadata.page < eventsResponse.metadata.totalPages
+      paginatedEvents.metadata &&
+      paginatedEvents.metadata.page &&
+      paginatedEvents.metadata.totalPages &&
+      paginatedEvents.metadata.page < paginatedEvents.metadata.totalPages
     ) {
-      const page2Response = await client.intel.getAllEvents({
-        limit: 5,
-        page: 2,
-        importance: ["High"],
-      });
-
-      console.log("\nEvents (Page 2):");
-
-      if (Array.isArray(page2Response.data)) {
-        page2Response.data.forEach((event: intelEvent) => {
-          console.log(`- ${event.eventName} (${event.importance})`);
-          console.log(
-            `  Primary assets: ${event.primaryAssets
-              .map((asset: intelAsset) => asset.symbol)
-              .join(", ")}`
-          );
-          console.log("  ---");
-        });
-      }
+      console.log("\nFetching page 2...");
+      const page2Params = { ...params, page: 2 };
+      const page2 = await client.intel.getAllEvents(page2Params);
+      console.log(
+        `Page ${page2.metadata?.page} of ${page2.metadata?.totalPages}`
+      );
+      displayEvents(page2.data);
     }
   } catch (error) {
     console.error("Error fetching events:", error);
   }
 }
 
-// Example 2: Get a specific event and its history
 async function getEventDetails(eventId: string) {
   try {
-    const eventResponse = await client.intel.getEventAndHistory({ eventId });
+    console.log(`\nFetching details for event ID: ${eventId}`);
 
-    const event = eventResponse.event;
-    const history = eventResponse.eventHistory;
+    // Define the parameters for the getEventAndHistory endpoint
+    const params: getEventAndHistoryParameters = {
+      eventId: eventId,
+    };
 
-    console.log("\nEvent Details:");
-    console.log(`Name: ${event.eventName}`);
-    console.log(`Status: ${event.status}`);
-    console.log(`Importance: ${event.importance}`);
-    console.log(`Category: ${event.category} / ${event.subcategory}`);
-    console.log(
-      `Primary assets: ${event.primaryAssets
-        .map((asset) => asset.symbol)
-        .join(", ")}`
-    );
-    console.log(`Details: ${event.eventDetails}`);
+    // Call the getById endpoint with the event ID parameter object
+    const eventDetails = await client.intel.getById(params);
 
-    console.log("\nEvent History:");
-    if (Array.isArray(history) && history.length > 0) {
-      history.forEach((entry: intelEventHistory) => {
+    // Display the event details
+    console.log("\nEvent details:");
+    console.log(`Name: ${eventDetails.event.eventName}`);
+    console.log(`Description: ${eventDetails.event.eventDetails}`);
+    console.log(`Importance: ${eventDetails.event.importance}`);
+    console.log(`Date: ${eventDetails.event.eventDate || "No date available"}`);
+
+    // Display the event history
+    console.log("\nEvent history:");
+    eventDetails.eventHistory.forEach(
+      (historyItem: EventHistory, index: number) => {
+        console.log(`${index + 1}. Status: ${historyItem.status}`);
+        console.log(`   Date: ${historyItem.submissionDate}`);
         console.log(
-          `- ${new Date(entry.submissionDate).toLocaleDateString()}: ${
-            entry.status
-          } (${entry.importance})`
+          `   Details: ${historyItem.updateDetails || "No details available"}`
         );
-        if (entry.updateDetails) {
-          console.log(`  Update: ${entry.updateDetails}`);
-        }
-      });
-    }
+        console.log();
+      }
+    );
   } catch (error) {
-    console.error("Error fetching event details:", error);
+    console.error(`Error fetching event details for ID ${eventId}:`, error);
   }
 }
 
-// Example 3: Get all assets
 async function getAllAssets() {
   try {
-    const assetsResponse = await client.intel.getAllAssets({});
+    console.log("\nFetching assets...");
 
+    // Define the parameters for the getAllAssets endpoint
+    const params: getAllAssetsParameters = {
+      limit: 10,
+      page: 1,
+    };
+
+    // Call the getAllAssets endpoint
+    const paginatedAssets = await client.intel.getAllAssets(params);
+
+    // Display pagination metadata
+    console.log("Pagination metadata:", paginatedAssets.metadata);
+    console.log(`Total assets: ${paginatedAssets.metadata?.totalRows}`);
+    console.log(`Total pages: ${paginatedAssets.metadata?.totalPages}`);
+
+    // Display the assets
     console.log("\nAssets:");
-    console.log(`Total assets: ${assetsResponse.metadata?.totalRows}`);
-
-    if (Array.isArray(assetsResponse.data)) {
-      assetsResponse.data.forEach((asset: intelAsset) => {
-        console.log(`- ${asset.name} (${asset.symbol})`);
-      });
-    }
+    paginatedAssets.data.forEach((asset: Asset, index: number) => {
+      console.log(`${index + 1}. ${asset.name} (${asset.symbol})`);
+    });
   } catch (error) {
     console.error("Error fetching assets:", error);
   }
 }
 
+// Helper function to display events
+function displayEvents(events: any[]) {
+  events.forEach((event, index: number) => {
+    console.log(`${index + 1}. ${event.eventName}`);
+    console.log(`   Importance: ${event.importance}`);
+    console.log(`   Date: ${event.eventDate || "No date available"}`);
+    console.log(`   Description: ${event.eventDetails}`);
+    console.log();
+  });
+}
+
 // Run the examples
 async function runExamples() {
+  console.log("1. Getting all events with pagination...");
   await getAllEvents();
 
-  // For getEventDetails, you would need a valid event ID
-  // Uncomment and replace with a valid event ID
-  // await getEventDetails("your-event-id");
+  console.log("\n2. Getting details for a specific event...");
+  // Use a known event ID or get one from the getAllEvents response
+  // This is a placeholder ID, replace with a real one if available
+  const eventId = "event-123"; // Replace with a real event ID
+  await getEventDetails(eventId);
 
+  console.log("\n3. Getting all assets...");
   await getAllAssets();
 }
 
-runExamples().catch(console.error);
+runExamples();

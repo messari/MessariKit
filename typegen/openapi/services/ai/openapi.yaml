@@ -36,6 +36,8 @@ paths:
         The last message must be from the user role.
       tags:
         - Chat
+      security:
+        - apiKey: []
       parameters:
         - $ref: '../../common/parameters.yaml#/components/parameters/apiKey'
       requestBody:
@@ -78,6 +80,8 @@ paths:
         Supports various entity types and can return similar entities based on the extracted names.
       tags:
         - Classification
+      security:
+        - apiKey: []
       parameters:
         - $ref: '../../common/parameters.yaml#/components/parameters/apiKey'
       requestBody:

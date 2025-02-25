@@ -285,7 +285,7 @@ components:
         $ref: '#/components/schemas/Source'
       description: List of news sources
 
-    Asset:
+    NewsAsset:
       type: object
       required:
         - id
@@ -305,7 +305,7 @@ components:
     AssetList:
       type: array
       items:
-        $ref: '#/components/schemas/Asset'
+        $ref: '#/components/schemas/NewsAsset'
       description: List of assets
 
     Document:
@@ -339,7 +339,7 @@ components:
         assets:
           type: array
           items:
-            $ref: '#/components/schemas/Asset'
+            $ref: '#/components/schemas/NewsAsset'
           description: Assets mentioned in the document
 
     DocumentList:
@@ -349,22 +349,4 @@ components:
       description: List of news documents
 
     PaginationResult:
-      type: object
-      required:
-        - totalRows
-        - totalPages
-        - page
-        - limit
-      properties:
-        totalRows:
-          type: integer
-          description: Total number of items
-        totalPages:
-          type: integer
-          description: Total number of pages
-        page:
-          type: integer
-          description: Current page number
-        limit:
-          type: integer
-          description: Number of items per page 
+      $ref: '../../common/components.yaml#/components/schemas/PaginationResult' 

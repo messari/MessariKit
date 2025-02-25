@@ -25,6 +25,7 @@ interface OpenAPISpec {
         parameters?: any[];
         requestBody?: any;
         responses?: any;
+        tags?: string[];
       };
     };
   };
@@ -32,9 +33,40 @@ interface OpenAPISpec {
     schemas?: {
       [key: string]: any;
     };
+    parameters?: {
+      [key: string]: any;
+    };
   };
 }
 
+/**
+ * Extracts the service name from a path or tag
+ * Example: /intel/v1/events -> intel
+ * Example: intel:Events -> intel
+ */
+function extractServiceName(pathOrTag: string | string[]): string {
+  if (Array.isArray(pathOrTag) && pathOrTag.length > 0) {
+    // Extract from tag like "intel:Events"
+    const tag = pathOrTag[0];
+    const parts = tag.split(":");
+    if (parts.length > 1) {
+      return parts[0];
+    }
+    return "api"; // Default if no service prefix in tag
+  }
+
+  // Extract from path like "/intel/v1/events"
+  const pathStr = pathOrTag as string;
+  const parts = pathStr.split("/");
+  if (parts.length > 1) {
+    return parts[1]; // The service name is usually the first part after the leading slash
+  }
+  return "api"; // Default if path doesn't follow the expected format
+}
+
+/**
+ * Generates a path function for an operation
+ */
 function generatePathFunction(
   pathTemplate: string,
   hasParams: boolean
@@ -48,6 +80,9 @@ function generatePathFunction(
   )}\``;
 }
 
+/**
+ * Gets properties from a schema
+ */
 function getSchemaProperties(schema: any, spec: OpenAPISpec): string[] {
   if (!schema) return [];
 
@@ -61,6 +96,9 @@ function getSchemaProperties(schema: any, spec: OpenAPISpec): string[] {
   return schema.properties ? Object.keys(schema.properties) : [];
 }
 
+/**
+ * Extracts parameter names from an operation
+ */
 function extractParameterNames(
   operation: any,
   spec: OpenAPISpec
@@ -118,11 +156,10 @@ function extractParameterNames(
   return { queryParams, pathParams, bodyParams };
 }
 
-function generateOperationTypes(
-  operationId: string,
-  operation: any,
-  serviceName: string
-): string {
+/**
+ * Generates TypeScript types for an operation
+ */
+function generateOperationTypes(operationId: string, operation: any): string {
   // Get the schema name from the response
   const responseSchema =
     operation.responses["200"]?.content["application/json"]?.schema;
@@ -141,16 +178,16 @@ function generateOperationTypes(
   if (schemaRef) {
     // Direct reference case
     const schemaName = schemaRef.split("/").pop();
-    responseType = `${serviceName}Components['schemas']['${schemaName}']`;
+    responseType = `components['schemas']['${schemaName}']`;
   } else if (isArray && arrayItemsRef) {
     // Array with items reference case
     const itemSchemaName = arrayItemsRef.split("/").pop();
-    responseType = `${serviceName}Components['schemas']['${itemSchemaName}'][]`;
+    responseType = `components['schemas']['${itemSchemaName}'][]`;
   }
 
   if (metadataRef) {
     const metadataSchemaName = metadataRef.split("/").pop();
-    metadataType = `${serviceName}Components['schemas']['${metadataSchemaName}']`;
+    metadataType = `components['schemas']['${metadataSchemaName}']`;
   }
 
   // Check if this is a paginated response
@@ -250,7 +287,7 @@ function generateOperationTypes(
     const bodySchemaRef =
       operation.requestBody.content["application/json"].schema.$ref;
     const bodySchemaName = bodySchemaRef.split("/").pop();
-    bodyType = `${serviceName}Components['schemas']['${bodySchemaName}']`;
+    bodyType = `components['schemas']['${bodySchemaName}']`;
   }
 
   const typeIntersection = [
@@ -263,11 +300,14 @@ function generateOperationTypes(
 
   return `
 export type ${operationId}Response = ${finalResponseType};
-export type ${operationId}Error = ${serviceName}Components['schemas']['APIError'];
+export type ${operationId}Error = components['schemas']['APIError'];
 
 export type ${operationId}Parameters = ${typeIntersection};`;
 }
 
+/**
+ * Generates an operation object for an operation
+ */
 function generateOperationObject(
   operationId: string,
   method: string,
@@ -297,19 +337,39 @@ export const ${operationId} = {
 } as const;`;
 }
 
-function processOpenAPIFile(filePath: string): string[] {
+/**
+ * Processes the combined OpenAPI spec and generates operation types
+ */
+function processCombinedOpenAPISpec(filePath: string): string[] {
   const fileContent = fs.readFileSync(filePath, "utf8");
   const spec = yaml.load(fileContent) as OpenAPISpec;
   const operations: string[] = [];
 
-  // Extract service name from file path
-  const serviceName = path.basename(filePath, ".yaml");
+  // Add imports for common types
+  operations.push(`import { components } from './types';`);
 
+  // Define APIResponseWithMetadata directly instead of importing it
+  operations.push(`
+// Define APIResponseWithMetadata as a generic type
+export interface APIResponseWithMetadata<T = any, M = any> {
+  /** @description Response payload */
+  data: T;
+  /** @description Error message if request failed */
+  error?: string;
+  /** @description Additional metadata about the response */
+  metadata?: M;
+}
+
+// Define PathParams type for path functions
+export type PathParams = Record<string, string>;`);
+  operations.push(``);
+
+  // Process all paths and operations
   Object.entries(spec.paths).forEach(([path, pathObj]) => {
     Object.entries(pathObj).forEach(([method, operation]) => {
       if (operation.operationId) {
         operations.push(
-          generateOperationTypes(operation.operationId, operation, serviceName)
+          generateOperationTypes(operation.operationId, operation)
         );
         operations.push(
           generateOperationObject(
@@ -327,98 +387,91 @@ function processOpenAPIFile(filePath: string): string[] {
   return operations;
 }
 
-function generateIndex(): void {
-  const distDir = path.join(process.cwd(), "typegen", "openapi", "dist");
-  const outputDir = path.join(process.cwd(), "packages", "types", "src");
-
-  const operations: string[] = [];
-  const serviceFiles: string[] = [];
-  const serviceSchemas: Record<string, string[]> = {};
-
-  // First pass: collect all schema names for each service
-  fs.readdirSync(distDir)
-    .filter((file) => file.endsWith(".yaml"))
-    .forEach((file) => {
-      const serviceName = file.replace(".yaml", "");
-      const filePath = path.join(distDir, file);
-      const fileContent = fs.readFileSync(filePath, "utf8");
-      const spec = yaml.load(fileContent) as OpenAPISpec;
-
-      // Get all schema names from the components section
-      const schemaNames = spec.components?.schemas
-        ? Object.keys(spec.components.schemas)
-        : [];
-      serviceSchemas[serviceName] = schemaNames;
-      serviceFiles.push(serviceName);
-    });
-
-  // Second pass: process operations
-  fs.readdirSync(distDir)
-    .filter((file) => file.endsWith(".yaml"))
-    .forEach((file) => {
-      const serviceName = file.replace(".yaml", "");
-      const filePath = path.join(distDir, file);
-      operations.push(...processOpenAPIFile(filePath));
-    });
-
-  // Generate imports for all services
-  const imports = serviceFiles
-    .map(
-      (service) =>
-        `import { components as ${service}Components } from './${service}';`
-    )
-    .join("\n");
-
-  // Create a components type that uses the first service's components as the base
-  // This assumes common types like APIError are the same across services
-  const baseService = serviceFiles[0] || "ai";
-  const componentsType = `type components = ${baseService}Components;`;
-
-  // Export the components with service name prefixes
-  let exportedComponents = serviceFiles
-    .map(
-      (service) =>
-        `export type ${service}ComponentsType = ${service}Components;`
-    )
-    .join("\n");
-
-  // Export all schema types for each service
-  for (const service of serviceFiles) {
-    const schemas = serviceSchemas[service];
-    if (schemas && schemas.length > 0) {
-      exportedComponents += "\n\n// " + service + " types\n";
-      for (const schema of schemas) {
-        exportedComponents += `export type ${service}${schema} = ${service}Components['schemas']['${schema}'];\n`;
-      }
-    }
+/**
+ * Generates exports for all schema types from the components section
+ */
+function generateSchemaExports(spec: OpenAPISpec): string[] {
+  if (!spec.components?.schemas) {
+    return [];
   }
 
-  // Add the APIResponseWithMetadata generic type
-  const apiResponseWithMetadataType = `
-// Generic type for API responses with metadata
-export interface APIResponseWithMetadata<T, M> {
-  data: T;
-  metadata?: M;
-  error?: string;
-}`;
+  const exports: string[] = [];
 
-  // Add the PathParams type definition
-  const pathParamsType = `
-// Define PathParams type for path parameter functions
-export type PathParams = Record<string, string>;`;
+  // Add header comment
+  exports.push(`/**
+ * Auto-generated schema types from OpenAPI specification.
+ * DO NOT EDIT MANUALLY.
+ */
 
-  const indexContent = `// This file is auto-generated. DO NOT EDIT
-${imports}
+import { components } from './types';
 
-${componentsType}
-${exportedComponents}
-${apiResponseWithMetadataType}
-${pathParamsType}
+// Export all schema types from components`);
 
-${operations.join("\n\n")}
-`;
+  // Generate exports for each schema
+  Object.keys(spec.components.schemas).forEach((schemaName) => {
+    exports.push(
+      `export type ${schemaName} = components['schemas']['${schemaName}'];`
+    );
+  });
 
-  fs.writeFileSync(path.join(outputDir, "index.ts"), indexContent);
+  return exports;
 }
 
-generateIndex();
+/**
+ * Main function to generate operation types
+ */
+function main(): void {
+  const typesDir = path.resolve(__dirname, "../../packages/types/src");
+  const combinedSpecPath = path.resolve(
+    __dirname,
+    "../openapi/dist/combined.yaml"
+  );
+
+  // Check if the combined spec exists
+  if (!fs.existsSync(combinedSpecPath)) {
+    console.error("❌ Combined spec not found. Run api:bundle first.");
+    process.exit(1);
+  }
+
+  // Load the combined spec for schema generation
+  const yamlContent = fs.readFileSync(combinedSpecPath, "utf8");
+  const combinedSpec = yaml.load(yamlContent) as OpenAPISpec;
+
+  // Generate operation types from the combined spec
+  const operations = processCombinedOpenAPISpec(combinedSpecPath);
+
+  // Create the index.ts file
+  const indexPath = path.join(typesDir, "index.ts");
+  fs.writeFileSync(indexPath, operations.join("\n\n"));
+  console.log("✅ Generated index.ts");
+
+  // Generate schema.ts file with all component schema exports
+  const schemaExports = generateSchemaExports(combinedSpec);
+  const schemaPath = path.join(typesDir, "schema.ts");
+  fs.writeFileSync(schemaPath, schemaExports.join("\n\n"));
+  console.log("✅ Generated schema.ts");
+
+  // Create a barrel file to re-export types from types.ts and schema.ts
+  const typesPath = path.join(typesDir, "types.ts");
+  if (fs.existsSync(typesPath)) {
+    // Add export statement at the end of index.ts to re-export everything from types.ts and schema.ts
+    const indexContent = fs.readFileSync(indexPath, "utf8");
+    let updatedContent = indexContent;
+
+    if (!indexContent.includes("export * from './schema'")) {
+      updatedContent +=
+        "\n\n// Re-export schema types\nexport * from './schema';\n";
+    }
+
+    if (updatedContent !== indexContent) {
+      fs.writeFileSync(indexPath, updatedContent);
+      console.log("✅ Updated index.ts to re-export types from schema.ts");
+    }
+  } else {
+    console.error("❌ types.ts not found. Run generate-types.sh first.");
+    process.exit(1);
+  }
+}
+
+// Run the script
+main();

@@ -16,20 +16,20 @@
 # Ensure the output directory exists
 mkdir -p packages/types/src
 
-# Iterate over all yaml files in the dist directory
-for file in typegen/openapi/dist/*.yaml; do
-    # Get the base name without extension
-    basename=$(basename "$file" .yaml)
-    
-    # Generate types for this file
-    echo "Generating types for $basename..."
-    openapi-typescript "$file" \
-        --output "packages/types/src/${basename}.ts" \
+# Generate types from the combined spec
+if [ -f "typegen/openapi/dist/combined.yaml" ]; then
+    echo "Generating types from combined OpenAPI spec..."
+    openapi-typescript "typegen/openapi/dist/combined.yaml" \
+        --output "packages/types/src/types.ts" \
         --export-type \
         --root-types \
         --root-types-no-schema-prefix \
         --alphabetize \
-        --path-params-as-types 
-done
-
-echo "Type generation complete!" 
+        --path-params-as-types
+    
+    echo "Combined type generation complete!"
+else
+    echo "Error: Combined spec not found at typegen/openapi/dist/combined.yaml"
+    echo "Please run 'pnpm api:bundle' first to generate the combined spec."
+    exit 1
+fi 
