@@ -62,14 +62,16 @@ The AI service provides access to Messari's AI-powered features:
 ├── packages/
 │   └── types/
 │       └── src/
-│           ├── ai.ts           # Generated API types
-│           └── index.ts        # Generated operations
+│           ├── types.ts        # Generated API types from OpenAPI
+│           ├── schema.ts       # Re-exported schema types
+│           └── index.ts        # Generated operations and re-exports
 ├── typegen/
 │   ├── openapi/
 │   │   ├── common/            # Shared OpenAPI components
 │   │   ├── services/          # Service-specific OpenAPI specs
-│   │   └── dist/             # Bundled OpenAPI specs
-│   └── scripts/              # Type generation scripts
+│   │   ├── index.yaml         # Main entry point that combines all services
+│   │   └── dist/              # Bundled OpenAPI specs
+│   └── scripts/               # Type generation scripts
 └── package.json
 ```
 
@@ -88,16 +90,54 @@ pnpm run build
 
 ### Type Generation
 
-The SDK uses a two-step type generation process:
+The SDK uses a multi-step type generation process:
 
-1. OpenAPI specs are bundled and validated
-2. TypeScript types and operation helpers are generated
+1. OpenAPI specs are validated (`pnpm api:validate`)
+2. OpenAPI specs are bundled into a combined spec (`pnpm api:bundle`)
+3. TypeScript types and operation helpers are generated (`pnpm api:types`)
 
 To regenerate types after modifying OpenAPI specs:
 
 ```bash
 pnpm run api:build
 ```
+
+### ⚠️ Important Type Generation Rules
+
+1. **Never run type generation scripts directly**. Always use the package.json scripts from the root directory:
+   ```bash
+   pnpm api:build
+   ```
+
+2. **Service Registration**: When creating a new service, you must register it in `typegen/openapi/index.yaml`:
+   - Add paths to your service's endpoints
+   - Add tags for your service
+   - Reference your service's OpenAPI file
+
+3. **Schema Name Uniqueness**: Schema names must be unique across all services. Since all schemas are combined into a single namespace, duplicate names will cause conflicts.
+   - Example: If `intel` service has an `Asset` schema and `news` service also has an `Asset` schema, they will conflict
+   - Solution: Use service-specific prefixes (e.g., `NewsAsset` vs `IntelAsset`)
+
+4. **Common Components**: Use the common components in `typegen/openapi/common/` for shared schemas:
+   - `PaginationResult` for pagination metadata
+   - `APIResponseWithMetadata` for standard response wrapper
+   - `APIError` for error responses
+
+5. **DRY Principle**: Don't repeat common schemas in service-specific files. Instead, reference them:
+   ```yaml
+   PaginationResult:
+     $ref: '../../common/components.yaml#/components/schemas/PaginationResult'
+   ```
+
+6. **Handling Type Collisions**: When multiple services define types with the same name:
+   - For identical types used across services: Move these to `/openapi/common/components.yaml`
+   - For different types with the same name: Use service-specific prefixes (e.g., `IntelAsset` vs `NewsAsset`)
+
+7. **Common Issues**:
+   - Missing pagination parameters: Ensure referenced parameters are properly handled in the generation scripts
+   - Type mismatches: Verify OpenAPI specs and run `pnpm api:build` to regenerate all types
+
+For more detailed information on the type generation process, see the [Type Generation README](typegen/README.md).
 
 ## Contributing
 
