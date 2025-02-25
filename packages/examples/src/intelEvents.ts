@@ -79,7 +79,7 @@ async function getEventDetails(eventId: string) {
       eventId: eventId,
     };
 
-    // Call the getById endpoint with the event ID parameter object
+    // Call the getById method which internally uses the getEventAndHistory operation
     const eventDetails = await client.intel.getById(params);
 
     // Display the event details
@@ -148,16 +148,70 @@ function displayEvents(events: any[]) {
 // Run the examples
 async function runExamples() {
   console.log("1. Getting all events with pagination...");
-  await getAllEvents();
+  // Store the events response to extract a real event ID
+  const eventsResponse = await getAllEventsAndReturnResponse();
 
-  console.log("\n2. Getting details for a specific event...");
-  // Use a known event ID or get one from the getAllEvents response
-  // This is a placeholder ID, replace with a real one if available
-  const eventId = "event-123"; // Replace with a real event ID
-  await getEventDetails(eventId);
+  // Check if we have events to get details for
+  if (eventsResponse && eventsResponse.data && eventsResponse.data.length > 0) {
+    console.log("\n2. Getting details for a specific event...");
+    // Use the ID from the first event in the response
+    const eventId = eventsResponse.data[0].id;
+    console.log(`Using event ID from response: ${eventId}`);
+    await getEventDetails(eventId);
+  } else {
+    console.log(
+      "\n2. Skipping event details - no events found in the response"
+    );
+  }
 
   console.log("\n3. Getting all assets...");
   await getAllAssets();
+}
+
+// Modified version of getAllEvents that returns the response
+async function getAllEventsAndReturnResponse() {
+  try {
+    // Define the parameters for the getAllEvents endpoint
+    const params: getAllEventsParameters = {
+      limit: 5,
+      page: 1,
+      importance: ["High"], // This should be an array of strings
+    };
+
+    // Call the getAllEvents endpoint with pagination
+    const paginatedEvents = await client.intel.getAllEvents(params);
+
+    // Display pagination metadata
+    console.log("Pagination metadata:", paginatedEvents.metadata);
+    console.log(`Total events: ${paginatedEvents.metadata?.totalRows}`);
+    console.log(`Total pages: ${paginatedEvents.metadata?.totalPages}`);
+
+    // Display the first page of events
+    console.log("\nPage 1 events:");
+    displayEvents(paginatedEvents.data);
+
+    // Get the second page if available
+    if (
+      paginatedEvents.metadata &&
+      paginatedEvents.metadata.page &&
+      paginatedEvents.metadata.totalPages &&
+      paginatedEvents.metadata.page < paginatedEvents.metadata.totalPages
+    ) {
+      console.log("\nFetching page 2...");
+      const page2Params = { ...params, page: 2 };
+      const page2 = await client.intel.getAllEvents(page2Params);
+      console.log(
+        `Page ${page2.metadata?.page} of ${page2.metadata?.totalPages}`
+      );
+      displayEvents(page2.data);
+    }
+
+    // Return the first page response so we can use an event ID
+    return paginatedEvents;
+  } catch (error) {
+    console.error("Error fetching events:", error);
+    return null;
+  }
 }
 
 runExamples();
