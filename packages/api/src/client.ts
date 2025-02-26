@@ -39,40 +39,40 @@ import { RequestTimeoutError } from "./error";
 // Event types for the client
 export type ClientEventType = "error" | "request" | "response";
 
-export interface ClientErrorEvent {
+export type ClientErrorEvent = {
   error: Error;
   request?: {
     method: string;
     path: string;
     queryParams?: Record<string, any>;
   };
-}
+};
 
-export interface ClientRequestEvent {
+export type ClientRequestEvent = {
   method: string;
   path: string;
   queryParams?: Record<string, any>;
-}
+};
 
-export interface ClientResponseEvent {
+export type ClientResponseEvent = {
   method: string;
   path: string;
   status: number;
   data: any;
-}
+};
 
 // Map event types to their corresponding event data types
-export interface ClientEventMap {
+export type ClientEventMap = {
   error: ClientErrorEvent;
   request: ClientRequestEvent;
   response: ClientResponseEvent;
-}
+};
 
 export type ClientEventHandler<T extends ClientEventType> = (
   data: ClientEventMap[T]
 ) => void;
 
-export interface MessariClientOptions {
+export type MessariClientOptions = {
   apiKey: string;
   baseUrl?: string;
   timeoutMs?: number;
@@ -84,9 +84,9 @@ export interface MessariClientOptions {
   onError?: ClientEventHandler<"error">;
   onRequest?: ClientEventHandler<"request">;
   onResponse?: ClientEventHandler<"response">;
-}
+};
 
-export interface RequestOptions extends Omit<RequestInit, "headers" | "body"> {
+export type RequestOptions = Omit<RequestInit, "headers" | "body"> & {
   timeoutMs?: number;
   headers?: Record<string, string>;
   signal?: AbortSignal;
@@ -94,29 +94,29 @@ export interface RequestOptions extends Omit<RequestInit, "headers" | "body"> {
     revalidate?: number | false;
     tags?: string[];
   };
-}
+};
 
-export interface RequestParameters {
+export type RequestParameters = {
   method: string;
   path: string;
   body?: any;
   queryParams?: Record<string, any>;
   options?: RequestOptions;
-}
+};
 
-export interface PaginationParameters {
+export type PaginationParameters = {
   limit?: number;
   page?: number;
-}
+};
 
-export interface PaginationMetadata {
+export type PaginationMetadata = {
   page: number;
   limit: number;
   total?: number;
   totalRows?: number;
   totalPages?: number;
   hasMore?: boolean;
-}
+};
 
 export type PaginatedResponse<T> = APIResponseWithMetadata<
   T,
@@ -129,14 +129,14 @@ export type PaginatedResult<T, P extends PaginationParameters> = {
   error?: string;
 } & PaginationHelpers<T, P>;
 
-export interface PaginationHelpers<T, P extends PaginationParameters> {
+export type PaginationHelpers<T, P extends PaginationParameters> = {
   hasNextPage: boolean;
   hasPreviousPage: boolean;
   nextPage: () => Promise<PaginatedResult<T, P>>;
   previousPage: () => Promise<PaginatedResult<T, P>>;
   goToPage: (page: number) => Promise<PaginatedResult<T, P>>;
   getAllPages: () => Promise<T[]>;
-}
+};
 
 export class MessariClient {
   private readonly apiKey: string;
