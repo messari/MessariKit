@@ -40,11 +40,99 @@ import type {
   getAssetsROIResponse,
   getAssetsATHResponse,
 } from "@messari-kit/types";
+import type { Agent } from "http";
 import { pick } from "./utils";
+import {
+  LogLevel,
+  type Logger,
+  makeConsoleLogger,
+  createFilteredLogger,
+  makeNoOpLogger,
+} from "./logging";
+import { RequestTimeoutError } from "./error";
 
+// Event types for the client
+export type ClientEventType = "error" | "request" | "response";
+
+export type ClientErrorEvent = {
+  error: Error;
+  request?: {
+    method: string;
+    path: string;
+    queryParams?: Record<string, unknown>;
+  };
+};
+
+export type ClientRequestEvent = {
+  method: string;
+  path: string;
+  queryParams?: Record<string, unknown>;
+};
+
+export type ClientResponseEvent = {
+  method: string;
+  path: string;
+  status: number;
+  data: unknown;
+};
+
+// Map event types to their corresponding event data types
+export type ClientEventMap = {
+  error: ClientErrorEvent;
+  request: ClientRequestEvent;
+  response: ClientResponseEvent;
+};
+
+export type ClientEventHandler<T extends ClientEventType> = (
+  data: ClientEventMap[T]
+) => void;
+
+/**
+ * Options for configuring the MessariClient
+ */
 export type MessariClientOptions = {
+  /** Required API key for authenticating with the Messari API */
   apiKey: string;
+  /** Base URL for the API (defaults to https://api.messari.io) */
   baseUrl?: string;
+  /** Timeout in milliseconds for API requests (defaults to 60000) */
+  timeoutMs?: number;
+  /** Custom fetch implementation (defaults to global fetch) */
+  fetch?: typeof fetch;
+  /** Node.js HTTP(S) Agent for connection pooling */
+  agent?: Agent;
+  /** Minimum log level to display (defaults to INFO) */
+  logLevel?: LogLevel;
+  /** Custom logger implementation */
+  logger?: Logger;
+  /** Set to true to completely disable all logging (overrides logLevel and logger) */
+  disableLogging?: boolean;
+  /** Default headers to include with all requests */
+  defaultHeaders?: Record<string, string>;
+  /** Event handler for error events */
+  onError?: ClientEventHandler<"error">;
+  /** Event handler for request events */
+  onRequest?: ClientEventHandler<"request">;
+  /** Event handler for response events */
+  onResponse?: ClientEventHandler<"response">;
+};
+
+export type RequestOptions = Omit<RequestInit, "headers" | "body"> & {
+  timeoutMs?: number;
+  headers?: Record<string, string>;
+  signal?: AbortSignal;
+  next?: {
+    revalidate?: number | false;
+    tags?: string[];
+  };
+};
+
+export type RequestParameters = {
+  method: string;
+  path: string;
+  body?: unknown;
+  queryParams?: Record<string, unknown>;
+  options?: RequestOptions;
 };
 
 export type PaginationParameters = {
@@ -84,10 +172,98 @@ export type PaginationHelpers<T, P extends PaginationParameters> = {
 export class MessariClient {
   private readonly apiKey: string;
   private readonly baseUrl: string;
+  private readonly timeoutMs: number;
+  private readonly fetchFn: typeof fetch;
+  private readonly agent: Agent | undefined;
+  private logger: Logger;
+  private isLoggingDisabled: boolean; // Add a flag to track logging state
+  private readonly defaultHeaders: Record<string, string>;
+  private readonly eventHandlers: Map<
+    ClientEventType,
+    Set<ClientEventHandler<any>>
+  >;
 
   constructor(options: MessariClientOptions) {
     this.apiKey = options.apiKey;
     this.baseUrl = options.baseUrl || "https://api.messari.io";
+    this.timeoutMs = options.timeoutMs || 60_000;
+    this.fetchFn = options.fetch || fetch;
+    this.agent = options.agent;
+
+    // Handle logger initialization with disableLogging option
+    this.isLoggingDisabled = !!options.disableLogging;
+    if (this.isLoggingDisabled) {
+      this.logger = makeNoOpLogger();
+    } else {
+      const baseLogger = options.logger || makeConsoleLogger("messari-client");
+      this.logger = options.logLevel
+        ? createFilteredLogger(baseLogger, options.logLevel)
+        : createFilteredLogger(baseLogger, LogLevel.INFO);
+    }
+
+    this.defaultHeaders = {
+      "Content-Type": "application/json",
+      "x-messari-api-key": this.apiKey,
+      ...options.defaultHeaders,
+    };
+
+    // Initialize event handlers
+    this.eventHandlers = new Map();
+
+    // Register event handlers from options
+    if (options.onError) {
+      this.on("error", options.onError);
+    }
+    if (options.onRequest) {
+      this.on("request", options.onRequest);
+    }
+    if (options.onResponse) {
+      this.on("response", options.onResponse);
+    }
+  }
+
+  /**
+   * Register an event handler
+   */
+  public on<T extends ClientEventType>(
+    event: T,
+    handler: ClientEventHandler<T>
+  ): void {
+    if (!this.eventHandlers.has(event)) {
+      this.eventHandlers.set(event, new Set());
+    }
+    this.eventHandlers.get(event)?.add(handler);
+  }
+
+  /**
+   * Remove an event handler
+   */
+  public off<T extends ClientEventType>(
+    event: T,
+    handler: ClientEventHandler<T>
+  ): void {
+    if (this.eventHandlers.has(event)) {
+      this.eventHandlers.get(event)?.delete(handler);
+    }
+  }
+
+  /**
+   * Emit an event to all registered handlers
+   */
+  private emit<T extends ClientEventType>(
+    event: T,
+    data: ClientEventMap[T]
+  ): void {
+    if (this.eventHandlers.has(event)) {
+      // biome-ignore lint/style/noNonNullAssertion: its chill
+      for (const handler of this.eventHandlers.get(event)!) {
+        try {
+          handler(data);
+        } catch (error) {
+          this.logger(LogLevel.ERROR, `Error in ${event} handler`, { error });
+        }
+      }
+    }
   }
 
   private async request<T>({
@@ -95,38 +271,114 @@ export class MessariClient {
     path,
     body,
     queryParams = {},
-  }: {
-    method: string;
-    path: string;
-    body?: Record<string, unknown>;
-    queryParams?: Record<string, string>;
-  }): Promise<T> {
+    options = {},
+  }: RequestParameters): Promise<T> {
+    this.logger(LogLevel.INFO, "request start", { method, path });
+
+    this.emit("request", {
+      method,
+      path,
+      queryParams,
+    });
+
     const queryString = Object.entries(queryParams)
-      .map(
-        ([key, value]) =>
-          `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
-      )
+      .filter(([_, value]) => value !== undefined)
+      .map(([key, value]) => {
+        if (Array.isArray(value)) {
+          return value
+            .map(
+              (item) =>
+                `${encodeURIComponent(key)}=${encodeURIComponent(String(item))}`
+            )
+            .join("&");
+        }
+        return `${encodeURIComponent(key)}=${encodeURIComponent(
+          String(value)
+        )}`;
+      })
       .join("&");
 
     const url = `${this.baseUrl}${path}${queryString ? `?${queryString}` : ""}`;
-    const requestPayload = {
-      method,
-      headers: {
-        "Content-Type": "application/json",
-        "x-messari-api-key": this.apiKey,
-      },
-      body: body ? JSON.stringify(body) : undefined,
-    };
-    console.log(`Request Information\n  URL: ${url}\n  Request Payload: ${JSON.stringify(requestPayload)}`);
-    
-    const response = await fetch(url, requestPayload);
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || "An error occurred");
-    }
 
-    const responseData = await response.json();
-    return responseData.data;
+    const headers = {
+      ...this.defaultHeaders,
+      ...options.headers,
+    };
+
+    const timeoutMs = options.timeoutMs || this.timeoutMs;
+
+    try {
+      const response = await RequestTimeoutError.rejectAfterTimeout(
+        this.fetchFn(url, {
+          method,
+          headers,
+          body: body ? JSON.stringify(body) : undefined,
+          signal: options.signal,
+          cache: options.cache,
+          credentials: options.credentials,
+          integrity: options.integrity,
+          keepalive: options.keepalive,
+          mode: options.mode,
+          redirect: options.redirect,
+          referrer: options.referrer,
+          referrerPolicy: options.referrerPolicy,
+          // @ts-ignore - Next.js specific options
+          next: options.next,
+          // Node.js specific option
+          agent: this.agent,
+        }),
+        timeoutMs
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        this.logger(LogLevel.ERROR, "request error", {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorData,
+        });
+
+        const error = new Error(errorData.error || "An error occurred");
+
+        this.emit("error", {
+          error,
+          request: {
+            method,
+            path,
+            queryParams,
+          },
+        });
+
+        throw error;
+      }
+
+      const responseData = await response.json();
+      this.logger(LogLevel.DEBUG, "request success", { responseData });
+
+      // Emit response event
+      this.emit("response", {
+        method,
+        path,
+        status: response.status,
+        data: responseData,
+      });
+
+      return responseData.data;
+    } catch (error) {
+      this.logger(LogLevel.ERROR, "request failed", { error });
+
+      // Emit error event
+      this.emit("error", {
+        error: error as Error,
+        request: {
+          method,
+          path,
+          queryParams,
+        },
+      });
+
+      throw error;
+    }
   }
 
   private async requestWithMetadata<T, M>({
@@ -134,15 +386,17 @@ export class MessariClient {
     path,
     body,
     queryParams = {},
-  }: {
-    method: string;
-    path: string;
-    body?: Record<string, unknown>;
-    queryParams?: Record<
-      string,
-      string | number | boolean | string[] | number[] | boolean[] | undefined
-    >;
-  }): Promise<APIResponseWithMetadata<T, M>> {
+    options = {},
+  }: RequestParameters): Promise<APIResponseWithMetadata<T, M>> {
+    this.logger(LogLevel.INFO, "request with metadata start", { method, path });
+
+    // Emit request event
+    this.emit("request", {
+      method,
+      path,
+      queryParams,
+    });
+
     const queryString = Object.entries(queryParams)
       .filter(([_, value]) => value !== undefined)
       .map(([key, value]) => {
@@ -162,35 +416,102 @@ export class MessariClient {
       .join("&");
 
     const url = `${this.baseUrl}${path}${queryString ? `?${queryString}` : ""}`;
-    const requestPayload = {
-      method,
-      headers: {
-        "Content-Type": "application/json",
-        "x-messari-api-key": this.apiKey,
-      },
-      body: body ? JSON.stringify(body) : undefined,
-    };
-    console.log(`Request Information\n  URL: ${url}\n  Request Payload: ${JSON.stringify(requestPayload)}`);
 
-    const response = await fetch(url, requestPayload);
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || "An error occurred");
+    const headers = {
+      ...this.defaultHeaders,
+      ...options.headers,
+    };
+
+    const timeoutMs = options.timeoutMs || this.timeoutMs;
+
+    try {
+      const response = await RequestTimeoutError.rejectAfterTimeout(
+        this.fetchFn(url, {
+          method,
+          headers,
+          body: body ? JSON.stringify(body) : undefined,
+          signal: options.signal,
+          cache: options.cache,
+          credentials: options.credentials,
+          integrity: options.integrity,
+          keepalive: options.keepalive,
+          mode: options.mode,
+          redirect: options.redirect,
+          referrer: options.referrer,
+          referrerPolicy: options.referrerPolicy,
+          // @ts-ignore - Next.js specific options
+          next: options.next,
+          // Node.js specific option
+          agent: this.agent,
+        }),
+        timeoutMs
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        this.logger(LogLevel.ERROR, "request with metadata error", {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorData,
+        });
+
+        const error = new Error(errorData.error || "An error occurred");
+
+        // Emit error event
+        this.emit("error", {
+          error,
+          request: {
+            method,
+            path,
+            queryParams,
+          },
+        });
+
+        throw error;
+      }
+
+      const responseData = await response.json();
+      this.logger(LogLevel.DEBUG, "request with metadata success", {
+        responseData,
+      });
+
+      // Emit response event
+      this.emit("response", {
+        method,
+        path,
+        status: response.status,
+        data: responseData,
+      });
+
+      return {
+        data: responseData.data,
+        metadata: responseData.metadata,
+      };
+    } catch (error) {
+      this.logger(LogLevel.ERROR, "request with metadata failed", { error });
+
+      // Emit error event
+      this.emit("error", {
+        error: error as Error,
+        request: {
+          method,
+          path,
+          queryParams,
+        },
+      });
+
+      throw error;
     }
-
-    const responseData = await response.json();
-    return {
-      data: responseData.data,
-      metadata: responseData.metadata,
-    };
   }
 
   private paginate<T, P extends PaginationParameters>(
     params: P,
     fetchPage: (
-      params: P
+      params: P,
+      options?: RequestOptions
     ) => Promise<APIResponseWithMetadata<T, PaginationMetadata>>,
-    response: APIResponseWithMetadata<T, PaginationMetadata>
+    response: APIResponseWithMetadata<T, PaginationMetadata>,
+    options?: RequestOptions
   ): PaginatedResult<T, P> {
     // Convert PaginationResult to PaginationMetadata
     const metadata: PaginationMetadata = response.metadata
@@ -239,7 +560,7 @@ export class MessariClient {
           };
 
           try {
-            const nextPageResponse = await fetchPage(nextPageParams);
+            const nextPageResponse = await fetchPage(nextPageParams, options);
             const nextPageMetadata: PaginationMetadata =
               nextPageResponse.metadata
                 ? {
@@ -287,7 +608,7 @@ export class MessariClient {
           };
 
           try {
-            const prevPageResponse = await fetchPage(prevPageParams);
+            const prevPageResponse = await fetchPage(prevPageParams, options);
             const prevPageMetadata: PaginationMetadata =
               prevPageResponse.metadata
                 ? {
@@ -334,7 +655,7 @@ export class MessariClient {
           };
 
           try {
-            const pageResponse = await fetchPage(pageParams);
+            const pageResponse = await fetchPage(pageParams, options);
             const pageMetadata: PaginationMetadata = pageResponse.metadata
               ? {
                   page: pageResponse.metadata.page || page,
@@ -388,7 +709,8 @@ export class MessariClient {
             const goToPageFn = this.paginate(
               params,
               fetchPage,
-              response
+              response,
+              options
             ).goToPage;
             pagePromises.push(
               goToPageFn(page)
@@ -421,23 +743,37 @@ export class MessariClient {
   }
 
   public readonly ai = {
-    createChatCompletion: (params: createChatCompletionParameters) =>
+    createChatCompletion: (
+      params: createChatCompletionParameters,
+      options?: RequestOptions
+    ) =>
       this.request<createChatCompletionResponse>({
         method: createChatCompletion.method,
         path: createChatCompletion.path(),
         body: pick(params, createChatCompletion.bodyParams),
+        options,
       }),
-    extractEntities: (params: extractEntitiesParameters) =>
+    extractEntities: (
+      params: extractEntitiesParameters,
+      options?: RequestOptions
+    ) =>
       this.request<extractEntitiesResponse>({
         method: extractEntities.method,
         path: extractEntities.path(),
         body: pick(params, extractEntities.bodyParams),
+        options,
       }),
   };
 
   public readonly intel = {
-    getAllEvents: async (params: getAllEventsParameters = {}) => {
-      const fetchPage = async (p: getAllEventsParameters) => {
+    getAllEvents: async (
+      params: getAllEventsParameters = {},
+      options?: RequestOptions
+    ) => {
+      const fetchPage = async (
+        p: getAllEventsParameters,
+        o?: RequestOptions
+      ) => {
         return this.requestWithMetadata<
           getAllEventsResponse["data"],
           PaginationMetadata
@@ -445,23 +781,34 @@ export class MessariClient {
           method: getAllEvents.method,
           path: getAllEvents.path(),
           body: pick(p, getAllEvents.bodyParams),
+          options: o,
         });
       };
 
-      const response = await fetchPage(params);
+      const response = await fetchPage(params, options);
       return this.paginate<
         getAllEventsResponse["data"],
         getAllEventsParameters
-      >(params, fetchPage, response);
+      >(params, fetchPage, response, options);
     },
-    getById: async (params: getEventAndHistoryParameters) => {
+    getById: async (
+      params: getEventAndHistoryParameters,
+      options?: RequestOptions
+    ) => {
       return this.request<getEventAndHistoryResponse>({
         method: getEventAndHistory.method,
         path: getEventAndHistory.path(params),
+        options,
       });
     },
-    getAllAssets: async (params: getAllAssetsParameters = {}) => {
-      const fetchPage = async (p: getAllAssetsParameters) => {
+    getAllAssets: async (
+      params: getAllAssetsParameters = {},
+      options?: RequestOptions
+    ) => {
+      const fetchPage = async (
+        p: getAllAssetsParameters,
+        o?: RequestOptions
+      ) => {
         return this.requestWithMetadata<
           getAllAssetsResponse["data"],
           PaginationMetadata
@@ -469,21 +816,28 @@ export class MessariClient {
           method: getAllAssets.method,
           path: getAllAssets.path(),
           queryParams: pick(p, getAllAssets.queryParams),
+          options: o,
         });
       };
 
-      const response = await fetchPage(params);
+      const response = await fetchPage(params, options);
       return this.paginate<
         getAllAssetsResponse["data"],
         getAllAssetsParameters
-      >(params, fetchPage, response);
+      >(params, fetchPage, response, options);
     },
   };
 
   public readonly news = {
     // Paginated versions
-    getNewsFeedPaginated: async (params: getNewsFeedParameters) => {
-      const fetchPage = async (p: getNewsFeedParameters) => {
+    getNewsFeedPaginated: async (
+      params: getNewsFeedParameters,
+      options?: RequestOptions
+    ) => {
+      const fetchPage = async (
+        p: getNewsFeedParameters,
+        o?: RequestOptions
+      ) => {
         return this.requestWithMetadata<
           getNewsFeedResponse["data"],
           PaginationMetadata
@@ -491,19 +845,27 @@ export class MessariClient {
           method: getNewsFeed.method,
           path: getNewsFeed.path(),
           queryParams: pick(p, getNewsFeed.queryParams),
+          options: o,
         });
       };
 
-      const initialResponse = await fetchPage(params);
+      const initialResponse = await fetchPage(params, options);
       return this.paginate<getNewsFeedResponse["data"], getNewsFeedParameters>(
         params,
         fetchPage,
-        initialResponse
+        initialResponse,
+        options
       );
     },
 
-    getNewsFeedAssetsPaginated: async (params: getNewsFeedAssetsParameters) => {
-      const fetchPage = async (p: getNewsFeedAssetsParameters) => {
+    getNewsFeedAssetsPaginated: async (
+      params: getNewsFeedAssetsParameters,
+      options?: RequestOptions
+    ) => {
+      const fetchPage = async (
+        p: getNewsFeedAssetsParameters,
+        o?: RequestOptions
+      ) => {
         return this.requestWithMetadata<
           getNewsFeedAssetsResponse["data"],
           PaginationMetadata
@@ -511,18 +873,25 @@ export class MessariClient {
           method: getNewsFeedAssets.method,
           path: getNewsFeedAssets.path(),
           queryParams: pick(p, getNewsFeedAssets.queryParams),
+          options: o,
         });
       };
 
-      const initialResponse = await fetchPage(params);
+      const initialResponse = await fetchPage(params, options);
       return this.paginate<
         getNewsFeedAssetsResponse["data"],
         getNewsFeedAssetsParameters
-      >(params, fetchPage, initialResponse);
+      >(params, fetchPage, initialResponse, options);
     },
 
-    getNewsSourcesPaginated: async (params: getNewsSourcesParameters) => {
-      const fetchPage = async (p: getNewsSourcesParameters) => {
+    getNewsSourcesPaginated: async (
+      params: getNewsSourcesParameters,
+      options?: RequestOptions
+    ) => {
+      const fetchPage = async (
+        p: getNewsSourcesParameters,
+        o?: RequestOptions
+      ) => {
         return this.requestWithMetadata<
           getNewsSourcesResponse["data"],
           PaginationMetadata
@@ -530,14 +899,15 @@ export class MessariClient {
           method: getNewsSources.method,
           path: getNewsSources.path(),
           queryParams: pick(p, getNewsSources.queryParams),
+          options: o,
         });
       };
 
-      const initialResponse = await fetchPage(params);
+      const initialResponse = await fetchPage(params, options);
       return this.paginate<
         getNewsSourcesResponse["data"],
         getNewsSourcesParameters
-      >(params, fetchPage, initialResponse);
+      >(params, fetchPage, initialResponse, options);
     },
   };
 
