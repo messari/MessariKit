@@ -148,7 +148,7 @@ export const getAssetsROI = {
   pathParams: [] as const,
   queryParams: [] as const,
   bodyParams: [] as const,
-  path: () => '/api/v1/markets/metrics/roi-data'
+  path: () => '/marketdata/v1/assets/roi'
 } as const;
 
 
@@ -163,7 +163,7 @@ export const getAssetsATH = {
   pathParams: [] as const,
   queryParams: [] as const,
   bodyParams: [] as const,
-  path: () => '/api/v1/markets/metrics/ath-data'
+  path: () => '/marketdata/v1/assets/ath'
 } as const;
 
 
@@ -178,7 +178,7 @@ export const getAssetPrice = {
   pathParams: ['assetId'] as const,
   queryParams: [] as const,
   bodyParams: [] as const,
-  path: (p: PathParams) => `/api/v1/markets/metrics/${p.assetId}/price`
+  path: (p: PathParams) => `/marketdata/v1/assets/${p.assetId}/price`
 } as const;
 
 
@@ -193,7 +193,7 @@ export const getAssetROI = {
   pathParams: ['assetId'] as const,
   queryParams: [] as const,
   bodyParams: [] as const,
-  path: (p: PathParams) => `/api/v1/markets/metrics/${p.assetId}/roi-data`
+  path: (p: PathParams) => `/marketdata/v1/assets/${p.assetId}/roi`
 } as const;
 
 
@@ -208,7 +208,7 @@ export const getAssetATH = {
   pathParams: ['assetId'] as const,
   queryParams: [] as const,
   bodyParams: [] as const,
-  path: (p: PathParams) => `/api/v1/markets/metrics/${p.assetId}/ath-data`
+  path: (p: PathParams) => `/marketdata/v1/assets/${p.assetId}/ath`
 } as const;
 
 // Re-export schema types

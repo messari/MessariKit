@@ -15,7 +15,10 @@
 			}
 		}
 	},
-	"files": ["dist", "README.md"],
+	"files": [
+		"dist",
+		"README.md"
+	],
 	"scripts": {
 		"build": "tsc",
 		"clean": "rimraf dist",
@@ -26,8 +29,9 @@
 		"@messari-kit/types": "workspace:*"
 	},
 	"devDependencies": {
-		"typescript": "^5.3.3",
+		"@types/node": "^22.13.5",
 		"rimraf": "^5.0.5",
-		"tsx": "^4.7.1"
+		"tsx": "^4.7.1",
+		"typescript": "^5.3.3"
 	}
 }

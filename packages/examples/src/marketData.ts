@@ -7,6 +7,7 @@
  */
 
 import { MessariClient } from "@messari-kit/api";
+import { printTable } from "console-table-printer";
 import * as dotenv from "dotenv";
 
 // Load environment variables from .env file
@@ -28,20 +29,33 @@ async function getAssetMarketData(assetId: string) {
     // Use the markets.getAssetPrice method from the client
     const response = await client.markets.getAssetPrice({ assetId });
     
-    console.log(`Market data for ${assetId}:`);
-    console.log(`Current price (USD): $${response.priceUsd?.toFixed(2)}`);
-    console.log(`24h change: ${response.percentChangeUsd24Hours?.toFixed(2)}%`);
-    console.log(`24h volume: $${response.volume24Hours?.toFixed(2)}`);
-    
-    // Access OHLCV data
-    if (response.ohlcv24Hours) {
-      console.log("\n24h OHLCV data:");
-      console.log(`Open: $${response.ohlcv24Hours.open?.toFixed(2)}`);
-      console.log(`High: $${response.ohlcv24Hours.high?.toFixed(2)}`);
-      console.log(`Low: $${response.ohlcv24Hours.low?.toFixed(2)}`);
-      console.log(`Close: $${response.ohlcv24Hours.close?.toFixed(2)}`);
-      console.log(`Volume: $${response.ohlcv24Hours.volume?.toFixed(2)}`);
-    }
+    console.log("Basic Market Data");
+    printTable([{
+      'Price (USD)': `$${response.priceUsd?.toFixed(2)}`,
+      '24h Change': `${response.percentChangeUsd24Hours?.toFixed(2)}%`, 
+      '24h Volume': `$${response.volume24Hours?.toFixed(2)}`,
+      'Market Cap': `$${response.marketcap?.circulatingUsd?.toFixed(2)}`,
+      'Market Cap (FDV)': `$${response.marketcap?.fullyDilutedUsd?.toFixed(2)}`,
+    }]);
+    console.log("OHLCV Data");
+    printTable([
+        {
+            'Time Period': '1h',
+            'Open': `$${response.ohlcv1Hour?.open?.toFixed(2)}`,
+            'High': `$${response.ohlcv1Hour?.high?.toFixed(2)}`,
+            'Low': `$${response.ohlcv1Hour?.low?.toFixed(2)}`,
+            'Close': `$${response.ohlcv1Hour?.close?.toFixed(2)}`,
+            'Volume': `$${response.ohlcv1Hour?.volume?.toFixed(2)}`
+        },
+        {
+            'Time Period': '24h',
+            'Open': `$${response.ohlcv24Hours?.open?.toFixed(2)}`,
+            'High': `$${response.ohlcv24Hours?.high?.toFixed(2)}`,
+            'Low': `$${response.ohlcv24Hours?.low?.toFixed(2)}`,
+            'Close': `$${response.ohlcv24Hours?.close?.toFixed(2)}`,
+            'Volume': `$${response.ohlcv24Hours?.volume?.toFixed(2)}`
+        }
+    ]);
     
     return response;
   } catch (error) {
@@ -61,27 +75,34 @@ async function getAssetROIData(assetId: string) {
     // Use the markets.getAssetROI method from the client
     const response = await client.markets.getAssetROI({ assetId });
     
-    console.log(`\nROI data for ${response.asset?.name} (${response.asset?.symbol}):`);
-    
     if (response.roiData) {
-      // Display ROI data for different time periods
-      console.log("Performance:");
-      console.log(`7 days: ${response.roiData.percentChange1Week?.toFixed(2) || 'N/A'}%`);
-      console.log(`30 days: ${response.roiData.percentChange3Months?.toFixed(2) || 'N/A'}%`);
-      console.log(`1 year: ${response.roiData.percentChange1Year?.toFixed(2) || 'N/A'}%`);
-      console.log("--------------------------------");
-
-      console.log("Performance Relative to $BTC:");
-      console.log(`7 days: ${response.roiData.percentChangeBtc1Week?.toFixed(2) || 'N/A'}%`);
-      console.log(`30 days: ${response.roiData.percentChangeBtc3Months?.toFixed(2) || 'N/A'}%`);
-      console.log(`1 year: ${response.roiData.percentChangeBtc1Year?.toFixed(2) || 'N/A'}%`);
-      console.log("--------------------------------");
-
-      console.log("Performance Relative to $ETH:");
-      console.log(`7 days: ${response.roiData.percentChangeEth1Week?.toFixed(2) || 'N/A'}%`);
-      console.log(`30 days: ${response.roiData.percentChangeEth3Months?.toFixed(2) || 'N/A'}%`);
-      console.log(`1 year: ${response.roiData.percentChangeEth1Year?.toFixed(2) || 'N/A'}%`);
-      console.log("--------------------------------");
+        console.log(`${response.name} (${response.symbol}) ROI Data`);
+        printTable([
+            {
+                'Time Period': '7d',
+                'USD': `${response.roiData.percentChange1Week?.toFixed(2)}`,
+                'vs Bitcoin': `${response.roiData.percentChangeBtc1Week?.toFixed(2)}`,
+                'vs Ether': `${response.roiData.percentChangeEth1Week?.toFixed(2)}`,
+            },
+            {
+                'Time Period': '30d',
+                'USD': `${response.roiData.percentChange1Month?.toFixed(2)}`,
+                'vs Bitcoin': `${response.roiData.percentChangeBtc1Month?.toFixed(2)}`,
+                'vs Ether': `${response.roiData.percentChangeEth1Month?.toFixed(2)}`,
+            },
+            {
+                'Time Period': '3m',
+                'USD': `${response.roiData.percentChange3Months?.toFixed(2)}`,
+                'vs Bitcoin': `${response.roiData.percentChangeBtc3Months?.toFixed(2)}`,
+                'vs Ether': `${response.roiData.percentChangeEth3Months?.toFixed(2)}`,
+            },
+            {
+                'Time Period': '1y',
+                'USD': `${response.roiData.percentChange1Year?.toFixed(2)}`,
+                'vs Bitcoin': `${response.roiData.percentChangeBtc1Year?.toFixed(2)}`,
+                'vs Ether': `${response.roiData.percentChangeEth1Year?.toFixed(2)}`,
+            },
+      ]);
     }
     
     return response;
@@ -102,13 +123,30 @@ async function getAssetATHData(assetId: string) {
     // Use the markets.getAssetATH method from the client
     const response = await client.markets.getAssetATH({ assetId });
     
-    console.log(`\nATH data for ${response.asset?.name} (${response.asset?.symbol}):`);
-    
-    if (response.athData) {
-      const athDate = new Date(response.athData.timestamp || "");
-      console.log(`All-time high: $${response.athData.price?.toFixed(2)}`);
-      console.log(`ATH date: ${athDate.toLocaleDateString()}`);
-      console.log(`Current price is down ${response.athData.percentDown?.toFixed(2)}% from ATH`);
+    if (response.allTimeHighData) {
+        console.log(`${response.name} (${response.symbol}) ATH Data`);
+        const athDate = new Date(response.allTimeHighData.at || "");
+        printTable([
+            {
+            'All-time High': `$${response.allTimeHighData.price?.toFixed(2)}`,
+            'ATH Date': athDate.toLocaleDateString(),
+            'Days Since': `${response.allTimeHighData.daysSince} days`,
+            'Percent Down': `${response.allTimeHighData.percentDown?.toFixed(2)}% from ATH`,
+            'Breakeven Multiple': `${response.allTimeHighData.breakevenMultiple?.toFixed(2)}x`
+            }
+        ]);
+    }
+    if (response.cycleLowData) {
+        console.log(`${response.name} (${response.symbol}) Cycle Low Data`);
+        const cycleLowDate = new Date(response.cycleLowData.at || "");
+        printTable([
+            {
+                'Cycle Low': `$${response.cycleLowData.price?.toFixed(2)}`,
+                'Cycle Low Date': cycleLowDate.toLocaleDateString(),
+                'Percent Up': `${response.cycleLowData.percentUp?.toFixed(2)}% from cycle low`,
+                'Days Since': `${response.cycleLowData.daysSince} days`
+            }
+        ]);
     }
     
     return response;
@@ -127,9 +165,7 @@ async function getTop5ROIPerformers() {
   try {
     // Use the markets.getAllAssetsROI method from the client
     const response = await client.markets.getAllAssetsROI();
-    
-    console.log("\nROI data for all assets:");
-    console.log(`Total assets: ${response.length}`);
+    // console.log("🚀 ~ getTop5ROIPerformers ~ response:", response)
     
     // Display the top 5 performers in the last month
     const top5Performers = [...response]
@@ -141,14 +177,14 @@ async function getTop5ROIPerformers() {
       })
       .slice(0, 5);
     
-    console.log("\nTop 5 performers (1month):");
-    top5Performers.forEach((asset, index) => {
-      console.log(
-        `${index + 1}. ${asset.asset?.name} (${asset.asset?.symbol}): ${asset.roiData?.percentChange1Month?.toFixed(2) || 'N/A'}%`
-      );
-    });
+    console.log(`Top 5 performers (1month) out of ${response.length} assets:`);
+    printTable(top5Performers.map((asset, index) => ({
+        'Rank': `${index + 1}`,
+        'Asset': `${asset?.name} (${asset?.symbol})`,
+        '1 Month ROI': `${asset.roiData?.percentChange1Month?.toFixed(2) || 'N/A'}%`
+    })));
     
-    return top5Performers;
+    return response;
   } catch (error) {
     console.error("Error fetching all assets ROI data:", error);
     throw error;
@@ -161,16 +197,16 @@ async function getTop5ROIPerformers() {
 async function main() {
   try {
     // Example usage with Bitcoin
-    const bitcoinId = "1e31218a-e44e-4285-820c-8282ee222035";
+    const hyperliquidId = "b3d5d66c-26a2-404c-9325-91dc714a722b";
     
     // Get market data for Bitcoin
-    await getAssetMarketData(bitcoinId);
+    await getAssetMarketData(hyperliquidId);
     
     // Get ROI data for Bitcoin
-    await getAssetROIData(bitcoinId);
+    await getAssetROIData(hyperliquidId);
     
     // Get ATH data for Bitcoin
-    await getAssetATHData(bitcoinId);
+    await getAssetATHData(hyperliquidId);
     
     // Get ROI data for all assets
     await getTop5ROIPerformers();

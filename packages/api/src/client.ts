@@ -40,7 +40,7 @@ import type {
   getAssetsROIResponse,
   getAssetsATHResponse,
 } from "@messari-kit/types";
-import type { Agent } from "http";
+import type { Agent } from "node:http";
 import { pick } from "./utils";
 import {
   LogLevel,
@@ -180,7 +180,7 @@ export class MessariClient {
   private readonly defaultHeaders: Record<string, string>;
   private readonly eventHandlers: Map<
     ClientEventType,
-    Set<ClientEventHandler<any>>
+    Set<ClientEventHandler<any>> // FIXME: Set correct type
   >;
 
   constructor(options: MessariClientOptions) {
@@ -255,8 +255,7 @@ export class MessariClient {
     data: ClientEventMap[T]
   ): void {
     if (this.eventHandlers.has(event)) {
-      // biome-ignore lint/style/noNonNullAssertion: its chill
-      for (const handler of this.eventHandlers.get(event)!) {
+      for (const handler of this.eventHandlers.get(event) || []) {
         try {
           handler(data);
         } catch (error) {
@@ -273,7 +272,7 @@ export class MessariClient {
     queryParams = {},
     options = {},
   }: RequestParameters): Promise<T> {
-    this.logger(LogLevel.INFO, "request start", { method, path });
+    this.logger(LogLevel.DEBUG, "request start", { method, path });
 
     this.emit("request", {
       method,

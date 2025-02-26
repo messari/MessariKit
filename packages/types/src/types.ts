@@ -21,41 +21,6 @@ export type paths = {
      */
     post: operations["extractEntities"];
   };
-  [path: `/api/v1/markets/metrics/${string}/ath-data`]: {
-    /**
-     * Returns a single asset's ATH data
-     * @description Returns a single asset's ATH data
-     */
-    get: operations["getAssetATH"];
-  };
-  [path: `/api/v1/markets/metrics/${string}/price`]: {
-    /**
-     * Returns a single asset's market data
-     * @description Returns a single asset's market data
-     */
-    get: operations["getAssetPrice"];
-  };
-  [path: `/api/v1/markets/metrics/${string}/roi-data`]: {
-    /**
-     * Returns a single asset's ROI data
-     * @description Returns a single asset's ROI data
-     */
-    get: operations["getAssetROI"];
-  };
-  "/api/v1/markets/metrics/ath-data": {
-    /**
-     * Returns a list of all time high data for all assets
-     * @description Returns a list of all time high data for all assets
-     */
-    get: operations["getAssetsATH"];
-  };
-  "/api/v1/markets/metrics/roi-data": {
-    /**
-     * Returns a list ROI data for all assets
-     * @description Returns a list ROI data for all assets
-     */
-    get: operations["getAssetsROI"];
-  };
   "/intel/v1/assets": {
     /**
      * Get all assets
@@ -78,6 +43,41 @@ export type paths = {
      * @description Returns a specific event by ID along with its history.
      */
     get: operations["getEventAndHistory"];
+  };
+  [path: `/marketdata/v1/assets/${string}/ath`]: {
+    /**
+     * Returns a single asset's ATH data
+     * @description Returns a single asset's ATH data
+     */
+    get: operations["getAssetATH"];
+  };
+  [path: `/marketdata/v1/assets/${string}/price`]: {
+    /**
+     * Returns a single asset's market data
+     * @description Returns a single asset's market data
+     */
+    get: operations["getAssetPrice"];
+  };
+  [path: `/marketdata/v1/assets/${string}/roi`]: {
+    /**
+     * Returns a single asset's ROI data
+     * @description Returns a single asset's ROI data
+     */
+    get: operations["getAssetROI"];
+  };
+  "/marketdata/v1/assets/ath": {
+    /**
+     * Returns a list of all time high data for all assets
+     * @description Returns a list of all time high data for all assets
+     */
+    get: operations["getAssetsATH"];
+  };
+  "/marketdata/v1/assets/roi": {
+    /**
+     * Returns a list ROI data for all assets
+     * @description Returns a list ROI data for all assets
+     */
+    get: operations["getAssetsROI"];
   };
   "/news/v1/news/assets": {
     /**
@@ -190,18 +190,39 @@ export type components = {
       total?: number;
     };
     AssetWithATHData: {
-      asset?: components["schemas"]["schemas-Asset"];
-      athData?: {
+      allTimeHighData?: {
+        at?: components["schemas"]["TimeUTC"];
+        /** Format: double */
+        breakevenMultiple?: number;
+        /** Format: double */
+        daysSince?: number;
         /** Format: double */
         percentDown?: number;
         /** Format: double */
         price?: number;
-        timestamp?: components["schemas"]["TimeUTC"];
       };
+      contractAddresses?: components["schemas"]["PlatformContract"][];
+      cycleLowData?: {
+        at?: components["schemas"]["TimeUTC"];
+        /** Format: double */
+        daysSince?: number;
+        /** Format: double */
+        percentUp?: number;
+        /** Format: double */
+        price?: number;
+      };
+      id?: string;
+      name?: string;
+      slug?: string;
+      symbol?: string;
     };
     AssetWithROIData: {
-      asset?: components["schemas"]["schemas-Asset"];
+      contractAddresses?: components["schemas"]["PlatformContract"][];
+      id?: string;
+      name?: string;
       roiData?: components["schemas"]["ROIData"];
+      slug?: string;
+      symbol?: string;
     };
     ChatCompletionMessage: {
       /** @description The message content */
@@ -406,16 +427,6 @@ export type components = {
       /** @description List of similar entities found */
       similarEntities?: components["schemas"]["Entity"][];
     };
-    MarketDataAsset: components["schemas"]["schemas-Asset"];
-    MarketDataAssetMarketcap: components["schemas"]["AssetMarketcap"];
-    MarketDataAssetMarketData: components["schemas"]["AssetMarketData"];
-    MarketDataAssetSupply: components["schemas"]["AssetSupply"];
-    MarketDataAssetWithATHData: components["schemas"]["AssetWithATHData"];
-    MarketDataAssetWithROIData: components["schemas"]["AssetWithROIData"];
-    MarketDataOHLCV: components["schemas"]["OHLCV"];
-    MarketDataPlatformContract: components["schemas"]["PlatformContract"];
-    MarketDataROIData: components["schemas"]["ROIData"];
-    MarketDataTimeUTC: components["schemas"]["TimeUTC"];
     NewsAsset: {
       /**
        * Format: uuid
@@ -507,15 +518,6 @@ export type components = {
       percentChangeQuarterToDate?: number;
       /** Format: double */
       percentChangeYearToDate?: number;
-    };
-    "schemas-Asset": {
-      contractAddresses?: components["schemas"]["PlatformContract"][];
-      id?: string;
-      name?: string;
-      /** Format: int32 */
-      serialId?: number;
-      slug?: string;
-      symbol?: string;
     };
     Source: {
       /**
@@ -631,6 +633,126 @@ export type operations = {
           "application/json": components["schemas"]["APIResponseWithMetadata"] & {
             data?: components["schemas"]["ExtractResponse"];
             metadata?: components["schemas"]["ExtractResponseMetadata"];
+          };
+        };
+      };
+      /** @description Server error response */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+    };
+  };
+  /**
+   * Get all assets
+   * @description Returns a list of assets.
+   * Supports pagination and filtering by name or symbol.
+   */
+  getAllAssets: {
+    parameters: {
+      query?: {
+        page?: components["parameters"]["page"];
+        limit?: components["parameters"]["limit"];
+        /** @description Filter by asset symbols (comma-separated) */
+        symbol?: string;
+        /** @description Filter by asset names (comma-separated) */
+        name?: string;
+      };
+      header: {
+        "x-messari-api-key": components["parameters"]["apiKey"];
+      };
+    };
+    responses: {
+      /** @description Client error response */
+      "4XX": {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Successful response */
+      200: {
+        content: {
+          "application/json": components["schemas"]["APIResponseWithMetadata"] & {
+            data?: components["schemas"]["Asset"][];
+            metadata?: components["schemas"]["PaginationResult"];
+          };
+        };
+      };
+      /** @description Server error response */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+    };
+  };
+  /**
+   * Get all events
+   * @description Returns a list of events based on the provided filters.
+   * Supports pagination and filtering by various parameters.
+   */
+  getAllEvents: {
+    parameters: {
+      header: {
+        "x-messari-api-key": components["parameters"]["apiKey"];
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["GetAllEventsRequest"];
+      };
+    };
+    responses: {
+      /** @description Client error response */
+      "4XX": {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Successful response */
+      200: {
+        content: {
+          "application/json": components["schemas"]["APIResponseWithMetadata"] & {
+            data?: components["schemas"]["Event"][];
+            metadata?: components["schemas"]["PaginationResult"];
+          };
+        };
+      };
+      /** @description Server error response */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+    };
+  };
+  /**
+   * Get event and its history
+   * @description Returns a specific event by ID along with its history.
+   */
+  getEventAndHistory: {
+    parameters: {
+      header: {
+        "x-messari-api-key": components["parameters"]["apiKey"];
+      };
+      path: {
+        /** @description ID of the event to retrieve */
+        eventId: string;
+      };
+    };
+    responses: {
+      /** @description Client error response */
+      "4XX": {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Successful response */
+      200: {
+        content: {
+          "application/json": components["schemas"]["APIResponseWithMetadata"] & {
+            data?: components["schemas"]["GetEventResponse"];
           };
         };
       };
@@ -780,126 +902,6 @@ export type operations = {
       200: {
         content: {
           "application/json": components["schemas"]["AssetWithROIData"][];
-        };
-      };
-      /** @description Server error response */
-      500: {
-        content: {
-          "application/json": components["schemas"]["APIError"];
-        };
-      };
-    };
-  };
-  /**
-   * Get all assets
-   * @description Returns a list of assets.
-   * Supports pagination and filtering by name or symbol.
-   */
-  getAllAssets: {
-    parameters: {
-      query?: {
-        page?: components["parameters"]["page"];
-        limit?: components["parameters"]["limit"];
-        /** @description Filter by asset symbols (comma-separated) */
-        symbol?: string;
-        /** @description Filter by asset names (comma-separated) */
-        name?: string;
-      };
-      header: {
-        "x-messari-api-key": components["parameters"]["apiKey"];
-      };
-    };
-    responses: {
-      /** @description Client error response */
-      "4XX": {
-        content: {
-          "application/json": components["schemas"]["APIError"];
-        };
-      };
-      /** @description Successful response */
-      200: {
-        content: {
-          "application/json": components["schemas"]["APIResponseWithMetadata"] & {
-            data?: components["schemas"]["Asset"][];
-            metadata?: components["schemas"]["PaginationResult"];
-          };
-        };
-      };
-      /** @description Server error response */
-      500: {
-        content: {
-          "application/json": components["schemas"]["APIError"];
-        };
-      };
-    };
-  };
-  /**
-   * Get all events
-   * @description Returns a list of events based on the provided filters.
-   * Supports pagination and filtering by various parameters.
-   */
-  getAllEvents: {
-    parameters: {
-      header: {
-        "x-messari-api-key": components["parameters"]["apiKey"];
-      };
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["GetAllEventsRequest"];
-      };
-    };
-    responses: {
-      /** @description Client error response */
-      "4XX": {
-        content: {
-          "application/json": components["schemas"]["APIError"];
-        };
-      };
-      /** @description Successful response */
-      200: {
-        content: {
-          "application/json": components["schemas"]["APIResponseWithMetadata"] & {
-            data?: components["schemas"]["Event"][];
-            metadata?: components["schemas"]["PaginationResult"];
-          };
-        };
-      };
-      /** @description Server error response */
-      500: {
-        content: {
-          "application/json": components["schemas"]["APIError"];
-        };
-      };
-    };
-  };
-  /**
-   * Get event and its history
-   * @description Returns a specific event by ID along with its history.
-   */
-  getEventAndHistory: {
-    parameters: {
-      header: {
-        "x-messari-api-key": components["parameters"]["apiKey"];
-      };
-      path: {
-        /** @description ID of the event to retrieve */
-        eventId: string;
-      };
-    };
-    responses: {
-      /** @description Client error response */
-      "4XX": {
-        content: {
-          "application/json": components["schemas"]["APIError"];
-        };
-      };
-      /** @description Successful response */
-      200: {
-        content: {
-          "application/json": components["schemas"]["APIResponseWithMetadata"] & {
-            data?: components["schemas"]["GetEventResponse"];
-          };
         };
       };
       /** @description Server error response */

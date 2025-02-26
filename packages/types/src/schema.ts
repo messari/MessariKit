@@ -13,26 +13,6 @@ export type APIResponseWithMetadata = components['schemas']['APIResponseWithMeta
 
 export type PaginationResult = components['schemas']['PaginationResult'];
 
-export type MarketDataAsset = components['schemas']['MarketDataAsset'];
-
-export type MarketDataAssetMarketData = components['schemas']['MarketDataAssetMarketData'];
-
-export type MarketDataAssetSupply = components['schemas']['MarketDataAssetSupply'];
-
-export type MarketDataAssetMarketcap = components['schemas']['MarketDataAssetMarketcap'];
-
-export type MarketDataROIData = components['schemas']['MarketDataROIData'];
-
-export type MarketDataAssetWithROIData = components['schemas']['MarketDataAssetWithROIData'];
-
-export type MarketDataAssetWithATHData = components['schemas']['MarketDataAssetWithATHData'];
-
-export type MarketDataPlatformContract = components['schemas']['MarketDataPlatformContract'];
-
-export type MarketDataOHLCV = components['schemas']['MarketDataOHLCV'];
-
-export type MarketDataTimeUTC = components['schemas']['MarketDataTimeUTC'];
-
 export type ChatCompletionMessage = components['schemas']['ChatCompletionMessage'];
 
 export type ChatCompletionRequest = components['schemas']['ChatCompletionRequest'];

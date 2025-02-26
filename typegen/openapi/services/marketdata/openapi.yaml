@@ -350,27 +350,65 @@ components:
     AssetWithROIData:
       type: object
       properties:
-        asset:
-          $ref: '#/components/schemas/MarketDataAsset'
+        id:
+          type: string
+        name:
+          type: string
+        symbol:
+          type: string
+        slug:
+          type: string
+        contractAddresses:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlatformContract'
         roiData:
           $ref: '#/components/schemas/ROIData'
 
     AssetWithATHData:
       type: object
       properties:
-        asset:
-          $ref: '#/components/schemas/MarketDataAsset'
-        athData:
+        id:
+          type: string
+        name:
+          type: string
+        symbol:
+          type: string
+        slug:
+          type: string
+        contractAddresses:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlatformContract'
+        allTimeHighData:
           type: object
           properties:
             price:
               type: number
               format: double
-  
-            timestamp:
+            at:
               $ref: '#/components/schemas/TimeUTC'
-  
+            daysSince:
+              type: number
+              format: double
             percentDown:
+              type: number
+              format: double
+            breakevenMultiple:
+              type: number
+              format: double
+        cycleLowData:
+          type: object
+          properties:
+            price:
+              type: number
+              format: double
+            at:
+              $ref: '#/components/schemas/TimeUTC'
+            percentUp:
+              type: number
+              format: double
+            daysSince:
               type: number
               format: double
   

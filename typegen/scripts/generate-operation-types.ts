@@ -24,31 +24,6 @@ interface OpenAPISpec extends OpenAPIV3.Document {
 }
 
 /**
- * Extracts the service name from a path or tag
- * Example: /intel/v1/events -> intel
- * Example: intel:Events -> intel
- */
-function extractServiceName(pathOrTag: string | string[]): string {
-  if (Array.isArray(pathOrTag) && pathOrTag.length > 0) {
-    // Extract from tag like "intel:Events"
-    const tag = pathOrTag[0];
-    const parts = tag.split(":");
-    if (parts.length > 1) {
-      return parts[0];
-    }
-    return "api"; // Default if no service prefix in tag
-  }
-
-  // Extract from path like "/intel/v1/events"
-  const pathStr = pathOrTag as string;
-  const parts = pathStr.split("/");
-  if (parts.length > 1) {
-    return parts[1]; // The service name is usually the first part after the leading slash
-  }
-  return "api"; // Default if path doesn't follow the expected format
-}
-
-/**
  * Generates a path function for an operation
  */
 function generatePathFunction(
