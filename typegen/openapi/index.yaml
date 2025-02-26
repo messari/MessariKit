@@ -32,6 +32,28 @@ components:
       $ref: './common/components.yaml#/components/schemas/APIResponseWithMetadata'
     PaginationResult:
       $ref: './common/components.yaml#/components/schemas/PaginationResult'
+    
+    # MarketData components
+    MarketDataAsset:
+      $ref: './services/marketdata/openapi.yaml#/components/schemas/MarketDataAsset'
+    MarketDataAssetMarketData:
+      $ref: './services/marketdata/openapi.yaml#/components/schemas/AssetMarketData'
+    MarketDataAssetSupply:
+      $ref: './services/marketdata/openapi.yaml#/components/schemas/AssetSupply'
+    MarketDataAssetMarketcap:
+      $ref: './services/marketdata/openapi.yaml#/components/schemas/AssetMarketcap'
+    MarketDataROIData:
+      $ref: './services/marketdata/openapi.yaml#/components/schemas/ROIData'
+    MarketDataAssetWithROIData:
+      $ref: './services/marketdata/openapi.yaml#/components/schemas/AssetWithROIData'
+    MarketDataAssetWithATHData:
+      $ref: './services/marketdata/openapi.yaml#/components/schemas/AssetWithATHData'
+    MarketDataPlatformContract:
+      $ref: './services/marketdata/openapi.yaml#/components/schemas/PlatformContract'
+    MarketDataOHLCV:
+      $ref: './services/marketdata/openapi.yaml#/components/schemas/OHLCV'
+    MarketDataTimeUTC:
+      $ref: './services/marketdata/openapi.yaml#/components/schemas/TimeUTC'
   parameters:
     # Common parameters
     page:
@@ -70,6 +92,18 @@ paths:
     $ref: './services/news/openapi.yaml#/paths/~1news~1v1~1news~1feed'
   /news/v1/news/sources:
     $ref: './services/news/openapi.yaml#/paths/~1news~1v1~1news~1sources'
+
+  # MarketData Paths ADJUST ALL ROUTES + YAML PATHS
+  /marketdata/v1/metrics/roi-data: 
+    $ref: './services/marketdata/openapi.yaml#/paths/~1assets~1roi'
+  /marketdata/v1/metrics/ath-data:
+    $ref: './services/marketdata/openapi.yaml#/paths/~1assets~1ath'
+  /marketdata/v1/metrics/{assetId}/price:
+    $ref: './services/marketdata/openapi.yaml#/paths/~1assets~1{assetId}~1price'
+  /marketdata/v1/metrics/{assetId}/roi-data:
+    $ref: './services/marketdata/openapi.yaml#/paths/~1assets~1{assetId}~1roi'
+  /marketdata/v1/metrics/{assetId}/ath-data:
+    $ref: './services/marketdata/openapi.yaml#/paths/~1assets~1{assetId}~1ath'
 
 # Import tags from all services
 tags:

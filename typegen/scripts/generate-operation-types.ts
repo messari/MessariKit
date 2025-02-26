@@ -13,30 +13,14 @@
  * See the README.md in the typegen directory for more information.
  */
 
-import fs from "fs";
-import path from "path";
+import fs from "node:fs";
+import path from "node:path";
+import type { OpenAPIV3 } from "openapi-types";
 import yaml from "js-yaml";
 
-interface OpenAPISpec {
-  paths: {
-    [path: string]: {
-      [method: string]: {
-        operationId?: string;
-        parameters?: any[];
-        requestBody?: any;
-        responses?: any;
-        tags?: string[];
-      };
-    };
-  };
-  components?: {
-    schemas?: {
-      [key: string]: any;
-    };
-    parameters?: {
-      [key: string]: any;
-    };
-  };
+// Define a type that extends OpenAPIV3.Document to include our custom components
+interface OpenAPISpec extends OpenAPIV3.Document {
+  components?: OpenAPIV3.ComponentsObject;
 }
 
 /**
@@ -83,13 +67,16 @@ function generatePathFunction(
 /**
  * Gets properties from a schema
  */
-function getSchemaProperties(schema: any, spec: OpenAPISpec): string[] {
+function getSchemaProperties(
+  schema: OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject | undefined,
+  spec: OpenAPISpec
+): string[] {
   if (!schema) return [];
 
-  if (schema.$ref) {
+  if ('$ref' in schema) {
     const refPath = schema.$ref.split("/");
     const schemaName = refPath[refPath.length - 1];
-    const refSchema = spec.components?.schemas?.[schemaName];
+    const refSchema = spec.components?.schemas?.[schemaName] as OpenAPIV3.SchemaObject;
     return refSchema?.properties ? Object.keys(refSchema.properties) : [];
   }
 
@@ -100,26 +87,26 @@ function getSchemaProperties(schema: any, spec: OpenAPISpec): string[] {
  * Extracts parameter names from an operation
  */
 function extractParameterNames(
-  operation: any,
+  operation: OpenAPIV3.OperationObject,
   spec: OpenAPISpec
 ): { queryParams: string[]; pathParams: string[]; bodyParams: string[] } {
   // Process parameters directly defined in the operation
-  const processParams = (params: any[]) => {
-    if (!params) return { queryParams: [], pathParams: [] };
+  const processParams = (params: (OpenAPIV3.ParameterObject | OpenAPIV3.ReferenceObject)[] | undefined) => {
+    if (!params) return { queryParams: [] as string[], pathParams: [] as string[] };
 
     const queryParams: string[] = [];
     const pathParams: string[] = [];
 
-    params.forEach((p: any) => {
+    for (const p of params) {
       // Handle parameter references
-      if (p.$ref) {
+      if ('$ref' in p) {
         // For parameters like '#/components/parameters/page', we want to extract 'page'
         const refParts = p.$ref.split("/");
         const paramName = refParts[refParts.length - 1];
 
         // Skip API key parameter
         if (paramName === "apiKey" || paramName === "x-messari-api-key") {
-          return;
+          continue;
         }
 
         // Common pagination parameters
@@ -142,15 +129,20 @@ function extractParameterNames(
           pathParams.push(p.name);
         }
       }
-    });
+    }
 
     return { queryParams, pathParams };
   };
 
-  const { queryParams, pathParams } = processParams(operation.parameters || []);
+  const result = processParams(operation.parameters);
+  const queryParams = result?.queryParams || [];
+  const pathParams = result?.pathParams || [];
 
-  const bodySchema =
-    operation.requestBody?.content?.["application/json"]?.schema;
+  // Extract body parameters from request body
+  const bodySchema = operation.requestBody && 'content' in operation.requestBody
+    ? operation.requestBody.content?.["application/json"]?.schema
+    : undefined;
+  
   const bodyParams = getSchemaProperties(bodySchema, spec);
 
   return { queryParams, pathParams, bodyParams };
@@ -159,18 +151,42 @@ function extractParameterNames(
 /**
  * Generates TypeScript types for an operation
  */
-function generateOperationTypes(operationId: string, operation: any): string {
+function generateOperationTypes(operationId: string, operation: OpenAPIV3.OperationObject): string {
   // Get the schema name from the response
-  const responseSchema =
-    operation.responses["200"]?.content["application/json"]?.schema;
-  const schemaRef = responseSchema?.allOf?.[1]?.properties?.data?.$ref;
-  const metadataRef = responseSchema?.allOf?.[1]?.properties?.metadata?.$ref;
-
-  // Check for array type with items that have a $ref
-  const isArray =
-    responseSchema?.allOf?.[1]?.properties?.data?.type === "array";
-  const arrayItemsRef =
-    responseSchema?.allOf?.[1]?.properties?.data?.items?.$ref;
+  const responseObj = operation.responses["200"] as OpenAPIV3.ResponseObject;
+  const responseSchema = responseObj?.content?.["application/json"]?.schema;
+  
+  // Handle different response schema structures
+  let schemaRef: string | undefined;
+  let metadataRef: string | undefined;
+  let isArray = false;
+  let arrayItemsRef: string | undefined;
+  
+  if (responseSchema) {
+    if ('allOf' in responseSchema && responseSchema.allOf) {
+      const dataSchema = responseSchema.allOf[1] as OpenAPIV3.SchemaObject;
+      if (dataSchema.properties?.data) {
+        const dataProperty = dataSchema.properties.data as OpenAPIV3.SchemaObject;
+        if ('$ref' in dataProperty) {
+          schemaRef = dataProperty.$ref as string;
+        } else if (dataProperty.type === 'array' && dataProperty.items) {
+          isArray = true;
+          if ('$ref' in dataProperty.items) {
+            arrayItemsRef = dataProperty.items.$ref;
+          }
+        }
+      }
+      
+      if (dataSchema.properties?.metadata && '$ref' in dataSchema.properties.metadata) {
+        metadataRef = dataSchema.properties.metadata.$ref;
+      }
+    } else if ('$ref' in responseSchema) {
+      schemaRef = responseSchema.$ref;
+    } else if (responseSchema.type === 'array' && responseSchema.items && '$ref' in responseSchema.items) {
+      isArray = true;
+      arrayItemsRef = responseSchema.items.$ref;
+    }
+  }
 
   let responseType = "void";
   let metadataType = null;
@@ -191,7 +207,7 @@ function generateOperationTypes(operationId: string, operation: any): string {
   }
 
   // Check if this is a paginated response
-  const isPaginated = metadataRef && metadataRef.includes("PaginationResult");
+  const isPaginated = metadataRef?.includes("PaginationResult");
 
   // Generate the final response type
   let finalResponseType = responseType;
@@ -201,15 +217,15 @@ function generateOperationTypes(operationId: string, operation: any): string {
 
   // Process parameters to generate the parameter type
   const queryParams = operation.parameters
-    ?.filter((p: any) => {
+    ?.filter((p) => {
       // Skip API key parameter
-      if (p.name === "x-messari-api-key") return false;
+      if ('name' in p && p.name === "x-messari-api-key") return false;
 
       // Include query parameters and referenced parameters that are likely query params
-      if (p.in === "query") return true;
+      if ('in' in p && p.in === "query") return true;
 
       // Handle referenced parameters
-      if (p.$ref) {
+      if ('$ref' in p) {
         const refParts = p.$ref.split("/");
         const paramName = refParts[refParts.length - 1];
         // Include common pagination parameters and other non-path parameters
@@ -224,12 +240,12 @@ function generateOperationTypes(operationId: string, operation: any): string {
 
       return false;
     })
-    .map((p: any) => {
+    ?.map((p) => {
       // Get parameter name
-      let paramName;
-      let paramSchema;
+      let paramName: string;
+      let paramSchema: OpenAPIV3.SchemaObject | undefined;
 
-      if (p.$ref) {
+      if ('$ref' in p) {
         // Handle referenced parameter
         const refParts = p.$ref.split("/");
         paramName = refParts[refParts.length - 1];
@@ -240,7 +256,7 @@ function generateOperationTypes(operationId: string, operation: any): string {
         }
       } else {
         paramName = p.name;
-        paramSchema = p.schema;
+        paramSchema = p.schema as OpenAPIV3.SchemaObject;
       }
 
       // Get the parameter type from the schema
@@ -254,38 +270,39 @@ function generateOperationTypes(operationId: string, operation: any): string {
           // Handle array types
           let itemType = "string";
           if (
-            paramSchema.items?.type === "integer" ||
-            paramSchema.items?.type === "number"
+            paramSchema.items && 'type' in paramSchema.items &&
+            (paramSchema.items.type === "integer" || paramSchema.items.type === "number")
           ) {
             itemType = "number";
-          } else if (paramSchema.items?.type === "boolean") {
+          } else if (paramSchema.items && 'type' in paramSchema.items && paramSchema.items.type === "boolean") {
             itemType = "boolean";
           }
           paramType = `${itemType}[]`;
         }
       }
 
-      return `${paramName}${p.required ? "" : "?"}: ${paramType}`;
+      return `${paramName}${('required' in p && p.required) ? "" : "?"}: ${paramType}`;
     })
-    .join("; ");
+    ?.join("; ") || "";
 
   const pathParams = operation.parameters
     ?.filter(
-      (p: any) =>
-        p.in === "path" ||
-        (p.$ref && (p.$ref.includes("path") || p.$ref.includes("Path")))
+      (p) =>
+        ('in' in p && p.in === "path") ||
+        ('$ref' in p && (p.$ref.includes("path") || p.$ref.includes("Path")))
     )
-    .map((p: any) => {
+    ?.map((p) => {
       // Path parameters typically need to be strings for URL construction
-      const paramName = p.$ref ? p.$ref.split("/").pop() : p.name;
+      const paramName = '$ref' in p ? p.$ref.split("/").pop() : p.name;
       return `${paramName}: string`;
     })
-    .join("; ");
+    ?.join("; ") || "";
 
   let bodyType = null;
-  if (operation.requestBody) {
-    const bodySchemaRef =
-      operation.requestBody.content["application/json"].schema.$ref;
+  if (operation.requestBody && 'content' in operation.requestBody && 
+      operation.requestBody.content["application/json"]?.schema && 
+      '$ref' in operation.requestBody.content["application/json"].schema) {
+    const bodySchemaRef = operation.requestBody.content["application/json"].schema.$ref;
     const bodySchemaName = bodySchemaRef.split("/").pop();
     bodyType = `components['schemas']['${bodySchemaName}']`;
   }
@@ -302,7 +319,7 @@ function generateOperationTypes(operationId: string, operation: any): string {
 export type ${operationId}Response = ${finalResponseType};
 export type ${operationId}Error = components['schemas']['APIError'];
 
-export type ${operationId}Parameters = ${typeIntersection};`;
+export type ${operationId}Parameters = ${typeIntersection || 'null' };`;
 }
 
 /**
@@ -312,7 +329,7 @@ function generateOperationObject(
   operationId: string,
   method: string,
   pathTemplate: string,
-  operation: any,
+  operation: OpenAPIV3.OperationObject,
   spec: OpenAPISpec
 ): string {
   const { queryParams, pathParams, bodyParams } = extractParameterNames(
@@ -351,7 +368,7 @@ function processCombinedOpenAPISpec(filePath: string): string[] {
   // Define APIResponseWithMetadata directly instead of importing it
   operations.push(`
 // Define APIResponseWithMetadata as a generic type
-export interface APIResponseWithMetadata<T = any, M = any> {
+export interface APIResponseWithMetadata<T = unknown, M = unknown> {
   /** @description Response payload */
   data: T;
   /** @description Error message if request failed */
@@ -362,27 +379,35 @@ export interface APIResponseWithMetadata<T = any, M = any> {
 
 // Define PathParams type for path functions
 export type PathParams = Record<string, string>;`);
-  operations.push(``);
+  operations.push("");
 
   // Process all paths and operations
-  Object.entries(spec.paths).forEach(([path, pathObj]) => {
-    Object.entries(pathObj).forEach(([method, operation]) => {
-      if (operation.operationId) {
+  for (const [path, pathObj] of Object.entries(spec.paths)) {
+    if (!pathObj) continue;
+    
+    for (const [method, operation] of Object.entries(pathObj)) {
+      // Skip non-operation properties like parameters, summary, etc.
+      if (!['get', 'post', 'put', 'delete', 'patch', 'options', 'head', 'trace'].includes(method)) {
+        continue;
+      }
+      
+      const typedOperation = operation as OpenAPIV3.OperationObject;
+      if (typedOperation.operationId) {
         operations.push(
-          generateOperationTypes(operation.operationId, operation)
+          generateOperationTypes(typedOperation.operationId, typedOperation)
         );
         operations.push(
           generateOperationObject(
-            operation.operationId,
+            typedOperation.operationId,
             method,
             path,
-            operation,
+            typedOperation,
             spec
           )
         );
       }
-    });
-  });
+    }
+  }
 
   return operations;
 }
@@ -408,11 +433,11 @@ import { components } from './types';
 // Export all schema types from components`);
 
   // Generate exports for each schema
-  Object.keys(spec.components.schemas).forEach((schemaName) => {
+  for (const schemaName of Object.keys(spec.components.schemas)) {
     exports.push(
       `export type ${schemaName} = components['schemas']['${schemaName}'];`
     );
-  });
+  }
 
   return exports;
 }

@@ -2,7 +2,7 @@ import { components } from './types';
 
 
 // Define APIResponseWithMetadata as a generic type
-export interface APIResponseWithMetadata<T = any, M = any> {
+export interface APIResponseWithMetadata<T = unknown, M = unknown> {
   /** @description Response payload */
   data: T;
   /** @description Error message if request failed */
@@ -134,6 +134,81 @@ export const getNewsSources = {
   queryParams: ['sourceName', 'limit', 'page'] as const,
   bodyParams: [] as const,
   path: () => '/news/v1/news/sources'
+} as const;
+
+
+export type getAssetsROIResponse = components['schemas']['AssetWithROIData'][];
+export type getAssetsROIError = components['schemas']['APIError'];
+
+export type getAssetsROIParameters = null;
+
+
+export const getAssetsROI = {
+  method: 'GET' as const,
+  pathParams: [] as const,
+  queryParams: [] as const,
+  bodyParams: [] as const,
+  path: () => '/api/v1/markets/metrics/roi-data'
+} as const;
+
+
+export type getAssetsATHResponse = components['schemas']['AssetWithATHData'][];
+export type getAssetsATHError = components['schemas']['APIError'];
+
+export type getAssetsATHParameters = null;
+
+
+export const getAssetsATH = {
+  method: 'GET' as const,
+  pathParams: [] as const,
+  queryParams: [] as const,
+  bodyParams: [] as const,
+  path: () => '/api/v1/markets/metrics/ath-data'
+} as const;
+
+
+export type getAssetPriceResponse = components['schemas']['AssetMarketData'];
+export type getAssetPriceError = components['schemas']['APIError'];
+
+export type getAssetPriceParameters = { assetId: string };
+
+
+export const getAssetPrice = {
+  method: 'GET' as const,
+  pathParams: ['assetId'] as const,
+  queryParams: [] as const,
+  bodyParams: [] as const,
+  path: (p: PathParams) => `/api/v1/markets/metrics/${p.assetId}/price`
+} as const;
+
+
+export type getAssetROIResponse = components['schemas']['AssetWithROIData'];
+export type getAssetROIError = components['schemas']['APIError'];
+
+export type getAssetROIParameters = { assetId: string };
+
+
+export const getAssetROI = {
+  method: 'GET' as const,
+  pathParams: ['assetId'] as const,
+  queryParams: [] as const,
+  bodyParams: [] as const,
+  path: (p: PathParams) => `/api/v1/markets/metrics/${p.assetId}/roi-data`
+} as const;
+
+
+export type getAssetATHResponse = components['schemas']['AssetWithATHData'];
+export type getAssetATHError = components['schemas']['APIError'];
+
+export type getAssetATHParameters = { assetId: string };
+
+
+export const getAssetATH = {
+  method: 'GET' as const,
+  pathParams: ['assetId'] as const,
+  queryParams: [] as const,
+  bodyParams: [] as const,
+  path: (p: PathParams) => `/api/v1/markets/metrics/${p.assetId}/ath-data`
 } as const;
 
 // Re-export schema types

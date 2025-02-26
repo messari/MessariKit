@@ -1,6 +1,6 @@
-// Export the MessariClient from client.ts
-export { MessariClient, MessariClientOptions } from "./client";
-export {
+export { MessariClient  } from "./client";
+export type {
+  MessariClientOptions,
   PaginationParameters,
   PaginationMetadata,
   PaginatedResponse,

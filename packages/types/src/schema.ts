@@ -13,6 +13,26 @@ export type APIResponseWithMetadata = components['schemas']['APIResponseWithMeta
 
 export type PaginationResult = components['schemas']['PaginationResult'];
 
+export type MarketDataAsset = components['schemas']['MarketDataAsset'];
+
+export type MarketDataAssetMarketData = components['schemas']['MarketDataAssetMarketData'];
+
+export type MarketDataAssetSupply = components['schemas']['MarketDataAssetSupply'];
+
+export type MarketDataAssetMarketcap = components['schemas']['MarketDataAssetMarketcap'];
+
+export type MarketDataROIData = components['schemas']['MarketDataROIData'];
+
+export type MarketDataAssetWithROIData = components['schemas']['MarketDataAssetWithROIData'];
+
+export type MarketDataAssetWithATHData = components['schemas']['MarketDataAssetWithATHData'];
+
+export type MarketDataPlatformContract = components['schemas']['MarketDataPlatformContract'];
+
+export type MarketDataOHLCV = components['schemas']['MarketDataOHLCV'];
+
+export type MarketDataTimeUTC = components['schemas']['MarketDataTimeUTC'];
+
 export type ChatCompletionMessage = components['schemas']['ChatCompletionMessage'];
 
 export type ChatCompletionRequest = components['schemas']['ChatCompletionRequest'];
@@ -58,3 +78,21 @@ export type Document = components['schemas']['Document'];
 export type DocumentList = components['schemas']['DocumentList'];
 
 export type SourceList = components['schemas']['SourceList'];
+
+export type PlatformContract = components['schemas']['PlatformContract'];
+
+export type ROIData = components['schemas']['ROIData'];
+
+export type AssetWithROIData = components['schemas']['AssetWithROIData'];
+
+export type TimeUTC = components['schemas']['TimeUTC'];
+
+export type AssetWithATHData = components['schemas']['AssetWithATHData'];
+
+export type OHLCV = components['schemas']['OHLCV'];
+
+export type AssetSupply = components['schemas']['AssetSupply'];
+
+export type AssetMarketcap = components['schemas']['AssetMarketcap'];
+
+export type AssetMarketData = components['schemas']['AssetMarketData'];

@@ -1,51 +1,65 @@
 import {
   createChatCompletion,
+  extractEntities,
+  getNewsFeed,
+  getNewsSources,
+  getNewsFeedAssets,
+  getAllEvents,
+  getEventAndHistory,
+  getAllAssets,
+  getAssetPrice,
+  getAssetROI,
+  getAssetATH,
+  getAssetsROI,
+  getAssetsATH,
+} from "@messari-kit/types";
+import type {
   createChatCompletionParameters,
   createChatCompletionResponse,
-  extractEntities,
   extractEntitiesParameters,
   extractEntitiesResponse,
-  getNewsFeed,
   getNewsFeedParameters,
   getNewsFeedResponse,
-  getNewsSources,
   getNewsSourcesParameters,
   getNewsSourcesResponse,
-  getNewsFeedAssets,
   getNewsFeedAssetsParameters,
   getNewsFeedAssetsResponse,
   APIResponseWithMetadata,
-  getAllEvents,
   getAllEventsParameters,
-  getEventAndHistory,
   getEventAndHistoryParameters,
   getEventAndHistoryResponse,
-  getAllAssets,
   getAllAssetsParameters,
   getAllAssetsResponse,
   getAllEventsResponse,
-  PathParams,
+  getAssetPriceParameters,
+  getAssetPriceResponse,
+  getAssetROIParameters,
+  getAssetROIResponse,
+  getAssetATHParameters,
+  getAssetATHResponse,
+  getAssetsROIResponse,
+  getAssetsATHResponse,
 } from "@messari-kit/types";
 import { pick } from "./utils";
 
-export interface MessariClientOptions {
+export type MessariClientOptions = {
   apiKey: string;
   baseUrl?: string;
-}
+};
 
-export interface PaginationParameters {
+export type PaginationParameters = {
   limit?: number;
   page?: number;
-}
+};
 
-export interface PaginationMetadata {
+export type PaginationMetadata = {
   page: number;
   limit: number;
   total?: number;
   totalRows?: number;
   totalPages?: number;
   hasMore?: boolean;
-}
+};
 
 export type PaginatedResponse<T> = APIResponseWithMetadata<
   T,
@@ -58,14 +72,14 @@ export type PaginatedResult<T, P extends PaginationParameters> = {
   error?: string;
 } & PaginationHelpers<T, P>;
 
-export interface PaginationHelpers<T, P extends PaginationParameters> {
+export type PaginationHelpers<T, P extends PaginationParameters> = {
   hasNextPage: boolean;
   hasPreviousPage: boolean;
   nextPage: () => Promise<PaginatedResult<T, P>>;
   previousPage: () => Promise<PaginatedResult<T, P>>;
   goToPage: (page: number) => Promise<PaginatedResult<T, P>>;
   getAllPages: () => Promise<T[]>;
-}
+};
 
 export class MessariClient {
   private readonly apiKey: string;
@@ -84,7 +98,7 @@ export class MessariClient {
   }: {
     method: string;
     path: string;
-    body?: any;
+    body?: Record<string, unknown>;
     queryParams?: Record<string, string>;
   }): Promise<T> {
     const queryString = Object.entries(queryParams)
@@ -95,16 +109,17 @@ export class MessariClient {
       .join("&");
 
     const url = `${this.baseUrl}${path}${queryString ? `?${queryString}` : ""}`;
-
-    const response = await fetch(url, {
+    const requestPayload = {
       method,
       headers: {
         "Content-Type": "application/json",
         "x-messari-api-key": this.apiKey,
       },
       body: body ? JSON.stringify(body) : undefined,
-    });
-
+    };
+    console.log(`Request Information\n  URL: ${url}\n  Request Payload: ${JSON.stringify(requestPayload)}`);
+    
+    const response = await fetch(url, requestPayload);
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || "An error occurred");
@@ -122,7 +137,7 @@ export class MessariClient {
   }: {
     method: string;
     path: string;
-    body?: any;
+    body?: Record<string, unknown>;
     queryParams?: Record<
       string,
       string | number | boolean | string[] | number[] | boolean[] | undefined
@@ -147,16 +162,17 @@ export class MessariClient {
       .join("&");
 
     const url = `${this.baseUrl}${path}${queryString ? `?${queryString}` : ""}`;
-
-    const response = await fetch(url, {
+    const requestPayload = {
       method,
       headers: {
         "Content-Type": "application/json",
         "x-messari-api-key": this.apiKey,
       },
       body: body ? JSON.stringify(body) : undefined,
-    });
+    };
+    console.log(`Request Information\n  URL: ${url}\n  Request Payload: ${JSON.stringify(requestPayload)}`);
 
+    const response = await fetch(url, requestPayload);
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || "An error occurred");
@@ -252,7 +268,7 @@ export class MessariClient {
               ...createPaginationHelpers(),
             };
           } catch (error) {
-            throw error;
+            throw new Error(`Error fetching next page: ${error}`);
           }
         },
         previousPage: async () => {
@@ -300,7 +316,7 @@ export class MessariClient {
               ...createPaginationHelpers(),
             };
           } catch (error) {
-            throw error;
+            throw new Error(`Error fetching previous page: ${error}`);
           }
         },
         goToPage: async (page: number) => {
@@ -343,7 +359,7 @@ export class MessariClient {
               ...createPaginationHelpers(),
             };
           } catch (error) {
-            throw error;
+            throw new Error(`Error fetching page ${page}: ${error}`);
           }
         },
         getAllPages: async () => {
@@ -387,9 +403,9 @@ export class MessariClient {
           }
 
           const pageResults = await Promise.all(pagePromises);
-          pageResults.forEach((pageData) => {
+          for (const pageData of pageResults) {
             allPages.push(...pageData);
-          });
+          }
 
           return allPages;
         },
@@ -523,5 +539,39 @@ export class MessariClient {
         getNewsSourcesParameters
       >(params, fetchPage, initialResponse);
     },
+  };
+
+  public readonly markets = {
+    // Asset-specific endpoints
+    getAssetPrice: (params: getAssetPriceParameters) =>
+      this.request<getAssetPriceResponse>({
+        method: getAssetPrice.method,
+        path: getAssetPrice.path(params),
+      }),
+
+    getAssetROI: (params: getAssetROIParameters) =>
+      this.request<getAssetROIResponse>({
+        method: getAssetROI.method,
+        path: getAssetROI.path(params),
+      }),
+
+    getAssetATH: (params: getAssetATHParameters) =>
+      this.request<getAssetATHResponse>({
+        method: getAssetATH.method,
+        path: getAssetATH.path(params),
+      }),
+
+    // Multi-asset endpoints
+    getAllAssetsROI: () =>
+      this.request<getAssetsROIResponse>({
+        method: getAssetsROI.method,
+        path: getAssetsROI.path(),
+      }),
+
+    getAllAssetsATH: () =>
+      this.request<getAssetsATHResponse>({
+        method: getAssetsATH.method,
+        path: getAssetsATH.path(),
+      }),
   };
 }
