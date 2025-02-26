@@ -26,11 +26,43 @@ import {
   getAllEventsResponse,
   PathParams,
 } from "@messari-kit/types";
+import type { Agent } from "http";
 import { pick } from "./utils";
+import {
+  LogLevel,
+  Logger,
+  makeConsoleLogger,
+  createFilteredLogger,
+} from "./logging";
+import { RequestTimeoutError } from "./error";
 
 export interface MessariClientOptions {
   apiKey: string;
   baseUrl?: string;
+  timeoutMs?: number;
+  fetch?: typeof fetch;
+  agent?: Agent; // For Node.js http(s).Agent
+  logLevel?: LogLevel;
+  logger?: Logger;
+  defaultHeaders?: Record<string, string>;
+}
+
+export interface RequestOptions extends Omit<RequestInit, "headers" | "body"> {
+  timeoutMs?: number;
+  headers?: Record<string, string>;
+  signal?: AbortSignal;
+  next?: {
+    revalidate?: number | false;
+    tags?: string[];
+  };
+}
+
+export interface RequestParameters {
+  method: string;
+  path: string;
+  body?: any;
+  queryParams?: Record<string, any>;
+  options?: RequestOptions;
 }
 
 export interface PaginationParameters {
@@ -70,10 +102,29 @@ export interface PaginationHelpers<T, P extends PaginationParameters> {
 export class MessariClient {
   private readonly apiKey: string;
   private readonly baseUrl: string;
+  private readonly timeoutMs: number;
+  private readonly fetchFn: typeof fetch;
+  private readonly agent: Agent | undefined;
+  private readonly logger: Logger;
+  private readonly defaultHeaders: Record<string, string>;
 
   constructor(options: MessariClientOptions) {
     this.apiKey = options.apiKey;
     this.baseUrl = options.baseUrl || "https://api.messari.io";
+    this.timeoutMs = options.timeoutMs || 60_000;
+    this.fetchFn = options.fetch || fetch;
+    this.agent = options.agent;
+
+    const baseLogger = options.logger || makeConsoleLogger("messari-client");
+    this.logger = options.logLevel
+      ? createFilteredLogger(baseLogger, options.logLevel)
+      : createFilteredLogger(baseLogger, LogLevel.INFO);
+
+    this.defaultHeaders = {
+      "Content-Type": "application/json",
+      "x-messari-api-key": this.apiKey,
+      ...options.defaultHeaders,
+    };
   }
 
   private async request<T>({
@@ -81,53 +132,10 @@ export class MessariClient {
     path,
     body,
     queryParams = {},
-  }: {
-    method: string;
-    path: string;
-    body?: any;
-    queryParams?: Record<string, string>;
-  }): Promise<T> {
-    const queryString = Object.entries(queryParams)
-      .map(
-        ([key, value]) =>
-          `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
-      )
-      .join("&");
+    options = {},
+  }: RequestParameters): Promise<T> {
+    this.logger(LogLevel.INFO, "request start", { method, path });
 
-    const url = `${this.baseUrl}${path}${queryString ? `?${queryString}` : ""}`;
-
-    const response = await fetch(url, {
-      method,
-      headers: {
-        "Content-Type": "application/json",
-        "x-messari-api-key": this.apiKey,
-      },
-      body: body ? JSON.stringify(body) : undefined,
-    });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || "An error occurred");
-    }
-
-    const responseData = await response.json();
-    return responseData.data;
-  }
-
-  private async requestWithMetadata<T, M>({
-    method,
-    path,
-    body,
-    queryParams = {},
-  }: {
-    method: string;
-    path: string;
-    body?: any;
-    queryParams?: Record<
-      string,
-      string | number | boolean | string[] | number[] | boolean[] | undefined
-    >;
-  }): Promise<APIResponseWithMetadata<T, M>> {
     const queryString = Object.entries(queryParams)
       .filter(([_, value]) => value !== undefined)
       .map(([key, value]) => {
@@ -148,33 +156,146 @@ export class MessariClient {
 
     const url = `${this.baseUrl}${path}${queryString ? `?${queryString}` : ""}`;
 
-    const response = await fetch(url, {
-      method,
-      headers: {
-        "Content-Type": "application/json",
-        "x-messari-api-key": this.apiKey,
-      },
-      body: body ? JSON.stringify(body) : undefined,
-    });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || "An error occurred");
-    }
-
-    const responseData = await response.json();
-    return {
-      data: responseData.data,
-      metadata: responseData.metadata,
+    const headers = {
+      ...this.defaultHeaders,
+      ...options.headers,
     };
+
+    const timeoutMs = options.timeoutMs || this.timeoutMs;
+
+    try {
+      const response = await RequestTimeoutError.rejectAfterTimeout(
+        this.fetchFn(url, {
+          method,
+          headers,
+          body: body ? JSON.stringify(body) : undefined,
+          signal: options.signal,
+          cache: options.cache,
+          credentials: options.credentials,
+          integrity: options.integrity,
+          keepalive: options.keepalive,
+          mode: options.mode,
+          redirect: options.redirect,
+          referrer: options.referrer,
+          referrerPolicy: options.referrerPolicy,
+          // @ts-ignore - Next.js specific options
+          next: options.next,
+          // Node.js specific option
+          agent: this.agent,
+        }),
+        timeoutMs
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        this.logger(LogLevel.ERROR, "request error", {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorData,
+        });
+        throw new Error(errorData.error || "An error occurred");
+      }
+
+      const responseData = await response.json();
+      this.logger(LogLevel.DEBUG, "request success", { responseData });
+      return responseData.data;
+    } catch (error) {
+      this.logger(LogLevel.ERROR, "request failed", { error });
+      throw error;
+    }
+  }
+
+  private async requestWithMetadata<T, M>({
+    method,
+    path,
+    body,
+    queryParams = {},
+    options = {},
+  }: RequestParameters): Promise<APIResponseWithMetadata<T, M>> {
+    this.logger(LogLevel.INFO, "request with metadata start", { method, path });
+
+    const queryString = Object.entries(queryParams)
+      .filter(([_, value]) => value !== undefined)
+      .map(([key, value]) => {
+        // Handle array values
+        if (Array.isArray(value)) {
+          return value
+            .map(
+              (item) =>
+                `${encodeURIComponent(key)}=${encodeURIComponent(String(item))}`
+            )
+            .join("&");
+        }
+        return `${encodeURIComponent(key)}=${encodeURIComponent(
+          String(value)
+        )}`;
+      })
+      .join("&");
+
+    const url = `${this.baseUrl}${path}${queryString ? `?${queryString}` : ""}`;
+
+    const headers = {
+      ...this.defaultHeaders,
+      ...options.headers,
+    };
+
+    const timeoutMs = options.timeoutMs || this.timeoutMs;
+
+    try {
+      const response = await RequestTimeoutError.rejectAfterTimeout(
+        this.fetchFn(url, {
+          method,
+          headers,
+          body: body ? JSON.stringify(body) : undefined,
+          signal: options.signal,
+          cache: options.cache,
+          credentials: options.credentials,
+          integrity: options.integrity,
+          keepalive: options.keepalive,
+          mode: options.mode,
+          redirect: options.redirect,
+          referrer: options.referrer,
+          referrerPolicy: options.referrerPolicy,
+          // @ts-ignore - Next.js specific options
+          next: options.next,
+          // Node.js specific option
+          agent: this.agent,
+        }),
+        timeoutMs
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        this.logger(LogLevel.ERROR, "request with metadata error", {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorData,
+        });
+        throw new Error(errorData.error || "An error occurred");
+      }
+
+      const responseData = await response.json();
+      this.logger(LogLevel.DEBUG, "request with metadata success", {
+        responseData,
+      });
+      return {
+        data: responseData.data,
+        metadata: responseData.metadata,
+      };
+    } catch (error) {
+      this.logger(LogLevel.ERROR, "request with metadata failed", { error });
+      throw error;
+    }
   }
 
   private paginate<T, P extends PaginationParameters>(
     params: P,
     fetchPage: (
-      params: P
+      params: P,
+      options?: RequestOptions
     ) => Promise<APIResponseWithMetadata<T, PaginationMetadata>>,
-    response: APIResponseWithMetadata<T, PaginationMetadata>
+    response: APIResponseWithMetadata<T, PaginationMetadata>,
+    options?: RequestOptions
   ): PaginatedResult<T, P> {
     // Convert PaginationResult to PaginationMetadata
     const metadata: PaginationMetadata = response.metadata
@@ -223,7 +344,7 @@ export class MessariClient {
           };
 
           try {
-            const nextPageResponse = await fetchPage(nextPageParams);
+            const nextPageResponse = await fetchPage(nextPageParams, options);
             const nextPageMetadata: PaginationMetadata =
               nextPageResponse.metadata
                 ? {
@@ -271,7 +392,7 @@ export class MessariClient {
           };
 
           try {
-            const prevPageResponse = await fetchPage(prevPageParams);
+            const prevPageResponse = await fetchPage(prevPageParams, options);
             const prevPageMetadata: PaginationMetadata =
               prevPageResponse.metadata
                 ? {
@@ -318,7 +439,7 @@ export class MessariClient {
           };
 
           try {
-            const pageResponse = await fetchPage(pageParams);
+            const pageResponse = await fetchPage(pageParams, options);
             const pageMetadata: PaginationMetadata = pageResponse.metadata
               ? {
                   page: pageResponse.metadata.page || page,
@@ -372,7 +493,8 @@ export class MessariClient {
             const goToPageFn = this.paginate(
               params,
               fetchPage,
-              response
+              response,
+              options
             ).goToPage;
             pagePromises.push(
               goToPageFn(page)
@@ -405,23 +527,37 @@ export class MessariClient {
   }
 
   public readonly ai = {
-    createChatCompletion: (params: createChatCompletionParameters) =>
+    createChatCompletion: (
+      params: createChatCompletionParameters,
+      options?: RequestOptions
+    ) =>
       this.request<createChatCompletionResponse>({
         method: createChatCompletion.method,
         path: createChatCompletion.path(),
         body: pick(params, createChatCompletion.bodyParams),
+        options,
       }),
-    extractEntities: (params: extractEntitiesParameters) =>
+    extractEntities: (
+      params: extractEntitiesParameters,
+      options?: RequestOptions
+    ) =>
       this.request<extractEntitiesResponse>({
         method: extractEntities.method,
         path: extractEntities.path(),
         body: pick(params, extractEntities.bodyParams),
+        options,
       }),
   };
 
   public readonly intel = {
-    getAllEvents: async (params: getAllEventsParameters = {}) => {
-      const fetchPage = async (p: getAllEventsParameters) => {
+    getAllEvents: async (
+      params: getAllEventsParameters = {},
+      options?: RequestOptions
+    ) => {
+      const fetchPage = async (
+        p: getAllEventsParameters,
+        o?: RequestOptions
+      ) => {
         return this.requestWithMetadata<
           getAllEventsResponse["data"],
           PaginationMetadata
@@ -429,23 +565,34 @@ export class MessariClient {
           method: getAllEvents.method,
           path: getAllEvents.path(),
           body: pick(p, getAllEvents.bodyParams),
+          options: o,
         });
       };
 
-      const response = await fetchPage(params);
+      const response = await fetchPage(params, options);
       return this.paginate<
         getAllEventsResponse["data"],
         getAllEventsParameters
-      >(params, fetchPage, response);
+      >(params, fetchPage, response, options);
     },
-    getById: async (params: getEventAndHistoryParameters) => {
+    getById: async (
+      params: getEventAndHistoryParameters,
+      options?: RequestOptions
+    ) => {
       return this.request<getEventAndHistoryResponse>({
         method: getEventAndHistory.method,
         path: getEventAndHistory.path(params),
+        options,
       });
     },
-    getAllAssets: async (params: getAllAssetsParameters = {}) => {
-      const fetchPage = async (p: getAllAssetsParameters) => {
+    getAllAssets: async (
+      params: getAllAssetsParameters = {},
+      options?: RequestOptions
+    ) => {
+      const fetchPage = async (
+        p: getAllAssetsParameters,
+        o?: RequestOptions
+      ) => {
         return this.requestWithMetadata<
           getAllAssetsResponse["data"],
           PaginationMetadata
@@ -453,21 +600,28 @@ export class MessariClient {
           method: getAllAssets.method,
           path: getAllAssets.path(),
           queryParams: pick(p, getAllAssets.queryParams),
+          options: o,
         });
       };
 
-      const response = await fetchPage(params);
+      const response = await fetchPage(params, options);
       return this.paginate<
         getAllAssetsResponse["data"],
         getAllAssetsParameters
-      >(params, fetchPage, response);
+      >(params, fetchPage, response, options);
     },
   };
 
   public readonly news = {
     // Paginated versions
-    getNewsFeedPaginated: async (params: getNewsFeedParameters) => {
-      const fetchPage = async (p: getNewsFeedParameters) => {
+    getNewsFeedPaginated: async (
+      params: getNewsFeedParameters,
+      options?: RequestOptions
+    ) => {
+      const fetchPage = async (
+        p: getNewsFeedParameters,
+        o?: RequestOptions
+      ) => {
         return this.requestWithMetadata<
           getNewsFeedResponse["data"],
           PaginationMetadata
@@ -475,19 +629,27 @@ export class MessariClient {
           method: getNewsFeed.method,
           path: getNewsFeed.path(),
           queryParams: pick(p, getNewsFeed.queryParams),
+          options: o,
         });
       };
 
-      const initialResponse = await fetchPage(params);
+      const initialResponse = await fetchPage(params, options);
       return this.paginate<getNewsFeedResponse["data"], getNewsFeedParameters>(
         params,
         fetchPage,
-        initialResponse
+        initialResponse,
+        options
       );
     },
 
-    getNewsFeedAssetsPaginated: async (params: getNewsFeedAssetsParameters) => {
-      const fetchPage = async (p: getNewsFeedAssetsParameters) => {
+    getNewsFeedAssetsPaginated: async (
+      params: getNewsFeedAssetsParameters,
+      options?: RequestOptions
+    ) => {
+      const fetchPage = async (
+        p: getNewsFeedAssetsParameters,
+        o?: RequestOptions
+      ) => {
         return this.requestWithMetadata<
           getNewsFeedAssetsResponse["data"],
           PaginationMetadata
@@ -495,18 +657,25 @@ export class MessariClient {
           method: getNewsFeedAssets.method,
           path: getNewsFeedAssets.path(),
           queryParams: pick(p, getNewsFeedAssets.queryParams),
+          options: o,
         });
       };
 
-      const initialResponse = await fetchPage(params);
+      const initialResponse = await fetchPage(params, options);
       return this.paginate<
         getNewsFeedAssetsResponse["data"],
         getNewsFeedAssetsParameters
-      >(params, fetchPage, initialResponse);
+      >(params, fetchPage, initialResponse, options);
     },
 
-    getNewsSourcesPaginated: async (params: getNewsSourcesParameters) => {
-      const fetchPage = async (p: getNewsSourcesParameters) => {
+    getNewsSourcesPaginated: async (
+      params: getNewsSourcesParameters,
+      options?: RequestOptions
+    ) => {
+      const fetchPage = async (
+        p: getNewsSourcesParameters,
+        o?: RequestOptions
+      ) => {
         return this.requestWithMetadata<
           getNewsSourcesResponse["data"],
           PaginationMetadata
@@ -514,14 +683,15 @@ export class MessariClient {
           method: getNewsSources.method,
           path: getNewsSources.path(),
           queryParams: pick(p, getNewsSources.queryParams),
+          options: o,
         });
       };
 
-      const initialResponse = await fetchPage(params);
+      const initialResponse = await fetchPage(params, options);
       return this.paginate<
         getNewsSourcesResponse["data"],
         getNewsSourcesParameters
-      >(params, fetchPage, initialResponse);
+      >(params, fetchPage, initialResponse, options);
     },
   };
 }
