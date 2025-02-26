@@ -36,6 +36,33 @@ import {
 } from "./logging";
 import { RequestTimeoutError } from "./error";
 
+// Event types for the client
+export type ClientEventType = "error" | "request" | "response";
+
+export interface ClientErrorEvent {
+  error: Error;
+  request?: {
+    method: string;
+    path: string;
+    queryParams?: Record<string, any>;
+  };
+}
+
+export interface ClientRequestEvent {
+  method: string;
+  path: string;
+  queryParams?: Record<string, any>;
+}
+
+export interface ClientResponseEvent {
+  method: string;
+  path: string;
+  status: number;
+  data: any;
+}
+
+export type ClientEventHandler<T> = (data: T) => void;
+
 export interface MessariClientOptions {
   apiKey: string;
   baseUrl?: string;
@@ -45,6 +72,9 @@ export interface MessariClientOptions {
   logLevel?: LogLevel;
   logger?: Logger;
   defaultHeaders?: Record<string, string>;
+  onError?: ClientEventHandler<ClientErrorEvent>;
+  onRequest?: ClientEventHandler<ClientRequestEvent>;
+  onResponse?: ClientEventHandler<ClientResponseEvent>;
 }
 
 export interface RequestOptions extends Omit<RequestInit, "headers" | "body"> {
@@ -107,6 +137,10 @@ export class MessariClient {
   private readonly agent: Agent | undefined;
   private readonly logger: Logger;
   private readonly defaultHeaders: Record<string, string>;
+  private readonly eventHandlers: Map<
+    ClientEventType,
+    Set<ClientEventHandler<any>>
+  >;
 
   constructor(options: MessariClientOptions) {
     this.apiKey = options.apiKey;
@@ -125,6 +159,54 @@ export class MessariClient {
       "x-messari-api-key": this.apiKey,
       ...options.defaultHeaders,
     };
+
+    // Initialize event handlers
+    this.eventHandlers = new Map();
+
+    // Register event handlers from options
+    if (options.onError) {
+      this.on("error", options.onError);
+    }
+    if (options.onRequest) {
+      this.on("request", options.onRequest);
+    }
+    if (options.onResponse) {
+      this.on("response", options.onResponse);
+    }
+  }
+
+  /**
+   * Register an event handler
+   */
+  public on<T>(event: ClientEventType, handler: ClientEventHandler<T>): void {
+    if (!this.eventHandlers.has(event)) {
+      this.eventHandlers.set(event, new Set());
+    }
+    this.eventHandlers.get(event)!.add(handler);
+  }
+
+  /**
+   * Remove an event handler
+   */
+  public off<T>(event: ClientEventType, handler: ClientEventHandler<T>): void {
+    if (this.eventHandlers.has(event)) {
+      this.eventHandlers.get(event)!.delete(handler);
+    }
+  }
+
+  /**
+   * Emit an event to all registered handlers
+   */
+  private emit<T>(event: ClientEventType, data: T): void {
+    if (this.eventHandlers.has(event)) {
+      for (const handler of this.eventHandlers.get(event)!) {
+        try {
+          handler(data);
+        } catch (error) {
+          this.logger(LogLevel.ERROR, `Error in ${event} handler`, { error });
+        }
+      }
+    }
   }
 
   private async request<T>({
@@ -136,10 +218,15 @@ export class MessariClient {
   }: RequestParameters): Promise<T> {
     this.logger(LogLevel.INFO, "request start", { method, path });
 
+    this.emit("request", {
+      method,
+      path,
+      queryParams,
+    } as ClientRequestEvent);
+
     const queryString = Object.entries(queryParams)
       .filter(([_, value]) => value !== undefined)
       .map(([key, value]) => {
-        // Handle array values
         if (Array.isArray(value)) {
           return value
             .map(
@@ -193,14 +280,47 @@ export class MessariClient {
           statusText: response.statusText,
           error: errorData,
         });
-        throw new Error(errorData.error || "An error occurred");
+
+        const error = new Error(errorData.error || "An error occurred");
+
+        // Emit error event
+        this.emit("error", {
+          error,
+          request: {
+            method,
+            path,
+            queryParams,
+          },
+        } as ClientErrorEvent);
+
+        throw error;
       }
 
       const responseData = await response.json();
       this.logger(LogLevel.DEBUG, "request success", { responseData });
+
+      // Emit response event
+      this.emit("response", {
+        method,
+        path,
+        status: response.status,
+        data: responseData,
+      } as ClientResponseEvent);
+
       return responseData.data;
     } catch (error) {
       this.logger(LogLevel.ERROR, "request failed", { error });
+
+      // Emit error event
+      this.emit("error", {
+        error: error as Error,
+        request: {
+          method,
+          path,
+          queryParams,
+        },
+      } as ClientErrorEvent);
+
       throw error;
     }
   }
@@ -213,6 +333,13 @@ export class MessariClient {
     options = {},
   }: RequestParameters): Promise<APIResponseWithMetadata<T, M>> {
     this.logger(LogLevel.INFO, "request with metadata start", { method, path });
+
+    // Emit request event
+    this.emit("request", {
+      method,
+      path,
+      queryParams,
+    } as ClientRequestEvent);
 
     const queryString = Object.entries(queryParams)
       .filter(([_, value]) => value !== undefined)
@@ -271,19 +398,52 @@ export class MessariClient {
           statusText: response.statusText,
           error: errorData,
         });
-        throw new Error(errorData.error || "An error occurred");
+
+        const error = new Error(errorData.error || "An error occurred");
+
+        // Emit error event
+        this.emit("error", {
+          error,
+          request: {
+            method,
+            path,
+            queryParams,
+          },
+        } as ClientErrorEvent);
+
+        throw error;
       }
 
       const responseData = await response.json();
       this.logger(LogLevel.DEBUG, "request with metadata success", {
         responseData,
       });
+
+      // Emit response event
+      this.emit("response", {
+        method,
+        path,
+        status: response.status,
+        data: responseData,
+      });
+
       return {
         data: responseData.data,
         metadata: responseData.metadata,
       };
     } catch (error) {
       this.logger(LogLevel.ERROR, "request with metadata failed", { error });
+
+      // Emit error event
+      this.emit("error", {
+        error: error as Error,
+        request: {
+          method,
+          path,
+          queryParams,
+        },
+      } as ClientErrorEvent);
+
       throw error;
     }
   }
