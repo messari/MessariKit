@@ -1,6 +1,7 @@
 import { assertNever } from "./utils";
 
 export enum LogLevel {
+  NONE = "none",
   DEBUG = "debug",
   INFO = "info",
   WARN = "warn",
@@ -13,6 +14,10 @@ export interface Logger {
 
 export function makeConsoleLogger(name: string): Logger {
   return (level, message, extraInfo) => {
+    if (level === LogLevel.NONE) {
+      // Do nothing for NONE log level
+      return;
+    }
     console[level](`${name} ${level}:`, message, extraInfo || "");
   };
 }
@@ -22,6 +27,8 @@ export function makeConsoleLogger(name: string): Logger {
  */
 export function logLevelSeverity(level: LogLevel): number {
   switch (level) {
+    case LogLevel.NONE:
+      return 100;
     case LogLevel.DEBUG:
       return 20;
     case LogLevel.INFO:
@@ -47,5 +54,15 @@ export function createFilteredLogger(
     if (logLevelSeverity(level) >= minSeverity) {
       logger(level, message, extraInfo);
     }
+  };
+}
+
+/**
+ * Creates a logger that does nothing (no-op).
+ * Use this when you want to completely disable logging.
+ */
+export function makeNoOpLogger(): Logger {
+  return () => {
+    // Do nothing
   };
 }

@@ -33,6 +33,7 @@ import {
   Logger,
   makeConsoleLogger,
   createFilteredLogger,
+  makeNoOpLogger,
 } from "./logging";
 import { RequestTimeoutError } from "./error";
 
@@ -72,17 +73,33 @@ export type ClientEventHandler<T extends ClientEventType> = (
   data: ClientEventMap[T]
 ) => void;
 
+/**
+ * Options for configuring the MessariClient
+ */
 export type MessariClientOptions = {
+  /** Required API key for authenticating with the Messari API */
   apiKey: string;
+  /** Base URL for the API (defaults to https://api.messari.io) */
   baseUrl?: string;
+  /** Timeout in milliseconds for API requests (defaults to 60000) */
   timeoutMs?: number;
+  /** Custom fetch implementation (defaults to global fetch) */
   fetch?: typeof fetch;
-  agent?: Agent; // For Node.js http(s).Agent
+  /** Node.js HTTP(S) Agent for connection pooling */
+  agent?: Agent;
+  /** Minimum log level to display (defaults to INFO) */
   logLevel?: LogLevel;
+  /** Custom logger implementation */
   logger?: Logger;
+  /** Set to true to completely disable all logging (overrides logLevel and logger) */
+  disableLogging?: boolean;
+  /** Default headers to include with all requests */
   defaultHeaders?: Record<string, string>;
+  /** Event handler for error events */
   onError?: ClientEventHandler<"error">;
+  /** Event handler for request events */
   onRequest?: ClientEventHandler<"request">;
+  /** Event handler for response events */
   onResponse?: ClientEventHandler<"response">;
 };
 
@@ -144,7 +161,8 @@ export class MessariClient {
   private readonly timeoutMs: number;
   private readonly fetchFn: typeof fetch;
   private readonly agent: Agent | undefined;
-  private readonly logger: Logger;
+  private logger: Logger;
+  private isLoggingDisabled: boolean; // Add a flag to track logging state
   private readonly defaultHeaders: Record<string, string>;
   private readonly eventHandlers: Map<
     ClientEventType,
@@ -158,10 +176,16 @@ export class MessariClient {
     this.fetchFn = options.fetch || fetch;
     this.agent = options.agent;
 
-    const baseLogger = options.logger || makeConsoleLogger("messari-client");
-    this.logger = options.logLevel
-      ? createFilteredLogger(baseLogger, options.logLevel)
-      : createFilteredLogger(baseLogger, LogLevel.INFO);
+    // Handle logger initialization with disableLogging option
+    this.isLoggingDisabled = !!options.disableLogging;
+    if (this.isLoggingDisabled) {
+      this.logger = makeNoOpLogger();
+    } else {
+      const baseLogger = options.logger || makeConsoleLogger("messari-client");
+      this.logger = options.logLevel
+        ? createFilteredLogger(baseLogger, options.logLevel)
+        : createFilteredLogger(baseLogger, LogLevel.INFO);
+    }
 
     this.defaultHeaders = {
       "Content-Type": "application/json",
@@ -871,4 +895,118 @@ export class MessariClient {
       >(params, fetchPage, initialResponse, options);
     },
   };
+
+  /**
+   * Disable all logging from the client.
+   * This will prevent any log messages from being output, regardless of their level.
+   */
+  public disableLogging(): void {
+    this.isLoggingDisabled = true;
+    this.logger = makeNoOpLogger();
+  }
+
+  /**
+   * Enable logging with the specified log level.
+   * This will restore logging functionality if it was previously disabled.
+   *
+   * @param level The minimum log level to display (defaults to INFO)
+   * @example
+   * // Enable all logs including debug messages
+   * client.enableLogging(LogLevel.DEBUG);
+   *
+   * // Enable only warnings and errors
+   * client.enableLogging(LogLevel.WARN);
+   */
+  public enableLogging(level: LogLevel = LogLevel.INFO): void {
+    this.isLoggingDisabled = false;
+    const baseLogger = makeConsoleLogger("messari-client");
+    this.logger = createFilteredLogger(baseLogger, level);
+  }
+
+  /**
+   * Set a custom logger for the client.
+   * This allows you to integrate with your application's logging system.
+   *
+   * @param logger The logger implementation to use
+   * @param level Optional minimum log level to filter messages
+   * @example
+   * // Use a custom logger that sends logs to a service
+   * client.setLogger(myCustomLogger);
+   *
+   * // Use a custom logger but only for errors
+   * client.setLogger(myCustomLogger, LogLevel.ERROR);
+   */
+  public setLogger(logger: Logger, level?: LogLevel): void {
+    this.isLoggingDisabled = false;
+    this.logger = level ? createFilteredLogger(logger, level) : logger;
+  }
+
+  /**
+   * Check if logging is currently enabled for the client.
+   *
+   * @returns true if logging is enabled, false if it has been disabled
+   */
+  public isLoggingEnabled(): boolean {
+    return !this.isLoggingDisabled;
+  }
+
+  /**
+   * Execute an asynchronous function with logging temporarily disabled.
+   * After the function completes, the previous logging state will be restored.
+   *
+   * @param fn The asynchronous function to execute with logging disabled
+   * @returns A promise that resolves to the result of the function
+   * @example
+   * // Perform a sensitive operation without logging
+   * const result = await client.withLoggingDisabled(async () => {
+   *   return await client.ai.createChatCompletion({ ... });
+   * });
+   */
+  public async withLoggingDisabled<T>(fn: () => Promise<T>): Promise<T> {
+    const wasDisabled = this.isLoggingDisabled;
+    try {
+      // Disable logging if it was enabled
+      if (!wasDisabled) {
+        this.disableLogging();
+      }
+
+      // Execute the function
+      return await fn();
+    } finally {
+      // Restore previous logging state if it was enabled
+      if (!wasDisabled) {
+        this.enableLogging();
+      }
+    }
+  }
+
+  /**
+   * Execute a synchronous function with logging temporarily disabled.
+   * After the function completes, the previous logging state will be restored.
+   *
+   * @param fn The synchronous function to execute with logging disabled
+   * @returns The result of the function
+   * @example
+   * // Perform a sensitive operation without logging
+   * const result = client.withLoggingDisabledSync(() => {
+   *   return processPrivateData(data);
+   * });
+   */
+  public withLoggingDisabledSync<T>(fn: () => T): T {
+    const wasDisabled = this.isLoggingDisabled;
+    try {
+      // Disable logging if it was enabled
+      if (!wasDisabled) {
+        this.disableLogging();
+      }
+
+      // Execute the function
+      return fn();
+    } finally {
+      // Restore previous logging state if it was enabled
+      if (!wasDisabled) {
+        this.enableLogging();
+      }
+    }
+  }
 }
