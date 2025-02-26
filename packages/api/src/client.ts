@@ -61,7 +61,16 @@ export interface ClientResponseEvent {
   data: any;
 }
 
-export type ClientEventHandler<T> = (data: T) => void;
+// Map event types to their corresponding event data types
+export interface ClientEventMap {
+  error: ClientErrorEvent;
+  request: ClientRequestEvent;
+  response: ClientResponseEvent;
+}
+
+export type ClientEventHandler<T extends ClientEventType> = (
+  data: ClientEventMap[T]
+) => void;
 
 export interface MessariClientOptions {
   apiKey: string;
@@ -72,9 +81,9 @@ export interface MessariClientOptions {
   logLevel?: LogLevel;
   logger?: Logger;
   defaultHeaders?: Record<string, string>;
-  onError?: ClientEventHandler<ClientErrorEvent>;
-  onRequest?: ClientEventHandler<ClientRequestEvent>;
-  onResponse?: ClientEventHandler<ClientResponseEvent>;
+  onError?: ClientEventHandler<"error">;
+  onRequest?: ClientEventHandler<"request">;
+  onResponse?: ClientEventHandler<"response">;
 }
 
 export interface RequestOptions extends Omit<RequestInit, "headers" | "body"> {
@@ -178,7 +187,10 @@ export class MessariClient {
   /**
    * Register an event handler
    */
-  public on<T>(event: ClientEventType, handler: ClientEventHandler<T>): void {
+  public on<T extends ClientEventType>(
+    event: T,
+    handler: ClientEventHandler<T>
+  ): void {
     if (!this.eventHandlers.has(event)) {
       this.eventHandlers.set(event, new Set());
     }
@@ -188,7 +200,10 @@ export class MessariClient {
   /**
    * Remove an event handler
    */
-  public off<T>(event: ClientEventType, handler: ClientEventHandler<T>): void {
+  public off<T extends ClientEventType>(
+    event: T,
+    handler: ClientEventHandler<T>
+  ): void {
     if (this.eventHandlers.has(event)) {
       this.eventHandlers.get(event)!.delete(handler);
     }
@@ -197,7 +212,10 @@ export class MessariClient {
   /**
    * Emit an event to all registered handlers
    */
-  private emit<T>(event: ClientEventType, data: T): void {
+  private emit<T extends ClientEventType>(
+    event: T,
+    data: ClientEventMap[T]
+  ): void {
     if (this.eventHandlers.has(event)) {
       for (const handler of this.eventHandlers.get(event)!) {
         try {
@@ -222,7 +240,7 @@ export class MessariClient {
       method,
       path,
       queryParams,
-    } as ClientRequestEvent);
+    });
 
     const queryString = Object.entries(queryParams)
       .filter(([_, value]) => value !== undefined)
@@ -283,7 +301,6 @@ export class MessariClient {
 
         const error = new Error(errorData.error || "An error occurred");
 
-        // Emit error event
         this.emit("error", {
           error,
           request: {
@@ -291,7 +308,7 @@ export class MessariClient {
             path,
             queryParams,
           },
-        } as ClientErrorEvent);
+        });
 
         throw error;
       }
@@ -305,7 +322,7 @@ export class MessariClient {
         path,
         status: response.status,
         data: responseData,
-      } as ClientResponseEvent);
+      });
 
       return responseData.data;
     } catch (error) {
@@ -319,7 +336,7 @@ export class MessariClient {
           path,
           queryParams,
         },
-      } as ClientErrorEvent);
+      });
 
       throw error;
     }
@@ -339,7 +356,7 @@ export class MessariClient {
       method,
       path,
       queryParams,
-    } as ClientRequestEvent);
+    });
 
     const queryString = Object.entries(queryParams)
       .filter(([_, value]) => value !== undefined)
@@ -409,7 +426,7 @@ export class MessariClient {
             path,
             queryParams,
           },
-        } as ClientErrorEvent);
+        });
 
         throw error;
       }
@@ -442,7 +459,7 @@ export class MessariClient {
           path,
           queryParams,
         },
-      } as ClientErrorEvent);
+      });
 
       throw error;
     }
