@@ -573,24 +573,44 @@ components:
         summary:
           type: string
         data:
-          type: array
-          items:
-            type: object
-            properties:
-              exchangeId:
-                type: string
-              exchangeName:
-                type: string
-              exchangeType:
-                type: string
-              last30DaysVolume:
-                type: number
-              percentChangeVolume:
-                type: number
-              previous30DaysVolume:
-                type: number
-              region:
-                type: string
+          type: object
+          properties:
+            totalSpotVolumes:
+              type: number
+              description: Total spot trading volumes
+            topExchanges:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+                  slug:
+                    type: string
+                  type:
+                    type: string
+                  project_id:
+                    type: string
+              description: List of top exchanges
+            topListedTokens:
+              type: array
+              items:
+                type: object
+                properties:
+                  assetId:
+                    type: string
+                  name:
+                    type: string
+                  symbol:
+                    type: string
+                  listedCount:
+                    type: integer
+              description: List of top listed tokens
+            topListedTokenVolume:
+              type: number
+              description: Volume of top listed tokens
       description: Performance recap for exchange rankings
       
     ExchangeRankingsNewsRecap:

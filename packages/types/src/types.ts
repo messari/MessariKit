@@ -325,14 +325,26 @@ export type components = {
     /** @description Performance recap for exchange rankings */
     ExchangeRankingsPerformanceRecap: {
       data?: {
-          exchangeId?: string;
-          exchangeName?: string;
-          exchangeType?: string;
-          last30DaysVolume?: number;
-          percentChangeVolume?: number;
-          previous30DaysVolume?: number;
-          region?: string;
-        }[];
+        /** @description List of top exchanges */
+        topExchanges?: {
+            id?: string;
+            name?: string;
+            project_id?: string;
+            slug?: string;
+            type?: string;
+          }[];
+        /** @description List of top listed tokens */
+        topListedTokens?: {
+            assetId?: string;
+            listedCount?: number;
+            name?: string;
+            symbol?: string;
+          }[];
+        /** @description Volume of top listed tokens */
+        topListedTokenVolume?: number;
+        /** @description Total spot trading volumes */
+        totalSpotVolumes?: number;
+      };
       id?: string;
       summary?: string;
     };
