@@ -25,6 +25,15 @@ import {
   getAllAssetsResponse,
   getAllEventsResponse,
   PathParams,
+  getProjectRecapParameters,
+  getProjectRecapResponse,
+  getProjectRecap,
+  getExchangeRecapParameters,
+  getExchangeRecapResponse,
+  getExchangeRecap,
+  getExchangeRankingsRecapResponse,
+  getExchangeRankingsRecapParameters,
+  getExchangeRankingsRecap,
 } from "@messari-kit/types";
 import type { Agent } from "http";
 import { pick } from "./utils";
@@ -893,6 +902,33 @@ export class MessariClient {
         getNewsSourcesResponse["data"],
         getNewsSourcesParameters
       >(params, fetchPage, initialResponse, options);
+    },
+  };
+
+  public readonly recaps = {
+    getProjectRecap: async (params: getProjectRecapParameters, options?: RequestOptions) => {
+      return this.request<getProjectRecapResponse>({
+        method: getProjectRecap.method,
+        path: getProjectRecap.path(),
+        queryParams: pick(params, getProjectRecap.queryParams),
+        options,
+      });
+    },
+    getExchangeRecap: async (params: getExchangeRecapParameters, options?: RequestOptions) => {
+      return this.request<getExchangeRecapResponse>({
+        method: getExchangeRecap.method,
+        path: getExchangeRecap.path(),
+        queryParams: pick(params, getExchangeRecap.queryParams),
+        options,
+      });
+    },
+    getExchangeRankingsRecap: async (params: getExchangeRankingsRecapParameters, options?: RequestOptions) => {
+      return this.request<getExchangeRankingsRecapResponse>({
+        method: getExchangeRankingsRecap.method,
+        path: getExchangeRankingsRecap.path(),
+        queryParams: pick(params, getExchangeRankingsRecap.queryParams),
+        options,
+      });
     },
   };
 
