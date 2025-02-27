@@ -100,8 +100,8 @@ export class MessariClient extends MessariClientBase {
 	private readonly fetchFn: typeof fetch;
 	private readonly agent?: Agent;
 	private readonly defaultHeaders: Record<string, string>;
-	
-    protected readonly eventHandlers: Map<
+
+	protected readonly eventHandlers: Map<
 		ClientEventType,
 		Set<ClientEventHandler<ClientEventType>>
 	>;
@@ -111,7 +111,7 @@ export class MessariClient extends MessariClientBase {
 
 	constructor(options: MessariClientOptions) {
 		super();
-        
+
 		this.apiKey = options.apiKey;
 		this.baseUrl = options.baseUrl || "https://api.messari.io";
 		this.timeoutMs = options.timeoutMs || 60_000; // 60 seconds
