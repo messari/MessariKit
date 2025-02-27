@@ -41,152 +41,70 @@ import type {
   getAssetsATHResponse,
 } from "@messari-kit/types";
 import type { Agent } from "node:http";
-import { pick } from "./utils";
+import { pick } from "../utils";
 import {
   LogLevel,
   type Logger,
   makeConsoleLogger,
   createFilteredLogger,
   makeNoOpLogger,
-} from "./logging";
-import { RequestTimeoutError } from "./error";
+} from "../logging";
+import { RequestTimeoutError } from "../error";
+import {
+  MessariClientBase,
+  type AIInterface,
+  type IntelInterface,
+  type NewsInterface,
+  type MarketsInterface,
+  type ClientEventType,
+} from "./base";
+import type {
+  ClientEventHandler,
+  ClientEventMap,
+  MessariClientOptions,
+  PaginatedResult,
+  PaginationHelpers,
+  PaginationMetadata,
+  PaginationParameters,
+  RequestOptions,
+  RequestParameters,
+} from "./types";
 
-// Event types for the client
-export type ClientEventType = "error" | "request" | "response";
-
-export type ClientErrorEvent = {
-  error: Error;
-  request?: {
-    method: string;
-    path: string;
-    queryParams?: Record<string, unknown>;
-  };
-};
-
-export type ClientRequestEvent = {
-  method: string;
-  path: string;
-  queryParams?: Record<string, unknown>;
-};
-
-export type ClientResponseEvent = {
-  method: string;
-  path: string;
-  status: number;
-  data: unknown;
-};
-
-// Map event types to their corresponding event data types
-export type ClientEventMap = {
-  error: ClientErrorEvent;
-  request: ClientRequestEvent;
-  response: ClientResponseEvent;
-};
-
-export type ClientEventHandler<T extends ClientEventType> = (
-  data: ClientEventMap[T]
-) => void;
 
 /**
- * Options for configuring the MessariClient
+ * MessariClient is the main client class for interacting with the Messari API.
+ * It provides a comprehensive interface for accessing market data, news, intelligence,
+ * and AI-powered features through typed methods and robust error handling.
+ * 
+ * Key features:
+ * - Full TypeScript support with strongly typed requests and responses
+ * - Configurable logging and error handling
+ * - Built-in request timeout and retry logic
+ * - Pagination helpers for listing endpoints
+ * - Event system for monitoring requests, responses and errors
+ * - Connection pooling support via HTTP agent
+ * - Custom fetch implementation support
  */
-export type MessariClientOptions = {
-  /** Required API key for authenticating with the Messari API */
-  apiKey: string;
-  /** Base URL for the API (defaults to https://api.messari.io) */
-  baseUrl?: string;
-  /** Timeout in milliseconds for API requests (defaults to 60000) */
-  timeoutMs?: number;
-  /** Custom fetch implementation (defaults to global fetch) */
-  fetch?: typeof fetch;
-  /** Node.js HTTP(S) Agent for connection pooling */
-  agent?: Agent;
-  /** Minimum log level to display (defaults to INFO) */
-  logLevel?: LogLevel;
-  /** Custom logger implementation */
-  logger?: Logger;
-  /** Set to true to completely disable all logging (overrides logLevel and logger) */
-  disableLogging?: boolean;
-  /** Default headers to include with all requests */
-  defaultHeaders?: Record<string, string>;
-  /** Event handler for error events */
-  onError?: ClientEventHandler<"error">;
-  /** Event handler for request events */
-  onRequest?: ClientEventHandler<"request">;
-  /** Event handler for response events */
-  onResponse?: ClientEventHandler<"response">;
-};
-
-export type RequestOptions = Omit<RequestInit, "headers" | "body"> & {
-  timeoutMs?: number;
-  headers?: Record<string, string>;
-  signal?: AbortSignal;
-  next?: {
-    revalidate?: number | false;
-    tags?: string[];
-  };
-};
-
-export type RequestParameters = {
-  method: string;
-  path: string;
-  body?: unknown;
-  queryParams?: Record<string, unknown>;
-  options?: RequestOptions;
-};
-
-export type PaginationParameters = {
-  limit?: number;
-  page?: number;
-};
-
-export type PaginationMetadata = {
-  page: number;
-  limit: number;
-  total?: number;
-  totalRows?: number;
-  totalPages?: number;
-  hasMore?: boolean;
-};
-
-export type PaginatedResponse<T> = APIResponseWithMetadata<
-  T,
-  PaginationMetadata
->;
-
-export type PaginatedResult<T, P extends PaginationParameters> = {
-  data: T;
-  metadata?: PaginationMetadata;
-  error?: string;
-} & PaginationHelpers<T, P>;
-
-export type PaginationHelpers<T, P extends PaginationParameters> = {
-  hasNextPage: boolean;
-  hasPreviousPage: boolean;
-  nextPage: () => Promise<PaginatedResult<T, P>>;
-  previousPage: () => Promise<PaginatedResult<T, P>>;
-  goToPage: (page: number) => Promise<PaginatedResult<T, P>>;
-  getAllPages: () => Promise<T[]>;
-};
-
-export class MessariClient {
+export class MessariClient extends MessariClientBase {
   private readonly apiKey: string;
   private readonly baseUrl: string;
   private readonly timeoutMs: number;
   private readonly fetchFn: typeof fetch;
-  private readonly agent: Agent | undefined;
-  private logger: Logger;
-  private isLoggingDisabled: boolean; // Add a flag to track logging state
+  private readonly agent?: Agent;
   private readonly defaultHeaders: Record<string, string>;
   private readonly eventHandlers: Map<
     ClientEventType,
-    Set<ClientEventHandler<any>> // FIXME: Set correct type
+    Set<ClientEventHandler<ClientEventType>>
   >;
 
+  private logger: Logger;
+  private isLoggingDisabled: boolean;
+
   constructor(options: MessariClientOptions) {
+    super();
     this.apiKey = options.apiKey;
     this.baseUrl = options.baseUrl || "https://api.messari.io";
-    this.timeoutMs = options.timeoutMs || 60_000;
+    this.timeoutMs = options.timeoutMs || 60_000; // 60 seconds
     this.fetchFn = options.fetch || fetch;
     this.agent = options.agent;
 
@@ -232,7 +150,7 @@ export class MessariClient {
     if (!this.eventHandlers.has(event)) {
       this.eventHandlers.set(event, new Set());
     }
-    this.eventHandlers.get(event)?.add(handler);
+    this.eventHandlers.get(event)?.add(handler as ClientEventHandler<ClientEventType>);
   }
 
   /**
@@ -243,7 +161,7 @@ export class MessariClient {
     handler: ClientEventHandler<T>
   ): void {
     if (this.eventHandlers.has(event)) {
-      this.eventHandlers.get(event)?.delete(handler);
+      this.eventHandlers.get(event)?.delete(handler as ClientEventHandler<ClientEventType>);
     }
   }
 
@@ -853,7 +771,7 @@ export class MessariClient {
     }
   }
 
-  public readonly ai = {
+  public readonly ai: AIInterface = {
     createChatCompletion: (
       params: createChatCompletionParameters,
       options?: RequestOptions
@@ -876,7 +794,7 @@ export class MessariClient {
       }),
   };
 
-  public readonly intel = {
+  public readonly intel: IntelInterface = {
     getAllEvents: async (
       params: getAllEventsParameters = {},
       options?: RequestOptions
@@ -939,8 +857,7 @@ export class MessariClient {
     },
   };
 
-  public readonly news = {
-    // Paginated versions
+  public readonly news: NewsInterface = {
     getNewsFeedPaginated: async (
       params: getNewsFeedParameters,
       options?: RequestOptions
@@ -1022,8 +939,7 @@ export class MessariClient {
     },
   };
 
-  public readonly markets = {
-    // Asset-specific endpoints
+  public readonly markets: MarketsInterface = {
     getAssetPrice: (params: getAssetPriceParameters) =>
       this.request<getAssetPriceResponse>({
         method: getAssetPrice.method,
@@ -1042,7 +958,6 @@ export class MessariClient {
         path: getAssetATH.path(params),
       }),
 
-    // Multi-asset endpoints
     getAllAssetsROI: () =>
       this.request<getAssetsROIResponse>({
         method: getAssetsROI.method,
