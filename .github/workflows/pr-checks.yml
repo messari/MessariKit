@@ -51,14 +51,14 @@ jobs:
     - name: Lint code
       run: pnpm lint:fix
     
-    - name: Check TypeScript
-      run: pnpm -r exec tsc --noEmit
-    
     - name: API validation and generation
       run: pnpm api:build
     
     - name: Build all packages
       run: pnpm build
+
+    - name: Check TypeScript
+      run: pnpm -r exec tsc --noEmit
     
     - name: Run tests
       run: pnpm test
