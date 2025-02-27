@@ -26,7 +26,6 @@ const client = new MessariClient({
  */
 async function getAssetMarketData(assetId: string) {
   try {
-    // Use the markets.getAssetPrice method from the client
     const response = await client.markets.getAssetPrice({ assetId });
     
     console.log("Basic Market Data");
@@ -72,7 +71,6 @@ async function getAssetMarketData(assetId: string) {
  */
 async function getAssetROIData(assetId: string) {
   try {
-    // Use the markets.getAssetROI method from the client
     const response = await client.markets.getAssetROI({ assetId });
     
     if (response.roiData) {
@@ -120,7 +118,6 @@ async function getAssetROIData(assetId: string) {
  */
 async function getAssetATHData(assetId: string) {
   try {
-    // Use the markets.getAssetATH method from the client
     const response = await client.markets.getAssetATH({ assetId });
     
     if (response.allTimeHighData) {
@@ -163,9 +160,7 @@ async function getAssetATHData(assetId: string) {
  */
 async function getTop5ROIPerformers() {
   try {
-    // Use the markets.getAllAssetsROI method from the client
     const response = await client.markets.getAllAssetsROI();
-    // console.log("🚀 ~ getTop5ROIPerformers ~ response:", response)
     
     // Display the top 5 performers in the last month
     const top5Performers = [...response]
@@ -191,21 +186,18 @@ async function getTop5ROIPerformers() {
   }
 }
 
-/**
- * Main function to run all examples
- */
 async function main() {
   try {
-    // Example usage with Bitcoin
+    // Example usage with Hyperliquid
     const hyperliquidId = "b3d5d66c-26a2-404c-9325-91dc714a722b";
     
-    // Get market data for Bitcoin
+    // Get market data for Hyperliquid
     await getAssetMarketData(hyperliquidId);
     
-    // Get ROI data for Bitcoin
+    // Get ROI data for Hyperliquid
     await getAssetROIData(hyperliquidId);
     
-    // Get ATH data for Bitcoin
+    // Get ATH data for Hyperliquid
     await getAssetATHData(hyperliquidId);
     
     // Get ROI data for all assets
