@@ -15,6 +15,7 @@ import {
 	getProjectRecap,
 	getExchangeRecap,
 	getExchangeRankingsRecap,
+    getAssetList,
 } from "@messari-kit/types";
 import type {
 	createChatCompletionParameters,
@@ -47,6 +48,8 @@ import type {
 	getExchangeRecapParameters,
 	getExchangeRecapResponse,
 	getExchangeRankingsRecapResponse,
+    getAssetListParameters,
+    getAssetListResponse,
 } from "@messari-kit/types";
 import type { Agent } from "node:http";
 import { pick } from "../utils";
@@ -60,7 +63,6 @@ import {
 import { RequestTimeoutError } from "../error";
 import type {
 	ClientEventHandler,
-	ClientEventMap,
 	ClientEventType,
 	MessariClientOptions,
 	PaginatedResult,
@@ -70,14 +72,15 @@ import type {
 	RequestOptions,
 	RequestParameters,
 } from "./types";
-import {
-	type AIInterface,
-	type IntelInterface,
-	type MarketsInterface,
-	MessariClientBase,
-	type NewsInterface,
-	type RecapsAPIInterface,
+import type {
+	AIInterface,
+	AssetInterface,
+	IntelInterface,
+	MarketsInterface,
+	NewsInterface,
+	RecapsAPIInterface,
 } from "./base";
+import { MessariClientBase } from "./base";
 
 /**
  * MessariClient is the main client class for interacting with the Messari API.
@@ -157,9 +160,9 @@ export class MessariClient extends MessariClientBase {
 		queryParams = {},
 		options = {},
 	}: RequestParameters): Promise<T> {
-		this.logger(LogLevel.DEBUG, "request start", { method, path });
-
-		this.emit("request", {
+		this.logger(LogLevel.DEBUG, "request start", { method, url: `${this.baseUrl}${path}` });
+		
+        this.emit("request", {
 			method,
 			path,
 			queryParams,
@@ -272,7 +275,7 @@ export class MessariClient extends MessariClientBase {
 		queryParams = {},
 		options = {},
 	}: RequestParameters): Promise<APIResponseWithMetadata<T, M>> {
-		this.logger(LogLevel.INFO, "request with metadata start", { method, path });
+		this.logger(LogLevel.DEBUG, "request with metadata start", { method, url: `${this.baseUrl}${path}` });
 
 		// Emit request event
 		this.emit("request", {
@@ -649,6 +652,34 @@ export class MessariClient extends MessariClientBase {
 				body: pick(params, extractEntities.bodyParams),
 				options,
 			}),
+	};
+
+	public readonly asset: AssetInterface = {
+		getAssetList: async (
+			params: getAssetListParameters = {},
+			options?: RequestOptions,
+		) => {
+			const fetchPage = async (
+				p: getAssetListParameters,
+				o?: RequestOptions,
+			) => {
+				return this.requestWithMetadata<
+					getAssetListResponse["data"],
+					PaginationMetadata
+				>({
+					method: getAssetList.method,
+					path: getAssetList.path(),
+					queryParams: pick(p, getAssetList.queryParams),
+					options: o,
+				});
+			};
+
+			const response = await fetchPage(params, options);
+			return this.paginate<
+				getAssetListResponse["data"],
+				getAssetListParameters
+			>(params, fetchPage, response, options);
+		}
 	};
 
 	public readonly intel: IntelInterface = {

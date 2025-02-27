@@ -55,6 +55,10 @@ paths:
     $ref: './services/ai/openapi.yaml#/paths/~1ai~1v1~1chat~1completions'
   /ai/v1/classification/extraction:
     $ref: './services/ai/openapi.yaml#/paths/~1ai~1v1~1classification~1extraction'
+
+  # Asset Service Paths
+  /asset/v1/assets:
+    $ref: './services/asset/openapi.yaml#/paths/~1asset~1v1~1assets'
   
   # Intel Service Paths
   /intel/v1/events:

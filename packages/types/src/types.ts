@@ -42,6 +42,16 @@ export type paths = {
      */
     post: operations["extractEntities"];
   };
+  "/asset/v1/assets": {
+    /**
+     * Get Asset List
+     * @description Get a paginated list of assets.
+     * Each filter allows multiple values, comma-separated.
+     * All assets that match any of the values for a given filter will be returned,
+     * as long as they are not filtered out by other filters.
+     */
+    get: operations["getAssetList"];
+  };
   "/intel/v1/assets": {
     /**
      * Get all assets
@@ -244,6 +254,32 @@ export type components = {
       roiData?: components["schemas"]["ROIData"];
       slug?: string;
       symbol?: string;
+    };
+    BasicAsset: {
+      /** @description Category of the asset */
+      category: string;
+      /**
+       * Format: uuid
+       * @description Unique identifier for the asset
+       */
+      id: string;
+      /** @description Name of the asset */
+      name: string;
+      /** @description Rank of the asset (optional) */
+      rank?: number | null;
+      /** @description Sector of the asset */
+      sector: string;
+      /**
+       * Format: int32
+       * @description Serial identifier for the asset
+       */
+      serialId: number;
+      /** @description Slug of the asset */
+      slug: string;
+      /** @description Symbol of the asset */
+      symbol: string;
+      /** @description Tags associated with the asset */
+      tags: string[];
     };
     ChatCompletionMessage: {
       /** @description The message content */
@@ -1058,6 +1094,57 @@ export type operations = {
             data?: components["schemas"]["ExtractResponse"];
             metadata?: components["schemas"]["ExtractResponseMetadata"];
           };
+        };
+      };
+      /** @description Server error response */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+    };
+  };
+  /**
+   * Get Asset List
+   * @description Get a paginated list of assets.
+   * Each filter allows multiple values, comma-separated.
+   * All assets that match any of the values for a given filter will be returned,
+   * as long as they are not filtered out by other filters.
+   */
+  getAssetList: {
+    parameters: {
+      query?: {
+        page?: components["parameters"]["page"];
+        limit?: components["parameters"]["limit"];
+        /** @description Filter by asset symbols (comma-separated). It might return multiple assets for a given symbol. */
+        symbol?: string;
+        /** @description Filter by asset names (comma-separated). It might return multiple assets for a given name. */
+        name?: string;
+        /** @description Filter by asset categories (comma-separated) */
+        category?: string;
+        /** @description Filter by asset sectors (comma-separated) */
+        sector?: string;
+        /** @description Filter by asset tags (comma-separated) */
+        tags?: string;
+      };
+      header: {
+        "x-messari-api-key": components["parameters"]["apiKey"];
+      };
+    };
+    responses: {
+      /** @description Successful response */
+      200: {
+        content: {
+          "application/json": components["schemas"]["APIResponseWithMetadata"] & {
+            data?: components["schemas"]["BasicAsset"][];
+            metadata?: components["schemas"]["PaginationResult"];
+          };
+        };
+      };
+      /** @description Client error response */
+      400: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
         };
       };
       /** @description Server error response */

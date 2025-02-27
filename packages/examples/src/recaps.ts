@@ -27,7 +27,7 @@ const client = new MessariClient({
 
 
 
-async function runRecapsExample() {
+async function main() {
   // Get the project recap for Bitcoin
   try {
     const bitcoinProjectId = "9793eae6-f374-46b4-8764-c2d224429791";
@@ -121,5 +121,5 @@ async function runRecapsExample() {
     console.error("Error calling getExchangeRecap:", error);
   }
 }
-// Run the example
-runRecapsExample();
+
+main().catch(console.error);

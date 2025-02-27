@@ -1,0 +1,158 @@
+openapi: 3.1.0
+info:
+  title: Messari Asset Service API
+  description: |
+    API for Asset services including asset information and related data.
+    This service provides access to crypto assets data.
+  version: 0.0.1
+  contact:
+    name: Messari Engineering
+    url: https://messari.io
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://api.messari.io/asset
+    description: Production server
+  - url: https://api.staging.messari.io/asset
+    description: Staging server
+  - url: http://localhost:8080/asset
+    description: Local development server
+
+tags:
+  - name: Asset
+    description: Asset-related endpoints
+
+security:
+  - apiKey: []
+
+paths:
+  /asset/v1/assets:
+    get:
+      operationId: getAssetList
+      summary: Get Asset List
+      description: |
+        Get a paginated list of assets.
+        Each filter allows multiple values, comma-separated.
+        All assets that match any of the values for a given filter will be returned, 
+        as long as they are not filtered out by other filters.
+      tags:
+        - Asset
+      security:
+        - apiKey: []
+      parameters:
+        - $ref: '../../common/parameters.yaml#/components/parameters/apiKey'
+        - $ref: '../../common/parameters.yaml#/components/parameters/page'
+        - $ref: '../../common/parameters.yaml#/components/parameters/limit'
+        - name: symbol
+          in: query
+          required: false
+          description: Filter by asset symbols (comma-separated). It might return multiple assets for a given symbol.
+          schema:
+            type: string
+        - name: name
+          in: query
+          required: false
+          description: Filter by asset names (comma-separated). It might return multiple assets for a given name.
+          schema:
+            type: string
+        - name: category
+          in: query
+          required: false
+          description: Filter by asset categories (comma-separated)
+          schema:
+            type: string
+        - name: sector
+          in: query
+          required: false
+          description: Filter by asset sectors (comma-separated)
+          schema:
+            type: string
+        - name: tags
+          in: query
+          required: false
+          description: Filter by asset tags (comma-separated)
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../../common/components.yaml#/components/schemas/APIResponseWithMetadata'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/BasicAsset'
+                      metadata:
+                        $ref: '../../common/components.yaml#/components/schemas/PaginationResult'
+        '400':
+          description: Client error response
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+        '500':
+          description: Server error response
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+
+components:
+  securitySchemes:
+    apiKey:
+      type: apiKey
+      name: x-messari-api-key
+      in: header
+      description: API key for authentication
+  schemas:
+    BasicAsset:
+      type: object
+      required:
+        - id
+        - serialId
+        - symbol
+        - name
+        - slug
+        - category
+        - sector
+        - tags
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the asset
+        serialId:
+          type: integer
+          format: int32
+          description: Serial identifier for the asset
+        symbol:
+          type: string
+          description: Symbol of the asset
+        name:
+          type: string
+          description: Name of the asset
+        slug:
+          type: string
+          description: Slug of the asset
+        rank:
+          type: integer
+          nullable: true
+          description: Rank of the asset (optional)
+        category:
+          type: string
+          description: Category of the asset
+        sector:
+          type: string
+          description: Sector of the asset
+        tags:
+          type: array
+          items:
+            type: string
+          description: Tags associated with the asset

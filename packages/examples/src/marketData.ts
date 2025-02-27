@@ -191,16 +191,16 @@ async function main() {
     // Example usage with Hyperliquid
     const hyperliquidId = "b3d5d66c-26a2-404c-9325-91dc714a722b";
     
-    // Get market data for Hyperliquid
+    // 1. Get market data for Hyperliquid
     await getAssetMarketData(hyperliquidId);
     
-    // Get ROI data for Hyperliquid
+    // 2. Get ROI data for Hyperliquid
     await getAssetROIData(hyperliquidId);
     
-    // Get ATH data for Hyperliquid
+    // 3. Get ATH data for Hyperliquid
     await getAssetATHData(hyperliquidId);
     
-    // Get ROI data for all assets
+    // 4. Get ROI data for all assets
     await getTop5ROIPerformers();
     
   } catch (error) {

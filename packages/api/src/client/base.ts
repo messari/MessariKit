@@ -28,6 +28,8 @@ import type {
   getExchangeRecapParameters,
   getExchangeRecapResponse,
   getProjectRecapResponse,
+  getAssetListResponse,
+  getAssetListParameters,
 } from "@messari-kit/types";
 import {
   LogLevel,
@@ -70,6 +72,23 @@ export interface AIInterface {
     options?: RequestOptions
   ): Promise<extractEntitiesResponse>;
 }
+
+/**
+ * Interface for the Asset API methods
+ */
+export interface AssetInterface {
+  /**
+   * Gets a paginated list of assets
+   * @param params Parameters for filtering assets
+   * @param options Optional request configuration
+   * @returns A paginated result of assets
+   */
+  getAssetList(
+    params?: getAssetListParameters,
+    options?: RequestOptions
+  ): Promise<PaginatedResult<getAssetListResponse["data"], getAssetListParameters>>;
+}
+
 
 /**
  * Interface for the Intel API methods
