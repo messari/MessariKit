@@ -52,6 +52,9 @@ const entities = await client.ai.extractEntities({
 | AI | Chat Completion | `/ai/v1/chat/completions` | ✅ |
 | AI | Entity Extraction | `/ai/v1/classification/extraction` | ✅ |
 | |
+| Asset | Asset List | `/asset/v1/assets` | ✅ |
+| Asset | Aseet By ID | `/asset/v1/assets/{assetId}` | ❌ |
+| |
 | Intel | TODO | `/intel/v1/events` | ✅ |
 | |
 | Marketdata | Marketdata by AssetID | `/marketdata/v1/assets/{assetId}/price` | ✅ |
