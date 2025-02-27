@@ -48,8 +48,7 @@ async function runRecapsExample() {
 
   // Get Exchange Rankings
   try {
-    const params: getExchangeRankingsRecapParameters = {}
-    const exchangeRankings = await client.recaps.getExchangeRankingsRecap(params);
+    const exchangeRankings = await client.recaps.getExchangeRankingsRecap();
     console.log("\n--------------------------------");
     console.log("Overall Exchanges Recap:");
     console.log("--------------------------------");
