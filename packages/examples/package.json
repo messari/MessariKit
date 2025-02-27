@@ -9,7 +9,8 @@
     "start": "tsx src/index.ts",
     "start:intel": "tsx src/intelEvents.ts",
     "start:news": "tsx src/newsFeed.ts",
-    "start:chat": "tsx src/chatCompletion.ts"
+    "start:chat": "tsx src/chatCompletion.ts",
+    "start:recaps": "tsx src/recaps.ts"
   },
   "dependencies": {
     "@messari-kit/api": "workspace:*",
