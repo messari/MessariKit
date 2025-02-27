@@ -16,7 +16,7 @@
 		"api:bundle": "redocly bundle typegen/openapi/index.yaml --output typegen/openapi/dist/combined.yaml",
 		"api:docs": "redocly preview-docs typegen/openapi/index.yaml",
 		"api:types": "./typegen/scripts/generate-types.sh && tsx typegen/scripts/generate-operation-types.ts",
-		"api:build": "pnpm run clean && pnpm run api:validate && pnpm run api:bundle && pnpm run api:types"
+		"api:build": "pnpm run clean && pnpm run api:validate && pnpm run api:bundle && pnpm run api:types && pnpm run build"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "1.9.4",
