@@ -8,7 +8,7 @@ paths:
   /marketdata/v1/assets/roi:
     get:
       operationId: getAssetsROI
-      summary: Returns a list ROI data for all assets
+      summary: ROIs
       description: Returns a list ROI data for all assets
       tags:
         - Asset Data
@@ -37,7 +37,7 @@ paths:
   /marketdata/v1/assets/ath:
     get:
       operationId: getAssetsATH
-      summary: Returns a list of all time high data for all assets
+      summary: ATHs
       description: Returns a list of all time high data for all assets
       tags:
         - Asset Data
@@ -65,8 +65,8 @@ paths:
 
   /marketdata/v1/assets/{assetId}/price:
     get:
-      operationId: getAssetPrice
-      summary: Returns a single asset's market data
+      operationId: getAssetMarketdata
+      summary: Asset Market Data
       description: Returns a single asset's market data
       tags:
         - Asset Data
@@ -100,7 +100,7 @@ paths:
   /marketdata/v1/assets/{assetId}/roi:
     get:
       operationId: getAssetROI
-      summary: Returns a single asset's ROI data
+      summary: ROI by Asset
       description: Returns a single asset's ROI data
       tags:
         - Asset Data
@@ -134,7 +134,7 @@ paths:
   /marketdata/v1/assets/{assetId}/ath:
     get:
       operationId: getAssetATH
-      summary: Returns a single asset's ATH data
+      summary: Asset ATH
       description: Returns a single asset's ATH data
       tags:
         - Asset Data
