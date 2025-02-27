@@ -58,3 +58,39 @@ export type Document = components['schemas']['Document'];
 export type DocumentList = components['schemas']['DocumentList'];
 
 export type SourceList = components['schemas']['SourceList'];
+
+export type RecapSlug = components['schemas']['RecapSlug'];
+
+export type IntelResponse = components['schemas']['IntelResponse'];
+
+export type ResearchResponse = components['schemas']['ResearchResponse'];
+
+export type PropositionResponse = components['schemas']['PropositionResponse'];
+
+export type NewsResponse = components['schemas']['NewsResponse'];
+
+export type NetworkMetrics = components['schemas']['NetworkMetrics'];
+
+export type TokenUnlockData = components['schemas']['TokenUnlockData'];
+
+export type VideoPodcastResponse = components['schemas']['VideoPodcastResponse'];
+
+export type SummaryResponse = components['schemas']['SummaryResponse'];
+
+export type ProjectRecapResponse = components['schemas']['ProjectRecapResponse'];
+
+export type GetProjectRecapResponse = components['schemas']['GetProjectRecapResponse'];
+
+export type ExchangeRecapPoint = components['schemas']['ExchangeRecapPoint'];
+
+export type ExchangeNewsRecap = components['schemas']['ExchangeNewsRecap'];
+
+export type ExchangePerformanceRecap = components['schemas']['ExchangePerformanceRecap'];
+
+export type ExchangeRecap = components['schemas']['ExchangeRecap'];
+
+export type ExchangeRankingsPerformanceRecap = components['schemas']['ExchangeRankingsPerformanceRecap'];
+
+export type ExchangeRankingsNewsRecap = components['schemas']['ExchangeRankingsNewsRecap'];
+
+export type ExchangeRankingsRecap = components['schemas']['ExchangeRankingsRecap'];
