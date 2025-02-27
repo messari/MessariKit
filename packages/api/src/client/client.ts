@@ -549,32 +549,20 @@ export class MessariClient extends MessariClientBase {
   }
 
   public readonly asset: AssetInterface = {
-		getAssetList: async (
-			params: getAssetListParameters = {},
-			options?: RequestOptions,
-		) => {
-			const fetchPage = async (
-				p: getAssetListParameters,
-				o?: RequestOptions,
-			) => {
-				return this.requestWithMetadata<
-					getAssetListResponse["data"],
-					PaginationMetadata
-				>({
-					method: getAssetList.method,
-					path: getAssetList.path(),
-					queryParams: pick(p, getAssetList.queryParams),
-					options: o,
-				});
-			};
+    getAssetList: async (params: getAssetListParameters = {}, options?: RequestOptions) => {
+      const fetchPage = async (p: getAssetListParameters, o?: RequestOptions) => {
+        return this.requestWithMetadata<getAssetListResponse["data"], PaginationMetadata>({
+          method: getAssetList.method,
+          path: getAssetList.path(),
+          queryParams: pick(p, getAssetList.queryParams),
+          options: o,
+        });
+      };
 
-			const response = await fetchPage(params, options);
-			return this.paginate<
-				getAssetListResponse["data"],
-				getAssetListParameters
-			>(params, fetchPage, response, options);
-		}
-	};
+      const response = await fetchPage(params, options);
+      return this.paginate<getAssetListResponse["data"], getAssetListParameters>(params, fetchPage, response, options);
+    },
+  };
 
   public readonly ai: AIInterface = {
     createChatCompletion: (params: createChatCompletionParameters, options?: RequestOptions) =>

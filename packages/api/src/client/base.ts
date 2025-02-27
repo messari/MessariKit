@@ -65,12 +65,8 @@ export interface AssetInterface {
    * @param options Optional request configuration
    * @returns A paginated result of assets
    */
-  getAssetList(
-    params?: getAssetListParameters,
-    options?: RequestOptions
-  ): Promise<PaginatedResult<getAssetListResponse["data"], getAssetListParameters>>;
+  getAssetList(params?: getAssetListParameters, options?: RequestOptions): Promise<PaginatedResult<getAssetListResponse["data"], getAssetListParameters>>;
 }
-
 
 /**
  * Interface for the Intel API methods

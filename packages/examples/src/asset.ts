@@ -11,9 +11,7 @@ const API_KEY = process.env.MESSARI_API_KEY;
 // Check if API key is available
 if (!API_KEY) {
   console.error("Error: MESSARI_API_KEY environment variable is not set.");
-  console.error(
-    "Please create a .env file with your API key or set it in your environment."
-  );
+  console.error("Please create a .env file with your API key or set it in your environment.");
   process.exit(1);
 }
 
@@ -29,18 +27,20 @@ const client = new MessariClient({
 async function getAllAssetsBasic() {
   try {
     const response = await client.asset.getAssetList();
-    
+
     console.log(`Retrieved ${response.data.length} assets out of ${response.metadata?.total} total assets`);
-    printTable(response.data.slice(0, 3).map((asset) => ({
-      "Rank": asset.rank,
-      "Name": asset.name,
-      "Symbol": asset.symbol,
-      "Slug": asset.slug,
-      "Category": asset.category,
-      "Sector": asset.sector,
-      "Tags": asset.tags.join(', ')
-    })));
-    
+    printTable(
+      response.data.slice(0, 3).map((asset) => ({
+        "Rank": asset.rank,
+        "Name": asset.name,
+        "Symbol": asset.symbol,
+        "Slug": asset.slug,
+        "Category": asset.category,
+        "Sector": asset.sector,
+        "Tags": asset.tags.join(", "),
+      })),
+    );
+
     return response;
   } catch (error) {
     console.error("Error fetching assets:", error);
@@ -54,20 +54,22 @@ async function getAllAssetsBasic() {
 async function getAssetsBySymbol(symbols: string[]) {
   try {
     const response = await client.asset.getAssetList({
-      symbol: symbols.join(',')
+      symbol: symbols.join(","),
     });
-    
-    console.log(`Retrieved ${response.data.length} assets matching symbols: ${symbols.join(', ')}`);
-    printTable(response.data.map((asset) => ({
-      "Rank": asset.rank,
-      "Name": asset.name,
-      "Symbol": asset.symbol,
-      "Slug": asset.slug,
-      "Category": asset.category,
-      "Sector": asset.sector,
-      "Tags": asset.tags.join(', ')
-    })));
-    
+
+    console.log(`Retrieved ${response.data.length} assets matching symbols: ${symbols.join(", ")}`);
+    printTable(
+      response.data.map((asset) => ({
+        "Rank": asset.rank,
+        "Name": asset.name,
+        "Symbol": asset.symbol,
+        "Slug": asset.slug,
+        "Category": asset.category,
+        "Sector": asset.sector,
+        "Tags": asset.tags.join(", "),
+      })),
+    );
+
     return response;
   } catch (error) {
     console.error("Error fetching assets by symbol:", error);
@@ -83,20 +85,22 @@ async function getAssetsByCategory(category: string, page = 1, limit = 20) {
     const response = await client.asset.getAssetList({
       category,
       page,
-      limit
+      limit,
     });
-    
+
     console.log(`Retrieved ${response.data.length} assets with category=${category}`);
-    printTable(response.data.map((asset) => ({
-      "Rank": asset.rank,
-      "Name": asset.name,
-      "Symbol": asset.symbol,
-      "Slug": asset.slug,
-      "Category": asset.category,
-      "Sector": asset.sector,
-      "Tags": asset.tags.join(', ')
-    })));
-    
+    printTable(
+      response.data.map((asset) => ({
+        "Rank": asset.rank,
+        "Name": asset.name,
+        "Symbol": asset.symbol,
+        "Slug": asset.slug,
+        "Category": asset.category,
+        "Sector": asset.sector,
+        "Tags": asset.tags.join(", "),
+      })),
+    );
+
     return response;
   } catch (error) {
     console.error(`Error fetching ${category} assets:`, error);
@@ -111,25 +115,27 @@ async function getAssetsWithMultipleFilters(sector: string, tags: string[]) {
   try {
     const response = await client.asset.getAssetList({
       sector: sector,
-      tags: tags.join(','),
-      limit: 25
+      tags: tags.join(","),
+      limit: 25,
     });
-    
+
     if (response.data.length === 0) {
       console.log("No assets found with the given filters");
       return;
     }
-    
-    console.log(`Retrieved ${response.data.length} assets with sector=${sector} and tags=[${tags.join(', ')}]`);
-    printTable(response.data.map((asset) => ({
-      "Rank": asset.rank,
-      "Name": asset.name,
-      "Symbol": asset.symbol,
-      "Slug": asset.slug,
-      "Category": asset.category,
-      "Sector": asset.sector,
-      "Tags": asset.tags.join(', ')
-    })));
+
+    console.log(`Retrieved ${response.data.length} assets with sector=${sector} and tags=[${tags.join(", ")}]`);
+    printTable(
+      response.data.map((asset) => ({
+        "Rank": asset.rank,
+        "Name": asset.name,
+        "Symbol": asset.symbol,
+        "Slug": asset.slug,
+        "Category": asset.category,
+        "Sector": asset.sector,
+        "Tags": asset.tags.join(", "),
+      })),
+    );
 
     return response;
   } catch (error) {
@@ -141,15 +147,15 @@ async function getAssetsWithMultipleFilters(sector: string, tags: string[]) {
 async function main() {
   // 1. Basic Usage
   await getAllAssetsBasic();
-  
+
   // 2. Filtering by Symbol
-  await getAssetsBySymbol(['BTC', 'ETH', 'SOL']);
-  
+  await getAssetsBySymbol(["BTC", "ETH", "SOL"]);
+
   // 3. Filtering by Category
-  await getAssetsByCategory('Networks');
-  
+  await getAssetsByCategory("Networks");
+
   // 4. Using Multiple Filters (sectors and tags)
-  await getAssetsWithMultipleFilters('Stablecoins', ['Decentralized Issuer', 'U.S. Dollar Stablecoin']);
+  await getAssetsWithMultipleFilters("Stablecoins", ["Decentralized Issuer", "U.S. Dollar Stablecoin"]);
 }
 
 main().catch(console.error);
