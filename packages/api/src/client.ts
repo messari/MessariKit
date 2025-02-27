@@ -45,6 +45,7 @@ import {
   makeNoOpLogger,
 } from "./logging";
 import { RequestTimeoutError } from "./error";
+import { RecapsAPIInterface } from "./interface";
 
 // Event types for the client
 export type ClientEventType = "error" | "request" | "response";
@@ -905,29 +906,25 @@ export class MessariClient {
     },
   };
 
-  public readonly recaps = {
-    getProjectRecap: async (params: getProjectRecapParameters, options?: RequestOptions) => {
+  public readonly recaps: RecapsAPIInterface = {
+    getProjectRecap: async (params: getProjectRecapParameters) => {
       return this.request<getProjectRecapResponse>({
         method: getProjectRecap.method,
         path: getProjectRecap.path(),
         queryParams: pick(params, getProjectRecap.queryParams),
-        options,
       });
     },
-    getExchangeRecap: async (params: getExchangeRecapParameters, options?: RequestOptions) => {
+    getExchangeRecap: async (params: getExchangeRecapParameters) => {
       return this.request<getExchangeRecapResponse>({
         method: getExchangeRecap.method,
         path: getExchangeRecap.path(),
         queryParams: pick(params, getExchangeRecap.queryParams),
-        options,
       });
     },
-    getExchangeRankingsRecap: async (params: getExchangeRankingsRecapParameters, options?: RequestOptions) => {
+    getExchangeRankingsRecap: async () => {
       return this.request<getExchangeRankingsRecapResponse>({
         method: getExchangeRankingsRecap.method,
         path: getExchangeRankingsRecap.path(),
-        queryParams: pick(params, getExchangeRankingsRecap.queryParams),
-        options,
       });
     },
   };
