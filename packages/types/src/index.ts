@@ -1,4 +1,4 @@
-import { components } from './types';
+import type { components } from './types';
 
 
 // Define APIResponseWithMetadata as a generic type

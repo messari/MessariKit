@@ -3,7 +3,7 @@
  * DO NOT EDIT MANUALLY.
  */
 
-import { components } from './types';
+import type { components } from './types';
 
 // Export all schema types from components
 
