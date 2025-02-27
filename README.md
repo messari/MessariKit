@@ -53,7 +53,7 @@ const entities = await client.ai.extractEntities({
 | AI | Entity Extraction | `/ai/v1/classification/extraction` | ✅ |
 | |
 | Asset | Asset List | `/asset/v1/assets` | ✅ |
-| Asset | Aseet By ID | `/asset/v1/assets/{assetId}` | ❌ |
+| Asset | Asset By ID | `/asset/v1/assets/{assetId}` | ❌ |
 | |
 | Intel | TODO | `/intel/v1/events` | ✅ |
 | |
