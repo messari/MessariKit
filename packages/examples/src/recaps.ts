@@ -1,6 +1,6 @@
 import { MessariClient } from "@messari-kit/api";
 import { printTable } from "console-table-printer";
-import { getExchangeRecapParameters, getProjectRecapParameters } from "@messari-kit/types";
+import type { getExchangeRecapParameters, getProjectRecapParameters } from "@messari-kit/types";
 import dotenv from "dotenv";
 
 // Load environment variables from .env file
@@ -41,17 +41,14 @@ async function runRecapsExample() {
       const recap = recaps[0];
       console.log(`Summary: \n${recap.summary?.summary}`);
 
-      let rows: Record<string, any>[] = []
-      for (const r of recaps) {
-        rows.push({
+      const rows = recaps.map((r) => ({
           "Date": r.recapDate,
           "Period": r.timePeriod,
           "tvl_usd": r.networkMetricsData?.tvl_usd,
           "tvl_percent_change": r.networkMetricsData?.tvl_percent_change,
           "active_addresses": r.networkMetricsData?.active_addresses,
           "fee_revenue": r.networkMetricsData?.fee_revenue,
-        })
-      }
+        }));
       printTable(rows)
     }
   } catch (error) {
@@ -68,7 +65,8 @@ async function runRecapsExample() {
     if (exchangeRankings.performanceRecap) {
       const data = exchangeRankings.performanceRecap?.data
       if (data?.topExchanges) {
-        let rows: Record<string, any>[] = []
+        // biome-ignore lint/suspicious/noExplicitAny: Will improve type safety
+        const rows: Record<string, any>[] = []
         for (const [i, row] of data.topExchanges.entries()) {
           if (i > 5) break;
           rows.push({
@@ -82,9 +80,8 @@ async function runRecapsExample() {
       }
     }
     if (exchangeRankings.recapBrief) {
-      let rows: Record<string, any>[] = []
       for (const [i, row] of exchangeRankings.recapBrief.entries()) {
-        if (i == 0) {
+        if (i === 0) {
           console.log(row.summary)
           console.log("\nRecap Items:")
           continue;
@@ -105,7 +102,7 @@ async function runRecapsExample() {
     }
     const exchangeRecap = await client.recaps.getExchangeRecap(params);
     console.log("\n--------------------------------");
-    console.log(`Individual Exchange Recap (Binance)`);
+    console.log("Individual Exchange Recap (Binance)");
     console.log("--------------------------------");
     console.log(`Recap Date & Period: ${exchangeRecap.recapDate} (${exchangeRecap.recapPeriod})`);
     if (exchangeRecap.performanceRecap) {
