@@ -5,7 +5,7 @@
   "scripts": {
     "build": "pnpm -r build",
     "test": "pnpm -r test",
-    "clean": "pnpm -r clean",
+    "clean": "pnpm -r clean && rimraf typegen/openapi/dist",
     "dev": "pnpm -r dev",
     "dev:examples": "pnpm --filter @messari-kit/examples dev",
     "dev:api": "pnpm --filter @messari-kit/api dev",
@@ -23,6 +23,7 @@
     "@types/node": "^20.11.24",
     "js-yaml": "^4.1.0",
     "openapi-typescript": "^6.7.4",
+    "rimraf": "^5.0.5",
     "tsx": "^4.7.1",
     "typescript": "^5.3.3"
   }
