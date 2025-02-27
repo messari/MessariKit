@@ -4,15 +4,10 @@ export class RequestTimeoutError extends Error {
     this.name = "RequestTimeoutError";
   }
 
-  static async rejectAfterTimeout<T>(
-    promise: Promise<T>,
-    timeoutMs: number
-  ): Promise<T> {
+  static async rejectAfterTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
     return new Promise((resolve, reject) => {
       const timeoutId = setTimeout(() => {
-        reject(
-          new RequestTimeoutError(`Request timed out after ${timeoutMs}ms`)
-        );
+        reject(new RequestTimeoutError(`Request timed out after ${timeoutMs}ms`));
       }, timeoutMs);
 
       promise

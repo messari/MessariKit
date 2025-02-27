@@ -25,13 +25,8 @@ type AllKeys<T> = T extends unknown ? keyof T : never;
  * @param keys The keys to pick from the object.
  * @returns A new object containing only the picked keys.
  */
-export const pick = <O, K extends AllKeys<O>>(
-  base: O,
-  keys: readonly K[]
-): Pick<O, K> => {
-  const entries = keys
-    .map((key) => [key, base?.[key]])
-    .filter(([_, value]) => value !== undefined);
+export const pick = <O, K extends AllKeys<O>>(base: O, keys: readonly K[]): Pick<O, K> => {
+  const entries = keys.map((key) => [key, base?.[key]]).filter(([_, value]) => value !== undefined);
   return Object.fromEntries(entries);
 };
 

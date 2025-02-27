@@ -8,11 +8,7 @@ export enum LogLevel {
   ERROR = "error",
 }
 
-export type Logger = (
-  level: LogLevel,
-  message: string,
-  extraInfo?: Record<string, unknown>
-) => void;
+export type Logger = (level: LogLevel, message: string, extraInfo?: Record<string, unknown>) => void;
 
 export const makeConsoleLogger = (name: string): Logger => {
   return (level, message, extraInfo) => {
@@ -22,7 +18,7 @@ export const makeConsoleLogger = (name: string): Logger => {
     }
     console[level](`${name} ${level}:`, message, extraInfo || "");
   };
-}
+};
 
 /**
  * Transforms a log level into a comparable (numerical) value ordered by severity.
@@ -47,10 +43,7 @@ export function logLevelSeverity(level: LogLevel): number {
 /**
  * Creates a logger that only logs messages with a severity greater than or equal to the specified level.
  */
-export function createFilteredLogger(
-  logger: Logger,
-  minLevel: LogLevel
-): Logger {
+export function createFilteredLogger(logger: Logger, minLevel: LogLevel): Logger {
   const minSeverity = logLevelSeverity(minLevel);
   return (level, message, extraInfo) => {
     if (logLevelSeverity(level) >= minSeverity) {

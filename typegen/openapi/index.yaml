@@ -1,4 +1,4 @@
-openapi: 3.0.0
+openapi: 3.0.1
 info:
   title: Messari API
   version: 0.0.1
@@ -27,20 +27,20 @@ components:
   schemas:
     # Common schemas
     APIError:
-      $ref: './common/components.yaml#/components/schemas/APIError'
+      $ref: "./common/components.yaml#/components/schemas/APIError"
     APIResponseWithMetadata:
-      $ref: './common/components.yaml#/components/schemas/APIResponseWithMetadata'
+      $ref: "./common/components.yaml#/components/schemas/APIResponseWithMetadata"
     PaginationResult:
-      $ref: './common/components.yaml#/components/schemas/PaginationResult'
-  
+      $ref: "./common/components.yaml#/components/schemas/PaginationResult"
+
   parameters:
     # Common parameters
     page:
-      $ref: './common/parameters.yaml#/components/parameters/page'
+      $ref: "./common/parameters.yaml#/components/parameters/page"
     limit:
-      $ref: './common/parameters.yaml#/components/parameters/limit'
+      $ref: "./common/parameters.yaml#/components/parameters/limit"
     apiKey:
-      $ref: './common/parameters.yaml#/components/parameters/apiKey'
+      $ref: "./common/parameters.yaml#/components/parameters/apiKey"
   securitySchemes:
     apiKey:
       type: apiKey
@@ -52,48 +52,46 @@ components:
 paths:
   # AI Service Paths
   /ai/v1/chat/completions:
-    $ref: './services/ai/openapi.yaml#/paths/~1ai~1v1~1chat~1completions'
+    $ref: "./services/ai/openapi.yaml#/paths/~1ai~1v1~1chat~1completions"
   /ai/v1/classification/extraction:
     $ref: './services/ai/openapi.yaml#/paths/~1ai~1v1~1classification~1extraction'
 
   # Asset Service Paths
   /asset/v1/assets:
     $ref: './services/asset/openapi.yaml#/paths/~1asset~1v1~1assets'
-  
+
   # Intel Service Paths
   /intel/v1/events:
-    $ref: './services/intel/openapi.yaml#/paths/~1intel~1v1~1events'
+    $ref: "./services/intel/openapi.yaml#/paths/~1intel~1v1~1events"
   /intel/v1/events/{eventId}:
-    $ref: './services/intel/openapi.yaml#/paths/~1intel~1v1~1events~1{eventId}'
+    $ref: "./services/intel/openapi.yaml#/paths/~1intel~1v1~1events~1{eventId}"
   /intel/v1/assets:
-    $ref: './services/intel/openapi.yaml#/paths/~1intel~1v1~1assets'
-  
+    $ref: "./services/intel/openapi.yaml#/paths/~1intel~1v1~1assets"
+
   # News Service Paths
   /news/v1/news/assets:
-    $ref: './services/news/openapi.yaml#/paths/~1news~1v1~1news~1assets'
+    $ref: "./services/news/openapi.yaml#/paths/~1news~1v1~1news~1assets"
   /news/v1/news/feed:
-    $ref: './services/news/openapi.yaml#/paths/~1news~1v1~1news~1feed'
+    $ref: "./services/news/openapi.yaml#/paths/~1news~1v1~1news~1feed"
   /news/v1/news/sources:
-    $ref: './services/news/openapi.yaml#/paths/~1news~1v1~1news~1sources'
+    $ref: "./services/news/openapi.yaml#/paths/~1news~1v1~1news~1sources"
 
   # MarketData Service Paths
-  /marketdata/v1/assets/roi: 
-    $ref: './services/marketdata/openapi.yaml#/paths/~1marketdata~1v1~1assets~1roi'
+  /marketdata/v1/assets/roi:
+    $ref: "./services/marketdata/openapi.yaml#/paths/~1marketdata~1v1~1assets~1roi"
   /marketdata/v1/assets/ath:
-    $ref: './services/marketdata/openapi.yaml#/paths/~1marketdata~1v1~1assets~1ath'
+    $ref: "./services/marketdata/openapi.yaml#/paths/~1marketdata~1v1~1assets~1ath"
   /marketdata/v1/assets/{assetId}/price:
-    $ref: './services/marketdata/openapi.yaml#/paths/~1marketdata~1v1~1assets~1{assetId}~1price'
+    $ref: "./services/marketdata/openapi.yaml#/paths/~1marketdata~1v1~1assets~1{assetId}~1price"
   /marketdata/v1/assets/{assetId}/roi:
-    $ref: './services/marketdata/openapi.yaml#/paths/~1marketdata~1v1~1assets~1{assetId}~1roi'
+    $ref: "./services/marketdata/openapi.yaml#/paths/~1marketdata~1v1~1assets~1{assetId}~1roi"
   /marketdata/v1/assets/{assetId}/ath:
-    $ref: './services/marketdata/openapi.yaml#/paths/~1marketdata~1v1~1assets~1{assetId}~1ath'
+    $ref: "./services/marketdata/openapi.yaml#/paths/~1marketdata~1v1~1assets~1{assetId}~1ath"
 
   # Recaps Service Paths
   /ai-digest/api/v1/recap:
-    $ref: './services/recaps/openapi.yaml#/paths/~1ai-digest~1api~1v1~1recap'
+    $ref: "./services/recaps/openapi.yaml#/paths/~1ai-digest~1api~1v1~1recap"
   /ai-digest/api/v1/exchange-recap:
-    $ref: './services/recaps/openapi.yaml#/paths/~1ai-digest~1api~1v1~1exchange-recap'
+    $ref: "./services/recaps/openapi.yaml#/paths/~1ai-digest~1api~1v1~1exchange-recap"
   /ai-digest/api/v1/exchange-rankings-recap:
-    $ref: './services/recaps/openapi.yaml#/paths/~1ai-digest~1api~1v1~1exchange-rankings-recap'
-
-
+    $ref: "./services/recaps/openapi.yaml#/paths/~1ai-digest~1api~1v1~1exchange-rankings-recap"

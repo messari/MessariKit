@@ -1,11 +1,5 @@
 import { MessariClient } from "@messari-kit/api";
-import type {
-  getAllEventsParameters,
-  getEventAndHistoryParameters,
-  getAllAssetsParameters,
-  Asset,
-  EventHistory,
-} from "@messari-kit/types";
+import type { getAllEventsParameters, getEventAndHistoryParameters, getAllAssetsParameters, Asset, EventHistory } from "@messari-kit/types";
 import dotenv from "dotenv";
 
 // Load environment variables from .env file
@@ -17,9 +11,7 @@ const API_KEY = process.env.MESSARI_API_KEY;
 // Check if API key is available
 if (!API_KEY) {
   console.error("Error: MESSARI_API_KEY environment variable is not set.");
-  console.error(
-    "Please create a .env file with your API key or set it in your environment."
-  );
+  console.error("Please create a .env file with your API key or set it in your environment.");
   process.exit(1);
 }
 
@@ -50,17 +42,11 @@ async function getAllEvents() {
     displayEvents(paginatedEvents.data);
 
     // Get the second page if available
-    if (
-      paginatedEvents.metadata?.page &&
-      paginatedEvents.metadata?.totalPages &&
-      paginatedEvents.metadata?.page < paginatedEvents.metadata?.totalPages
-    ) {
+    if (paginatedEvents.metadata?.page && paginatedEvents.metadata?.totalPages && paginatedEvents.metadata?.page < paginatedEvents.metadata?.totalPages) {
       console.log("\nFetching page 2...");
       const page2Params = { ...params, page: 2 };
       const page2 = await client.intel.getAllEvents(page2Params);
-      console.log(
-        `Page ${page2.metadata?.page} of ${page2.metadata?.totalPages}`
-      );
+      console.log(`Page ${page2.metadata?.page} of ${page2.metadata?.totalPages}`);
       displayEvents(page2.data);
     }
   } catch (error) {
@@ -89,16 +75,12 @@ async function getEventDetails(eventId: string) {
 
     // Display the event history
     console.log("\nEvent history:");
-    eventDetails.eventHistory.forEach(
-      (historyItem: EventHistory, index: number) => {
-        console.log(`${index + 1}. Status: ${historyItem.status}`);
-        console.log(`   Date: ${historyItem.submissionDate}`);
-        console.log(
-          `   Details: ${historyItem.updateDetails || "No details available"}`
-        );
-        console.log();
-      }
-    );
+    eventDetails.eventHistory.forEach((historyItem: EventHistory, index: number) => {
+      console.log(`${index + 1}. Status: ${historyItem.status}`);
+      console.log(`   Date: ${historyItem.submissionDate}`);
+      console.log(`   Details: ${historyItem.updateDetails || "No details available"}`);
+      console.log();
+    });
   } catch (error) {
     console.error(`Error fetching event details for ID ${eventId}:`, error);
   }
@@ -157,9 +139,7 @@ async function main() {
     console.log(`Using event ID from response: ${eventId}`);
     await getEventDetails(eventId);
   } else {
-    console.log(
-      "\n2. Skipping event details - no events found in the response"
-    );
+    console.log("\n2. Skipping event details - no events found in the response");
   }
 
   console.log("\n3. Getting all assets...");
@@ -189,17 +169,11 @@ async function getAllEventsAndReturnResponse() {
     displayEvents(paginatedEvents.data);
 
     // Get the second page if available
-    if (
-      paginatedEvents.metadata?.page &&
-      paginatedEvents.metadata?.totalPages &&
-      paginatedEvents.metadata?.page < paginatedEvents.metadata?.totalPages
-    ) {
+    if (paginatedEvents.metadata?.page && paginatedEvents.metadata?.totalPages && paginatedEvents.metadata?.page < paginatedEvents.metadata?.totalPages) {
       console.log("\nFetching page 2...");
       const page2Params = { ...params, page: 2 };
       const page2 = await client.intel.getAllEvents(page2Params);
-      console.log(
-        `Page ${page2.metadata?.page} of ${page2.metadata?.totalPages}`
-      );
+      console.log(`Page ${page2.metadata?.page} of ${page2.metadata?.totalPages}`);
       displayEvents(page2.data);
     }
 

@@ -12,9 +12,7 @@ const API_KEY = process.env.MESSARI_API_KEY;
 // Check if API key is available
 if (!API_KEY) {
   console.error("Error: MESSARI_API_KEY environment variable is not set.");
-  console.error(
-    "Please create a .env file with your API key or set it in your environment."
-  );
+  console.error("Please create a .env file with your API key or set it in your environment.");
   process.exit(1);
 }
 
@@ -24,8 +22,6 @@ const client = new MessariClient({
   // Optional: Override the base URL if needed
   // baseUrl: "https://api.messari.io",
 });
-
-
 
 async function main() {
   // Get the project recap for Bitcoin
@@ -42,14 +38,14 @@ async function main() {
       console.log(`Summary: \n${recap.summary?.summary}`);
 
       const rows = recaps.map((r) => ({
-          "Date": r.recapDate,
-          "Period": r.timePeriod,
-          "tvl_usd": r.networkMetricsData?.tvl_usd,
-          "tvl_percent_change": r.networkMetricsData?.tvl_percent_change,
-          "active_addresses": r.networkMetricsData?.active_addresses,
-          "fee_revenue": r.networkMetricsData?.fee_revenue,
-        }));
-      printTable(rows)
+        "Date": r.recapDate,
+        "Period": r.timePeriod,
+        "tvl_usd": r.networkMetricsData?.tvl_usd,
+        "tvl_percent_change": r.networkMetricsData?.tvl_percent_change,
+        "active_addresses": r.networkMetricsData?.active_addresses,
+        "fee_revenue": r.networkMetricsData?.fee_revenue,
+      }));
+      printTable(rows);
     }
   } catch (error) {
     console.error("Error calling getProjectRecap:", error);
@@ -63,10 +59,10 @@ async function main() {
     console.log("--------------------------------");
     console.log(`Recap Date & Period: ${exchangeRankings.recapDate} (${exchangeRankings.recapPeriod})`);
     if (exchangeRankings.performanceRecap) {
-      const data = exchangeRankings.performanceRecap?.data
+      const data = exchangeRankings.performanceRecap?.data;
       if (data?.topExchanges) {
         // biome-ignore lint/suspicious/noExplicitAny: Will improve type safety
-        const rows: Record<string, any>[] = []
+        const rows: Record<string, any>[] = [];
         for (const [i, row] of data.topExchanges.entries()) {
           if (i > 5) break;
           rows.push({
@@ -74,20 +70,20 @@ async function main() {
             "exchangeName": row.name,
             "exchangeSlug": row.slug,
             "exchangeType": row.type,
-          })
+          });
         }
-        printTable(rows)
+        printTable(rows);
       }
     }
     if (exchangeRankings.recapBrief) {
       for (const [i, row] of exchangeRankings.recapBrief.entries()) {
         if (i === 0) {
-          console.log(row.summary)
-          console.log("\nRecap Items:")
+          console.log(row.summary);
+          console.log("\nRecap Items:");
           continue;
-        };
+        }
         if (i > 2) break;
-        console.log(`${i}. ${row.summary}`)
+        console.log(`${i}. ${row.summary}`);
       }
     }
   } catch (error) {
@@ -98,8 +94,8 @@ async function main() {
   try {
     const binanceExchangeId = "d8b0ea44-1963-451e-ac37-aead4ba3b4c7";
     const params: getExchangeRecapParameters = {
-      exchange_id: binanceExchangeId
-    }
+      exchange_id: binanceExchangeId,
+    };
     const exchangeRecap = await client.recaps.getExchangeRecap(params);
     console.log("\n--------------------------------");
     console.log("Individual Exchange Recap (Binance)");
@@ -108,15 +104,16 @@ async function main() {
     if (exchangeRecap.performanceRecap) {
       console.log("Performance Summary:\n", exchangeRecap.performanceRecap?.summary);
       console.log("Performance Data:");
-      printTable([{
-        "exchangeId": exchangeRecap.performanceRecap?.data?.exchangeId,
-        "exchangeName": exchangeRecap.performanceRecap?.data?.exchangeName,
-        "exchangeType": exchangeRecap.performanceRecap?.data?.exchangeType,
-        "region": exchangeRecap.performanceRecap?.data?.region,
-        "last30DaysVolume": exchangeRecap.performanceRecap?.data?.last30DaysVolume,
-      }])
+      printTable([
+        {
+          "exchangeId": exchangeRecap.performanceRecap?.data?.exchangeId,
+          "exchangeName": exchangeRecap.performanceRecap?.data?.exchangeName,
+          "exchangeType": exchangeRecap.performanceRecap?.data?.exchangeType,
+          "region": exchangeRecap.performanceRecap?.data?.region,
+          "last30DaysVolume": exchangeRecap.performanceRecap?.data?.last30DaysVolume,
+        },
+      ]);
     }
-
   } catch (error) {
     console.error("Error calling getExchangeRecap:", error);
   }
