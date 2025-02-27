@@ -338,7 +338,7 @@ function processCombinedOpenAPISpec(filePath: string): string[] {
   const operations: string[] = [];
 
   // Add imports for common types
-  operations.push(`import { components } from './types';`);
+  operations.push(`import type { components } from './types';`);
 
   // Define APIResponseWithMetadata directly instead of importing it
   operations.push(`
@@ -403,7 +403,7 @@ function generateSchemaExports(spec: OpenAPISpec): string[] {
  * DO NOT EDIT MANUALLY.
  */
 
-import { components } from './types';
+import type { components } from './types';
 
 // Export all schema types from components`);
 
