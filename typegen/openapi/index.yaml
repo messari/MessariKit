@@ -1,4 +1,4 @@
-openapi: 3.1.0
+openapi: 3.0.0
 info:
   title: Messari API
   version: 0.0.1
@@ -32,6 +32,7 @@ components:
       $ref: './common/components.yaml#/components/schemas/APIResponseWithMetadata'
     PaginationResult:
       $ref: './common/components.yaml#/components/schemas/PaginationResult'
+  
   parameters:
     # Common parameters
     page:
@@ -71,6 +72,18 @@ paths:
   /news/v1/news/sources:
     $ref: './services/news/openapi.yaml#/paths/~1news~1v1~1news~1sources'
 
+  # MarketData Service Paths
+  /marketdata/v1/assets/roi: 
+    $ref: './services/marketdata/openapi.yaml#/paths/~1marketdata~1v1~1assets~1roi'
+  /marketdata/v1/assets/ath:
+    $ref: './services/marketdata/openapi.yaml#/paths/~1marketdata~1v1~1assets~1ath'
+  /marketdata/v1/assets/{assetId}/price:
+    $ref: './services/marketdata/openapi.yaml#/paths/~1marketdata~1v1~1assets~1{assetId}~1price'
+  /marketdata/v1/assets/{assetId}/roi:
+    $ref: './services/marketdata/openapi.yaml#/paths/~1marketdata~1v1~1assets~1{assetId}~1roi'
+  /marketdata/v1/assets/{assetId}/ath:
+    $ref: './services/marketdata/openapi.yaml#/paths/~1marketdata~1v1~1assets~1{assetId}~1ath'
+
   # Recaps Service Paths
   /ai-digest/api/v1/recap:
     $ref: './services/recaps/openapi.yaml#/paths/~1ai-digest~1api~1v1~1recap'
@@ -79,26 +92,4 @@ paths:
   /ai-digest/api/v1/exchange-rankings-recap:
     $ref: './services/recaps/openapi.yaml#/paths/~1ai-digest~1api~1v1~1exchange-rankings-recap'
 
-# Import tags from all services
-tags:
-  # AI Service Tags
-  - name: ai:Chat
-    description: AI chat completion endpoints
-  - name: ai:Classification
-    description: AI entity extraction and classification endpoints
-  
-  # Intel Service Tags
-  - name: intel:Events
-    description: Event-related endpoints
-  - name: intel:Assets
-    description: Asset-related endpoints
-  
-  # News Service Tags
-  - name: news:News
-    description: News feed and related endpoints 
 
-  # Recaps Service Tags
-  - name: recaps:Projects
-    description: Project recap endpoints
-  - name: recaps:Exchanges
-    description: Exchange recap endpoints

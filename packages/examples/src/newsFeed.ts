@@ -1,5 +1,5 @@
 import { MessariClient } from "@messari-kit/api";
-import {
+import type {
   getNewsFeedParameters,
   getNewsFeedAssetsParameters,
   getNewsSourcesParameters,

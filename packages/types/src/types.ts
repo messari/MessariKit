@@ -28,7 +28,7 @@ export type paths = {
   };
   "/ai/v1/chat/completions": {
     /**
-     * Create a chat completion
+     * Chat Completion
      * @description Creates a completion for the chat message. Supports both streaming and non-streaming responses.
      * The last message must be from the user role.
      */
@@ -36,7 +36,7 @@ export type paths = {
   };
   "/ai/v1/classification/extraction": {
     /**
-     * Extract entities from text
+     * Entity Extraction
      * @description Extracts entities from the provided text content using AI models and database lookups.
      * Supports various entity types and can return similar entities based on the extracted names.
      */
@@ -64,6 +64,41 @@ export type paths = {
      * @description Returns a specific event by ID along with its history.
      */
     get: operations["getEventAndHistory"];
+  };
+  [path: `/marketdata/v1/assets/${string}/ath`]: {
+    /**
+     * Asset ATH
+     * @description Returns a single asset's ATH data
+     */
+    get: operations["getAssetATH"];
+  };
+  [path: `/marketdata/v1/assets/${string}/price`]: {
+    /**
+     * Asset Market Data
+     * @description Returns a single asset's market data
+     */
+    get: operations["getAssetMarketdata"];
+  };
+  [path: `/marketdata/v1/assets/${string}/roi`]: {
+    /**
+     * ROI by Asset
+     * @description Returns a single asset's ROI data
+     */
+    get: operations["getAssetROI"];
+  };
+  "/marketdata/v1/assets/ath": {
+    /**
+     * ATHs
+     * @description Returns a list of all time high data for all assets
+     */
+    get: operations["getAssetsATH"];
+  };
+  "/marketdata/v1/assets/roi": {
+    /**
+     * ROIs
+     * @description Returns a list ROI data for all assets
+     */
+    get: operations["getAssetsROI"];
   };
   "/news/v1/news/assets": {
     /**
@@ -127,6 +162,89 @@ export type components = {
     };
     /** @description List of assets */
     AssetList: components["schemas"]["NewsAsset"][];
+    AssetMarketcap: {
+      /** Format: double */
+      circulatingUsd?: number;
+      /** Format: double */
+      dominance?: number;
+      /** Format: double */
+      fullyDilutedUsd?: number;
+    };
+    AssetMarketData: {
+      lastPriceAt?: components["schemas"]["TimeUTC"];
+      lastTradeAt?: components["schemas"]["TimeUTC"];
+      marketcap?: components["schemas"]["AssetMarketcap"];
+      ohlcv1Hour?: components["schemas"]["OHLCV"];
+      ohlcv24Hours?: components["schemas"]["OHLCV"];
+      /** Format: double */
+      percentChangeBtc1Hour?: number;
+      /** Format: double */
+      percentChangeBtc24Hours?: number;
+      /** Format: double */
+      percentChangeEth1Hour?: number;
+      /** Format: double */
+      percentChangeEth24Hours?: number;
+      /** Format: double */
+      percentChangeUsd1Hour?: number;
+      /** Format: double */
+      percentChangeUsd24Hours?: number;
+      /** Format: double */
+      priceBtc?: number;
+      /** Format: double */
+      priceEth?: number;
+      /** Format: double */
+      priceUsd?: number;
+      /** Format: double */
+      realVolume24Hours?: number;
+      supply?: components["schemas"]["AssetSupply"];
+      /** Format: double */
+      volume24Hours?: number;
+      /** Format: double */
+      volume24HoursOverstatementMultiple?: number;
+    };
+    AssetSupply: {
+      /** Format: double */
+      circulating?: number;
+      /** Format: double */
+      max?: number;
+      /** Format: double */
+      total?: number;
+    };
+    AssetWithATHData: {
+      allTimeHighData?: {
+        at?: components["schemas"]["TimeUTC"];
+        /** Format: double */
+        breakevenMultiple?: number;
+        /** Format: double */
+        daysSince?: number;
+        /** Format: double */
+        percentDown?: number;
+        /** Format: double */
+        price?: number;
+      };
+      contractAddresses?: components["schemas"]["PlatformContract"][];
+      cycleLowData?: {
+        at?: components["schemas"]["TimeUTC"];
+        /** Format: double */
+        daysSince?: number;
+        /** Format: double */
+        percentUp?: number;
+        /** Format: double */
+        price?: number;
+      };
+      id?: string;
+      name?: string;
+      slug?: string;
+      symbol?: string;
+    };
+    AssetWithROIData: {
+      contractAddresses?: components["schemas"]["PlatformContract"][];
+      id?: string;
+      name?: string;
+      roiData?: components["schemas"]["ROIData"];
+      slug?: string;
+      symbol?: string;
+    };
     ChatCompletionMessage: {
       /** @description The message content */
       content: string;
@@ -526,6 +644,19 @@ export type components = {
         }[];
       summary?: string;
     };
+    OHLCV: {
+      /** Format: double */
+      close?: number;
+      /** Format: double */
+      high?: number;
+      /** Format: double */
+      low?: number;
+      /** Format: double */
+      open?: number;
+      timestamp?: components["schemas"]["TimeUTC"];
+      /** Format: double */
+      volume?: number;
+    };
     /** @description Pagination metadata for list endpoints */
     PaginationResult: {
       /**
@@ -548,6 +679,10 @@ export type components = {
        * @example 100
        */
       total?: number;
+    };
+    PlatformContract: {
+      contractAddress?: string;
+      platform?: string;
     };
     ProjectRecapResponse: {
       /** @description Unique identifier for the asset */
@@ -619,6 +754,38 @@ export type components = {
        */
       url?: string;
     };
+    ROIData: {
+      /** Format: double */
+      percentChange1Month?: number;
+      /** Format: double */
+      percentChange1Week?: number;
+      /** Format: double */
+      percentChange1Year?: number;
+      /** Format: double */
+      percentChange3Months?: number;
+      /** Format: double */
+      percentChangeBtc1Month?: number;
+      /** Format: double */
+      percentChangeBtc1Week?: number;
+      /** Format: double */
+      percentChangeBtc1Year?: number;
+      /** Format: double */
+      percentChangeBtc3Months?: number;
+      /** Format: double */
+      percentChangeEth1Month?: number;
+      /** Format: double */
+      percentChangeEth1Week?: number;
+      /** Format: double */
+      percentChangeEth1Year?: number;
+      /** Format: double */
+      percentChangeEth3Months?: number;
+      /** Format: double */
+      percentChangeMonthToDate?: number;
+      /** Format: double */
+      percentChangeQuarterToDate?: number;
+      /** Format: double */
+      percentChangeYearToDate?: number;
+    };
     Source: {
       /**
        * Format: uuid
@@ -641,6 +808,11 @@ export type components = {
     SummaryResponse: {
       summary?: string;
     };
+    /**
+     * Format: date-time
+     * @description UTC timestamp
+     */
+    TimeUTC: string;
     /** @description Token unlock information */
     TokenUnlockData: {
       nextCliffUnlockData?: {
@@ -816,7 +988,7 @@ export type operations = {
     };
   };
   /**
-   * Create a chat completion
+   * Chat Completion
    * @description Creates a completion for the chat message. Supports both streaming and non-streaming responses.
    * The last message must be from the user role.
    */
@@ -848,10 +1020,16 @@ export type operations = {
           "text/event-stream": string;
         };
       };
+      /** @description Server error response */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
     };
   };
   /**
-   * Extract entities from text
+   * Entity Extraction
    * @description Extracts entities from the provided text content using AI models and database lookups.
    * Supports various entity types and can return similar entities based on the extracted names.
    */
@@ -880,6 +1058,12 @@ export type operations = {
             data?: components["schemas"]["ExtractResponse"];
             metadata?: components["schemas"]["ExtractResponseMetadata"];
           };
+        };
+      };
+      /** @description Server error response */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
         };
       };
     };
@@ -919,6 +1103,12 @@ export type operations = {
           };
         };
       };
+      /** @description Server error response */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
     };
   };
   /**
@@ -953,6 +1143,12 @@ export type operations = {
           };
         };
       };
+      /** @description Server error response */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
     };
   };
   /**
@@ -982,6 +1178,160 @@ export type operations = {
           "application/json": components["schemas"]["APIResponseWithMetadata"] & {
             data?: components["schemas"]["GetEventResponse"];
           };
+        };
+      };
+      /** @description Server error response */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+    };
+  };
+  /**
+   * Asset ATH
+   * @description Returns a single asset's ATH data
+   */
+  getAssetATH: {
+    parameters: {
+      path: {
+        /** @description Asset ID */
+        assetId: string;
+      };
+    };
+    responses: {
+      /** @description Client error response */
+      "4XX": {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Successful operation */
+      200: {
+        content: {
+          "application/json": components["schemas"]["AssetWithATHData"];
+        };
+      };
+      /** @description Server error response */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+    };
+  };
+  /**
+   * Asset Market Data
+   * @description Returns a single asset's market data
+   */
+  getAssetMarketdata: {
+    parameters: {
+      path: {
+        /** @description Asset ID */
+        assetId: string;
+      };
+    };
+    responses: {
+      /** @description Client error response */
+      "4XX": {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Successful operation */
+      200: {
+        content: {
+          "application/json": components["schemas"]["AssetMarketData"];
+        };
+      };
+      /** @description Server error response */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+    };
+  };
+  /**
+   * ROI by Asset
+   * @description Returns a single asset's ROI data
+   */
+  getAssetROI: {
+    parameters: {
+      path: {
+        /** @description Asset ID */
+        assetId: string;
+      };
+    };
+    responses: {
+      /** @description Client error response */
+      "4XX": {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Successful operation */
+      200: {
+        content: {
+          "application/json": components["schemas"]["AssetWithROIData"];
+        };
+      };
+      /** @description Server error response */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+    };
+  };
+  /**
+   * ATHs
+   * @description Returns a list of all time high data for all assets
+   */
+  getAssetsATH: {
+    responses: {
+      /** @description Client error response */
+      "4XX": {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Successful operation */
+      200: {
+        content: {
+          "application/json": components["schemas"]["AssetWithATHData"][];
+        };
+      };
+      /** @description Server error response */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+    };
+  };
+  /**
+   * ROIs
+   * @description Returns a list ROI data for all assets
+   */
+  getAssetsROI: {
+    responses: {
+      /** @description Client error response */
+      "4XX": {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Successful operation */
+      200: {
+        content: {
+          "application/json": components["schemas"]["AssetWithROIData"][];
+        };
+      };
+      /** @description Server error response */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
         };
       };
     };

@@ -1,5 +1,5 @@
 import { MessariClient } from "@messari-kit/api";
-import { createChatCompletionParameters } from "@messari-kit/types";
+import type { createChatCompletionParameters } from "@messari-kit/types";
 import dotenv from "dotenv";
 
 // Load environment variables from .env file

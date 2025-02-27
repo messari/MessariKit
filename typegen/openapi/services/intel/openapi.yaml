@@ -71,6 +71,12 @@ paths:
             application/json:
               schema:
                 $ref: '../../common/components.yaml#/components/schemas/APIError'
+        '500':
+          description: Server error response
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
 
   /intel/v1/events/{eventId}:
     get:
@@ -104,6 +110,12 @@ paths:
                         $ref: '#/components/schemas/GetEventResponse'
         '4XX':
           description: Client error response
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+        '500':
+          description: Server error response
           content:
             application/json:
               schema:
@@ -154,6 +166,12 @@ paths:
                         $ref: '#/components/schemas/PaginationResult'
         '4XX':
           description: Client error response
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+        '500':
+          description: Server error response
           content:
             application/json:
               schema:

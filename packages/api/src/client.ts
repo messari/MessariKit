@@ -1,51 +1,64 @@
 import {
   createChatCompletion,
+  extractEntities,
+  getNewsFeed,
+  getNewsSources,
+  getNewsFeedAssets,
+  getAllEvents,
+  getEventAndHistory,
+  getAllAssets,
+  getAssetMarketdata,
+  getAssetROI,
+  getAssetATH,
+  getAssetsROI,
+  getAssetsATH,
+  getProjectRecap,
+  getExchangeRecap,
+  getExchangeRankingsRecap,
+} from "@messari-kit/types";
+import type {
   createChatCompletionParameters,
   createChatCompletionResponse,
-  extractEntities,
   extractEntitiesParameters,
   extractEntitiesResponse,
-  getNewsFeed,
   getNewsFeedParameters,
   getNewsFeedResponse,
-  getNewsSources,
   getNewsSourcesParameters,
   getNewsSourcesResponse,
-  getNewsFeedAssets,
   getNewsFeedAssetsParameters,
   getNewsFeedAssetsResponse,
   APIResponseWithMetadata,
-  getAllEvents,
   getAllEventsParameters,
-  getEventAndHistory,
   getEventAndHistoryParameters,
   getEventAndHistoryResponse,
-  getAllAssets,
   getAllAssetsParameters,
   getAllAssetsResponse,
   getAllEventsResponse,
-  PathParams,
+  getAssetMarketdataParameters,
+  getAssetMarketdataResponse,
+  getAssetROIParameters,
+  getAssetROIResponse,
+  getAssetATHParameters,
+  getAssetATHResponse,
+  getAssetsROIResponse,
+  getAssetsATHResponse,
   getProjectRecapParameters,
   getProjectRecapResponse,
-  getProjectRecap,
   getExchangeRecapParameters,
   getExchangeRecapResponse,
-  getExchangeRecap,
   getExchangeRankingsRecapResponse,
-  getExchangeRankingsRecapParameters,
-  getExchangeRankingsRecap,
 } from "@messari-kit/types";
-import type { Agent } from "http";
+import type { Agent } from "node:http";
 import { pick } from "./utils";
 import {
   LogLevel,
-  Logger,
+  type Logger,
   makeConsoleLogger,
   createFilteredLogger,
   makeNoOpLogger,
 } from "./logging";
 import { RequestTimeoutError } from "./error";
-import { RecapsAPIInterface } from "./interface";
+import type { RecapsAPIInterface } from "./interface";
 
 // Event types for the client
 export type ClientEventType = "error" | "request" | "response";
@@ -55,21 +68,21 @@ export type ClientErrorEvent = {
   request?: {
     method: string;
     path: string;
-    queryParams?: Record<string, any>;
+    queryParams?: Record<string, unknown>;
   };
 };
 
 export type ClientRequestEvent = {
   method: string;
   path: string;
-  queryParams?: Record<string, any>;
+  queryParams?: Record<string, unknown>;
 };
 
 export type ClientResponseEvent = {
   method: string;
   path: string;
   status: number;
-  data: any;
+  data: unknown;
 };
 
 // Map event types to their corresponding event data types
@@ -80,7 +93,7 @@ export type ClientEventMap = {
 };
 
 export type ClientEventHandler<T extends ClientEventType> = (
-  data: ClientEventMap[T]
+  data: ClientEventMap[T],
 ) => void;
 
 /**
@@ -126,8 +139,8 @@ export type RequestOptions = Omit<RequestInit, "headers" | "body"> & {
 export type RequestParameters = {
   method: string;
   path: string;
-  body?: any;
-  queryParams?: Record<string, any>;
+  body?: unknown;
+  queryParams?: Record<string, unknown>;
   options?: RequestOptions;
 };
 
@@ -176,7 +189,7 @@ export class MessariClient {
   private readonly defaultHeaders: Record<string, string>;
   private readonly eventHandlers: Map<
     ClientEventType,
-    Set<ClientEventHandler<any>>
+    Set<ClientEventHandler<any>> // FIXME: Set correct type
   >;
 
   constructor(options: MessariClientOptions) {
@@ -223,12 +236,12 @@ export class MessariClient {
    */
   public on<T extends ClientEventType>(
     event: T,
-    handler: ClientEventHandler<T>
+    handler: ClientEventHandler<T>,
   ): void {
     if (!this.eventHandlers.has(event)) {
       this.eventHandlers.set(event, new Set());
     }
-    this.eventHandlers.get(event)!.add(handler);
+    this.eventHandlers.get(event)?.add(handler);
   }
 
   /**
@@ -236,10 +249,10 @@ export class MessariClient {
    */
   public off<T extends ClientEventType>(
     event: T,
-    handler: ClientEventHandler<T>
+    handler: ClientEventHandler<T>,
   ): void {
     if (this.eventHandlers.has(event)) {
-      this.eventHandlers.get(event)!.delete(handler);
+      this.eventHandlers.get(event)?.delete(handler);
     }
   }
 
@@ -248,10 +261,10 @@ export class MessariClient {
    */
   private emit<T extends ClientEventType>(
     event: T,
-    data: ClientEventMap[T]
+    data: ClientEventMap[T],
   ): void {
     if (this.eventHandlers.has(event)) {
-      for (const handler of this.eventHandlers.get(event)!) {
+      for (const handler of this.eventHandlers.get(event) || []) {
         try {
           handler(data);
         } catch (error) {
@@ -268,7 +281,7 @@ export class MessariClient {
     queryParams = {},
     options = {},
   }: RequestParameters): Promise<T> {
-    this.logger(LogLevel.INFO, "request start", { method, path });
+    this.logger(LogLevel.DEBUG, "request start", { method, path });
 
     this.emit("request", {
       method,
@@ -283,12 +296,12 @@ export class MessariClient {
           return value
             .map(
               (item) =>
-                `${encodeURIComponent(key)}=${encodeURIComponent(String(item))}`
+                `${encodeURIComponent(key)}=${encodeURIComponent(String(item))}`,
             )
             .join("&");
         }
         return `${encodeURIComponent(key)}=${encodeURIComponent(
-          String(value)
+          String(value),
         )}`;
       })
       .join("&");
@@ -322,7 +335,7 @@ export class MessariClient {
           // Node.js specific option
           agent: this.agent,
         }),
-        timeoutMs
+        timeoutMs,
       );
 
       if (!response.ok) {
@@ -400,12 +413,12 @@ export class MessariClient {
           return value
             .map(
               (item) =>
-                `${encodeURIComponent(key)}=${encodeURIComponent(String(item))}`
+                `${encodeURIComponent(key)}=${encodeURIComponent(String(item))}`,
             )
             .join("&");
         }
         return `${encodeURIComponent(key)}=${encodeURIComponent(
-          String(value)
+          String(value),
         )}`;
       })
       .join("&");
@@ -439,7 +452,7 @@ export class MessariClient {
           // Node.js specific option
           agent: this.agent,
         }),
-        timeoutMs
+        timeoutMs,
       );
 
       if (!response.ok) {
@@ -503,31 +516,31 @@ export class MessariClient {
     params: P,
     fetchPage: (
       params: P,
-      options?: RequestOptions
+      options?: RequestOptions,
     ) => Promise<APIResponseWithMetadata<T, PaginationMetadata>>,
     response: APIResponseWithMetadata<T, PaginationMetadata>,
-    options?: RequestOptions
+    options?: RequestOptions,
   ): PaginatedResult<T, P> {
     // Convert PaginationResult to PaginationMetadata
     const metadata: PaginationMetadata = response.metadata
       ? {
-          page: response.metadata.page || 1,
-          limit: response.metadata.limit || 10,
-          total: response.metadata.total || 0,
-          totalRows: response.metadata.total || 0,
-          totalPages: Math.ceil(
-            (response.metadata.total || 0) / (response.metadata.limit || 10)
-          ),
-          hasMore: response.metadata.hasMore || false,
-        }
+        page: response.metadata.page || 1,
+        limit: response.metadata.limit || 10,
+        total: response.metadata.total || 0,
+        totalRows: response.metadata.total || 0,
+        totalPages: Math.ceil(
+          (response.metadata.total || 0) / (response.metadata.limit || 10),
+        ),
+        hasMore: response.metadata.hasMore || false,
+      }
       : {
-          page: 1,
-          limit: 10,
-          total: 0,
-          totalRows: 0,
-          totalPages: 0,
-          hasMore: false,
-        };
+        page: 1,
+        limit: 10,
+        total: 0,
+        totalRows: 0,
+        totalPages: 0,
+        hasMore: false,
+      };
 
     const currentPage = metadata.page;
     const hasNextPage =
@@ -559,24 +572,25 @@ export class MessariClient {
             const nextPageMetadata: PaginationMetadata =
               nextPageResponse.metadata
                 ? {
-                    page: nextPageResponse.metadata.page || nextPage,
-                    limit: nextPageResponse.metadata.limit || metadata.limit,
-                    totalRows:
-                      nextPageResponse.metadata.total ||
+                  page: nextPageResponse.metadata.page || nextPage,
+                  limit: nextPageResponse.metadata.limit || metadata.limit,
+                  totalRows:
+                    nextPageResponse.metadata.total ||
+                    metadata.totalRows ||
+                    0,
+                  totalPages: Math.ceil(
+                    (nextPageResponse.metadata.total ||
                       metadata.totalRows ||
-                      0,
-                    totalPages: Math.ceil(
-                      (nextPageResponse.metadata.total ||
-                        metadata.totalRows ||
-                        0) / (nextPageResponse.metadata.limit || metadata.limit)
-                    ),
-                  }
+                      0) /
+                    (nextPageResponse.metadata.limit || metadata.limit),
+                  ),
+                }
                 : {
-                    page: nextPage,
-                    limit: metadata.limit,
-                    totalRows: metadata.totalRows || 0,
-                    totalPages: metadata.totalPages || 0,
-                  };
+                  page: nextPage,
+                  limit: metadata.limit,
+                  totalRows: metadata.totalRows || 0,
+                  totalPages: metadata.totalPages || 0,
+                };
 
             return {
               data: nextPageResponse.data,
@@ -584,7 +598,7 @@ export class MessariClient {
               ...createPaginationHelpers(),
             };
           } catch (error) {
-            throw error;
+            throw new Error(`Error fetching next page: ${error}`);
           }
         },
         previousPage: async () => {
@@ -607,24 +621,25 @@ export class MessariClient {
             const prevPageMetadata: PaginationMetadata =
               prevPageResponse.metadata
                 ? {
-                    page: prevPageResponse.metadata.page || prevPage,
-                    limit: prevPageResponse.metadata.limit || metadata.limit,
-                    totalRows:
-                      prevPageResponse.metadata.total ||
+                  page: prevPageResponse.metadata.page || prevPage,
+                  limit: prevPageResponse.metadata.limit || metadata.limit,
+                  totalRows:
+                    prevPageResponse.metadata.total ||
+                    metadata.totalRows ||
+                    0,
+                  totalPages: Math.ceil(
+                    (prevPageResponse.metadata.total ||
                       metadata.totalRows ||
-                      0,
-                    totalPages: Math.ceil(
-                      (prevPageResponse.metadata.total ||
-                        metadata.totalRows ||
-                        0) / (prevPageResponse.metadata.limit || metadata.limit)
-                    ),
-                  }
+                      0) /
+                    (prevPageResponse.metadata.limit || metadata.limit),
+                  ),
+                }
                 : {
-                    page: prevPage,
-                    limit: metadata.limit,
-                    totalRows: metadata.totalRows || 0,
-                    totalPages: metadata.totalPages || 0,
-                  };
+                  page: prevPage,
+                  limit: metadata.limit,
+                  totalRows: metadata.totalRows || 0,
+                  totalPages: metadata.totalPages || 0,
+                };
 
             return {
               data: prevPageResponse.data,
@@ -632,15 +647,14 @@ export class MessariClient {
               ...createPaginationHelpers(),
             };
           } catch (error) {
-            throw error;
+            throw new Error(`Error fetching previous page: ${error}`);
           }
         },
         goToPage: async (page: number) => {
           if (page < 1 || (metadata.totalPages && page > metadata.totalPages)) {
             throw new Error(
-              `Page ${page} is out of range. Valid range: 1-${
-                metadata.totalPages || "?"
-              }`
+              `Page ${page} is out of range. Valid range: 1-${metadata.totalPages || "?"
+              }`,
             );
           }
 
@@ -653,21 +667,21 @@ export class MessariClient {
             const pageResponse = await fetchPage(pageParams, options);
             const pageMetadata: PaginationMetadata = pageResponse.metadata
               ? {
-                  page: pageResponse.metadata.page || page,
-                  limit: pageResponse.metadata.limit || metadata.limit,
-                  totalRows:
-                    pageResponse.metadata.total || metadata.totalRows || 0,
-                  totalPages: Math.ceil(
-                    (pageResponse.metadata.total || metadata.totalRows || 0) /
-                      (pageResponse.metadata.limit || metadata.limit)
-                  ),
-                }
+                page: pageResponse.metadata.page || page,
+                limit: pageResponse.metadata.limit || metadata.limit,
+                totalRows:
+                  pageResponse.metadata.total || metadata.totalRows || 0,
+                totalPages: Math.ceil(
+                  (pageResponse.metadata.total || metadata.totalRows || 0) /
+                  (pageResponse.metadata.limit || metadata.limit),
+                ),
+              }
               : {
-                  page,
-                  limit: metadata.limit,
-                  totalRows: metadata.totalRows || 0,
-                  totalPages: metadata.totalPages || 0,
-                };
+                page,
+                limit: metadata.limit,
+                totalRows: metadata.totalRows || 0,
+                totalPages: metadata.totalPages || 0,
+              };
 
             return {
               data: pageResponse.data,
@@ -675,7 +689,7 @@ export class MessariClient {
               ...createPaginationHelpers(),
             };
           } catch (error) {
-            throw error;
+            throw new Error(`Error fetching page ${page}: ${error}`);
           }
         },
         getAllPages: async () => {
@@ -705,7 +719,7 @@ export class MessariClient {
               params,
               fetchPage,
               response,
-              options
+              options,
             ).goToPage;
             pagePromises.push(
               goToPageFn(page)
@@ -715,14 +729,14 @@ export class MessariClient {
                   }
                   return [pageResponse.data];
                 })
-                .catch(() => []) // Return empty array on error
+                .catch(() => []), // Return empty array on error
             );
           }
 
           const pageResults = await Promise.all(pagePromises);
-          pageResults.forEach((pageData) => {
+          for (const pageData of pageResults) {
             allPages.push(...pageData);
-          });
+          }
 
           return allPages;
         },
@@ -736,198 +750,6 @@ export class MessariClient {
       ...createPaginationHelpers(),
     };
   }
-
-  public readonly ai = {
-    createChatCompletion: (
-      params: createChatCompletionParameters,
-      options?: RequestOptions
-    ) =>
-      this.request<createChatCompletionResponse>({
-        method: createChatCompletion.method,
-        path: createChatCompletion.path(),
-        body: pick(params, createChatCompletion.bodyParams),
-        options,
-      }),
-    extractEntities: (
-      params: extractEntitiesParameters,
-      options?: RequestOptions
-    ) =>
-      this.request<extractEntitiesResponse>({
-        method: extractEntities.method,
-        path: extractEntities.path(),
-        body: pick(params, extractEntities.bodyParams),
-        options,
-      }),
-  };
-
-  public readonly intel = {
-    getAllEvents: async (
-      params: getAllEventsParameters = {},
-      options?: RequestOptions
-    ) => {
-      const fetchPage = async (
-        p: getAllEventsParameters,
-        o?: RequestOptions
-      ) => {
-        return this.requestWithMetadata<
-          getAllEventsResponse["data"],
-          PaginationMetadata
-        >({
-          method: getAllEvents.method,
-          path: getAllEvents.path(),
-          body: pick(p, getAllEvents.bodyParams),
-          options: o,
-        });
-      };
-
-      const response = await fetchPage(params, options);
-      return this.paginate<
-        getAllEventsResponse["data"],
-        getAllEventsParameters
-      >(params, fetchPage, response, options);
-    },
-    getById: async (
-      params: getEventAndHistoryParameters,
-      options?: RequestOptions
-    ) => {
-      return this.request<getEventAndHistoryResponse>({
-        method: getEventAndHistory.method,
-        path: getEventAndHistory.path(params),
-        options,
-      });
-    },
-    getAllAssets: async (
-      params: getAllAssetsParameters = {},
-      options?: RequestOptions
-    ) => {
-      const fetchPage = async (
-        p: getAllAssetsParameters,
-        o?: RequestOptions
-      ) => {
-        return this.requestWithMetadata<
-          getAllAssetsResponse["data"],
-          PaginationMetadata
-        >({
-          method: getAllAssets.method,
-          path: getAllAssets.path(),
-          queryParams: pick(p, getAllAssets.queryParams),
-          options: o,
-        });
-      };
-
-      const response = await fetchPage(params, options);
-      return this.paginate<
-        getAllAssetsResponse["data"],
-        getAllAssetsParameters
-      >(params, fetchPage, response, options);
-    },
-  };
-
-  public readonly news = {
-    // Paginated versions
-    getNewsFeedPaginated: async (
-      params: getNewsFeedParameters,
-      options?: RequestOptions
-    ) => {
-      const fetchPage = async (
-        p: getNewsFeedParameters,
-        o?: RequestOptions
-      ) => {
-        return this.requestWithMetadata<
-          getNewsFeedResponse["data"],
-          PaginationMetadata
-        >({
-          method: getNewsFeed.method,
-          path: getNewsFeed.path(),
-          queryParams: pick(p, getNewsFeed.queryParams),
-          options: o,
-        });
-      };
-
-      const initialResponse = await fetchPage(params, options);
-      return this.paginate<getNewsFeedResponse["data"], getNewsFeedParameters>(
-        params,
-        fetchPage,
-        initialResponse,
-        options
-      );
-    },
-
-    getNewsFeedAssetsPaginated: async (
-      params: getNewsFeedAssetsParameters,
-      options?: RequestOptions
-    ) => {
-      const fetchPage = async (
-        p: getNewsFeedAssetsParameters,
-        o?: RequestOptions
-      ) => {
-        return this.requestWithMetadata<
-          getNewsFeedAssetsResponse["data"],
-          PaginationMetadata
-        >({
-          method: getNewsFeedAssets.method,
-          path: getNewsFeedAssets.path(),
-          queryParams: pick(p, getNewsFeedAssets.queryParams),
-          options: o,
-        });
-      };
-
-      const initialResponse = await fetchPage(params, options);
-      return this.paginate<
-        getNewsFeedAssetsResponse["data"],
-        getNewsFeedAssetsParameters
-      >(params, fetchPage, initialResponse, options);
-    },
-
-    getNewsSourcesPaginated: async (
-      params: getNewsSourcesParameters,
-      options?: RequestOptions
-    ) => {
-      const fetchPage = async (
-        p: getNewsSourcesParameters,
-        o?: RequestOptions
-      ) => {
-        return this.requestWithMetadata<
-          getNewsSourcesResponse["data"],
-          PaginationMetadata
-        >({
-          method: getNewsSources.method,
-          path: getNewsSources.path(),
-          queryParams: pick(p, getNewsSources.queryParams),
-          options: o,
-        });
-      };
-
-      const initialResponse = await fetchPage(params, options);
-      return this.paginate<
-        getNewsSourcesResponse["data"],
-        getNewsSourcesParameters
-      >(params, fetchPage, initialResponse, options);
-    },
-  };
-
-  public readonly recaps: RecapsAPIInterface = {
-    getProjectRecap: async (params: getProjectRecapParameters) => {
-      return this.request<getProjectRecapResponse>({
-        method: getProjectRecap.method,
-        path: getProjectRecap.path(),
-        queryParams: pick(params, getProjectRecap.queryParams),
-      });
-    },
-    getExchangeRecap: async (params: getExchangeRecapParameters) => {
-      return this.request<getExchangeRecapResponse>({
-        method: getExchangeRecap.method,
-        path: getExchangeRecap.path(),
-        queryParams: pick(params, getExchangeRecap.queryParams),
-      });
-    },
-    getExchangeRankingsRecap: async () => {
-      return this.request<getExchangeRankingsRecapResponse>({
-        method: getExchangeRankingsRecap.method,
-        path: getExchangeRankingsRecap.path(),
-      });
-    },
-  };
 
   /**
    * Disable all logging from the client.
@@ -1002,7 +824,6 @@ export class MessariClient {
       if (!wasDisabled) {
         this.disableLogging();
       }
-
       // Execute the function
       return await fn();
     } finally {
@@ -1032,7 +853,6 @@ export class MessariClient {
       if (!wasDisabled) {
         this.disableLogging();
       }
-
       // Execute the function
       return fn();
     } finally {
@@ -1042,4 +862,230 @@ export class MessariClient {
       }
     }
   }
+
+  public readonly ai = {
+    createChatCompletion: (
+      params: createChatCompletionParameters,
+      options?: RequestOptions,
+    ) =>
+      this.request<createChatCompletionResponse>({
+        method: createChatCompletion.method,
+        path: createChatCompletion.path(),
+        body: pick(params, createChatCompletion.bodyParams),
+        options,
+      }),
+    extractEntities: (
+      params: extractEntitiesParameters,
+      options?: RequestOptions,
+    ) =>
+      this.request<extractEntitiesResponse>({
+        method: extractEntities.method,
+        path: extractEntities.path(),
+        body: pick(params, extractEntities.bodyParams),
+        options,
+      }),
+  };
+
+  public readonly intel = {
+    getAllEvents: async (
+      params: getAllEventsParameters = {},
+      options?: RequestOptions,
+    ) => {
+      const fetchPage = async (
+        p: getAllEventsParameters,
+        o?: RequestOptions,
+      ) => {
+        return this.requestWithMetadata<
+          getAllEventsResponse["data"],
+          PaginationMetadata
+        >({
+          method: getAllEvents.method,
+          path: getAllEvents.path(),
+          body: pick(p, getAllEvents.bodyParams),
+          options: o,
+        });
+      };
+
+      const response = await fetchPage(params, options);
+      return this.paginate<
+        getAllEventsResponse["data"],
+        getAllEventsParameters
+      >(params, fetchPage, response, options);
+    },
+    getById: async (
+      params: getEventAndHistoryParameters,
+      options?: RequestOptions,
+    ) => {
+      return this.request<getEventAndHistoryResponse>({
+        method: getEventAndHistory.method,
+        path: getEventAndHistory.path(params),
+        options,
+      });
+    },
+    getAllAssets: async (
+      params: getAllAssetsParameters = {},
+      options?: RequestOptions,
+    ) => {
+      const fetchPage = async (
+        p: getAllAssetsParameters,
+        o?: RequestOptions,
+      ) => {
+        return this.requestWithMetadata<
+          getAllAssetsResponse["data"],
+          PaginationMetadata
+        >({
+          method: getAllAssets.method,
+          path: getAllAssets.path(),
+          queryParams: pick(p, getAllAssets.queryParams),
+          options: o,
+        });
+      };
+
+      const response = await fetchPage(params, options);
+      return this.paginate<
+        getAllAssetsResponse["data"],
+        getAllAssetsParameters
+      >(params, fetchPage, response, options);
+    },
+  };
+
+  public readonly news = {
+    // Paginated versions
+    getNewsFeedPaginated: async (
+      params: getNewsFeedParameters,
+      options?: RequestOptions,
+    ) => {
+      const fetchPage = async (
+        p: getNewsFeedParameters,
+        o?: RequestOptions,
+      ) => {
+        return this.requestWithMetadata<
+          getNewsFeedResponse["data"],
+          PaginationMetadata
+        >({
+          method: getNewsFeed.method,
+          path: getNewsFeed.path(),
+          queryParams: pick(p, getNewsFeed.queryParams),
+          options: o,
+        });
+      };
+
+      const initialResponse = await fetchPage(params, options);
+      return this.paginate<getNewsFeedResponse["data"], getNewsFeedParameters>(
+        params,
+        fetchPage,
+        initialResponse,
+        options,
+      );
+    },
+
+    getNewsFeedAssetsPaginated: async (
+      params: getNewsFeedAssetsParameters,
+      options?: RequestOptions,
+    ) => {
+      const fetchPage = async (
+        p: getNewsFeedAssetsParameters,
+        o?: RequestOptions,
+      ) => {
+        return this.requestWithMetadata<
+          getNewsFeedAssetsResponse["data"],
+          PaginationMetadata
+        >({
+          method: getNewsFeedAssets.method,
+          path: getNewsFeedAssets.path(),
+          queryParams: pick(p, getNewsFeedAssets.queryParams),
+          options: o,
+        });
+      };
+
+      const initialResponse = await fetchPage(params, options);
+      return this.paginate<
+        getNewsFeedAssetsResponse["data"],
+        getNewsFeedAssetsParameters
+      >(params, fetchPage, initialResponse, options);
+    },
+
+    getNewsSourcesPaginated: async (
+      params: getNewsSourcesParameters,
+      options?: RequestOptions,
+    ) => {
+      const fetchPage = async (
+        p: getNewsSourcesParameters,
+        o?: RequestOptions,
+      ) => {
+        return this.requestWithMetadata<
+          getNewsSourcesResponse["data"],
+          PaginationMetadata
+        >({
+          method: getNewsSources.method,
+          path: getNewsSources.path(),
+          queryParams: pick(p, getNewsSources.queryParams),
+          options: o,
+        });
+      };
+
+      const initialResponse = await fetchPage(params, options);
+      return this.paginate<
+        getNewsSourcesResponse["data"],
+        getNewsSourcesParameters
+      >(params, fetchPage, initialResponse, options);
+    },
+  };
+
+  public readonly markets = {
+    // Asset-specific endpoints
+    getAssetPrice: (params: getAssetMarketdataParameters) =>
+      this.request<getAssetMarketdataResponse>({
+        method: getAssetMarketdata.method,
+        path: getAssetMarketdata.path(params),
+      }),
+
+    getAssetROI: (params: getAssetROIParameters) =>
+      this.request<getAssetROIResponse>({
+        method: getAssetROI.method,
+        path: getAssetROI.path(params),
+      }),
+
+    getAssetATH: (params: getAssetATHParameters) =>
+      this.request<getAssetATHResponse>({
+        method: getAssetATH.method,
+        path: getAssetATH.path(params),
+      }),
+
+    // Multi-asset endpoints
+    getAllAssetsROI: () =>
+      this.request<getAssetsROIResponse>({
+        method: getAssetsROI.method,
+        path: getAssetsROI.path(),
+      }),
+
+    getAllAssetsATH: () =>
+      this.request<getAssetsATHResponse>({
+        method: getAssetsATH.method,
+        path: getAssetsATH.path(),
+      }),
+  };
+
+  public readonly recaps: RecapsAPIInterface = {
+    getProjectRecap: async (params: getProjectRecapParameters) => {
+      return this.request<getProjectRecapResponse>({
+        method: getProjectRecap.method,
+        path: getProjectRecap.path(),
+        queryParams: pick(params, getProjectRecap.queryParams),
+      });
+    },
+    getExchangeRecap: async (params: getExchangeRecapParameters) => {
+      return this.request<getExchangeRecapResponse>({
+        method: getExchangeRecap.method,
+        path: getExchangeRecap.path(),
+        queryParams: pick(params, getExchangeRecap.queryParams),
+      });
+    },
+    getExchangeRankingsRecap: async () => {
+      return this.request<getExchangeRankingsRecapResponse>({
+        method: getExchangeRankingsRecap.method,
+        path: getExchangeRankingsRecap.path(),
+      });
+    },
+  };
 }

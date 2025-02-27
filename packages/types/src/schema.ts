@@ -59,6 +59,24 @@ export type DocumentList = components['schemas']['DocumentList'];
 
 export type SourceList = components['schemas']['SourceList'];
 
+export type PlatformContract = components['schemas']['PlatformContract'];
+
+export type ROIData = components['schemas']['ROIData'];
+
+export type AssetWithROIData = components['schemas']['AssetWithROIData'];
+
+export type TimeUTC = components['schemas']['TimeUTC'];
+
+export type AssetWithATHData = components['schemas']['AssetWithATHData'];
+
+export type OHLCV = components['schemas']['OHLCV'];
+
+export type AssetSupply = components['schemas']['AssetSupply'];
+
+export type AssetMarketcap = components['schemas']['AssetMarketcap'];
+
+export type AssetMarketData = components['schemas']['AssetMarketData'];
+
 export type RecapSlug = components['schemas']['RecapSlug'];
 
 export type IntelResponse = components['schemas']['IntelResponse'];
