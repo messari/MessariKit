@@ -22,7 +22,6 @@
   "scripts": {
     "build": "tsc",
     "clean": "rimraf dist",
-    "test": "jest",
     "dev": "tsx"
   },
   "devDependencies": {
