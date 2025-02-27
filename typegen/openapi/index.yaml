@@ -71,6 +71,14 @@ paths:
   /news/v1/news/sources:
     $ref: './services/news/openapi.yaml#/paths/~1news~1v1~1news~1sources'
 
+  # Recaps Service Paths
+  /ai-digest/api/v1/recap:
+    $ref: './services/recaps/openapi.yaml#/paths/~1ai-digest~1api~1v1~1recap'
+  /ai-digest/api/v1/exchange-recap:
+    $ref: './services/recaps/openapi.yaml#/paths/~1ai-digest~1api~1v1~1exchange-recap'
+  /ai-digest/api/v1/exchange-rankings-recap:
+    $ref: './services/recaps/openapi.yaml#/paths/~1ai-digest~1api~1v1~1exchange-rankings-recap'
+
 # Import tags from all services
 tags:
   # AI Service Tags
@@ -88,3 +96,9 @@ tags:
   # News Service Tags
   - name: news:News
     description: News feed and related endpoints 
+
+  # Recaps Service Tags
+  - name: recaps:Projects
+    description: Project recap endpoints
+  - name: recaps:Exchanges
+    description: Exchange recap endpoints

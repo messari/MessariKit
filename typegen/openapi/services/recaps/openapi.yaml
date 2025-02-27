@@ -1,0 +1,647 @@
+openapi: 3.1.0
+info:
+  title: Messari Recaps Service API
+  description: |
+    API for recap services.
+    This service provides access to project and exchange recaps.
+  version: 0.0.1
+  contact:
+    name: Messari Engineering
+    url: https://messari.io
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://api.messari.io/ai-digest
+    description: Production server
+  - url: https://api.staging.messari.io/ai-digest
+    description: Staging server
+  - url: http://localhost:8080/ai-digest
+    description: Local development server
+
+tags:
+  - name: recaps:Projects
+    description: Project recap endpoints
+  - name: recaps:Exchanges
+    description: Exchange recap endpoints
+
+paths:
+  /ai-digest/api/v1/recap:
+    get:
+      operationId: getProjectRecap
+      summary: Get Recap
+      description: Gets a recap of the latest news and intel for a given set of assets
+      tags:
+        - recaps:Projects
+      security:
+        - apiKey: []
+      parameters:
+        - $ref: '../../common/parameters.yaml#/components/parameters/apiKey'
+        - name: project_id
+          in: query
+          description: Project identifier
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../../common/components.yaml#/components/schemas/APIResponseWithMetadata'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/GetProjectRecapResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+        '404':
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+
+  /ai-digest/api/v1/exchange-recap:
+    get:
+      operationId: getExchangeRecap
+      summary: Get Exchange Recap
+      description: Gets news and performance recap for a given exchange
+      tags:
+        - recaps:Exchanges
+      security:
+        - apiKey: []
+      parameters:
+        - $ref: '../../common/parameters.yaml#/components/parameters/apiKey'
+        - name: exchange_id
+          in: query
+          description: Exchange identifier
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../../common/components.yaml#/components/schemas/APIResponseWithMetadata'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/ExchangeRecap'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+        '404':
+          description: Exchange not found
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+
+  /ai-digest/api/v1/exchange-rankings-recap:
+    get:
+      operationId: getExchangeRankingsRecap
+      summary: Get Exchange Rankings Recap
+      description: Gets daily recap for the exchange rankings page
+      tags:
+        - recaps:Exchanges
+      security:
+        - apiKey: []
+      parameters:
+        - $ref: '../../common/parameters.yaml#/components/parameters/apiKey'
+        - name: period
+          in: query
+          description: Optional time period for the recap
+          required: false
+          schema:
+            $ref: '#/components/schemas/RecapSlug'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../../common/components.yaml#/components/schemas/APIResponseWithMetadata'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/ExchangeRankingsRecap'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+
+components:
+  securitySchemes:
+    apiKey:
+      type: apiKey
+      name: x-messari-api-key
+      in: header
+      description: API key for authentication
+  
+  schemas:
+    RecapSlug:
+      type: string
+      enum: [daily, weekly, monthly]
+      description: Time period for the recap
+    
+    GetProjectRecapResponse:
+      type: array
+      items:
+        $ref: '#/components/schemas/ProjectRecapResponse'
+      description: List of project recaps
+    
+    ProjectRecapResponse:
+      type: object
+      properties:
+        asset_id:
+          type: string
+          description: Unique identifier for the asset
+        recapDate:
+          type: string
+          format: date
+          description: Date of the recap
+        timePeriod:
+          $ref: '#/components/schemas/RecapSlug'
+          description: Time period of the recap
+        updatedAt:
+          type: string
+          format: date-time
+          description: Last update timestamp
+        intel:
+          $ref: '#/components/schemas/IntelResponse'
+          description: Intel information
+        intelCount:
+          type: integer
+          description: Count of intel items
+        research:
+          $ref: '#/components/schemas/ResearchResponse'
+          description: Research information
+        researchCount:
+          type: integer
+          description: Count of research items
+        propositions:
+          $ref: '#/components/schemas/PropositionResponse'
+          description: Propositions information
+        propositionCount:
+          type: integer
+          description: Count of proposition items
+        news:
+          $ref: '#/components/schemas/NewsResponse'
+          description: News information
+        newsCount:
+          type: integer
+          description: Count of news items
+        networkMetricsData:
+          $ref: '#/components/schemas/NetworkMetrics'
+          description: Network metrics data
+        unlocks:
+          $ref: '#/components/schemas/TokenUnlockData'
+          description: Token unlock information
+        videoPodcastRanking:
+          $ref: '#/components/schemas/VideoPodcastResponse'
+          description: Video and podcast ranking information
+        summary:
+          $ref: '#/components/schemas/SummaryResponse'
+          description: Summary information
+    
+    ExchangeRecap:
+      type: object
+      properties:
+        recapPeriod:
+          $ref: '#/components/schemas/RecapSlug'
+          description: Time period of the recap
+        recapBrief:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExchangeRecapPoint'
+          description: Brief recap points
+        recapDate:
+          type: string
+          format: date-time
+          description: Date of the recap
+        newsRecap:
+          $ref: '#/components/schemas/ExchangeNewsRecap'
+          description: News recap information
+        performanceRecap:
+          $ref: '#/components/schemas/ExchangePerformanceRecap'
+          description: Performance recap information
+        updatedAt:
+          type: string
+          format: date-time
+          description: Last update timestamp
+    
+    ExchangeRankingsRecap:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the recap
+        recapDate:
+          type: string
+          format: date-time
+          description: Date of the recap
+        recapPeriod:
+          type: string
+          description: Time period of the recap
+        recapBrief:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExchangeRecapPoint'
+          description: Brief recap points
+        performanceRecap:
+          $ref: '#/components/schemas/ExchangeRankingsPerformanceRecap'
+          description: Performance recap information
+        newsRecap:
+          $ref: '#/components/schemas/ExchangeRankingsNewsRecap'
+          description: News recap information
+        updatedAt:
+          type: string
+          format: date-time
+          description: Last update timestamp
+    
+    # Supporting schemas
+    IntelResponse:
+      type: object
+      properties:
+        metadata:
+          type: array
+          items:
+            type: object
+            properties:
+              eventId:
+                type: string
+              eventName:
+                type: string
+        summary:
+          type: string
+      description: Intel information response
+      
+    ResearchResponse:
+      type: object
+      properties:
+        metadata:
+          type: array
+          items:
+            type: object
+            properties:
+              slug:
+                type: string
+              title:
+                type: string
+        summary:
+          type: string
+      description: Research information response
+      
+    PropositionResponse:
+      type: object
+      properties:
+        metadata:
+          type: array
+          items:
+            type: object
+            properties:
+              propositionId:
+                type: string
+              title:
+                type: string
+        summary:
+          type: string
+      description: Proposition information response
+      
+    NewsResponse:
+      type: object
+      properties:
+        metadata:
+          type: array
+          items:
+            type: object
+            properties:
+              documentId:
+                type: string
+              documentName:
+                type: string
+              documentUrl:
+                type: string
+              sourceId:
+                type: string
+              sourceName:
+                type: string
+              sourceType:
+                type: string
+        summary:
+          type: string
+      description: News information response
+      
+    NetworkMetrics:
+      type: object
+      properties:
+        active_addresses:
+          type: number
+        active_addresses_percent_change:
+          type: number
+        dex_volume:
+          type: number
+        dex_volume_percent_change:
+          type: number
+        fee_revenue:
+          type: number
+        fee_revenue_percent_change:
+          type: number
+        tvl_percent_change:
+          type: number
+        tvl_usd:
+          type: number
+      description: Network metrics data
+      
+    TokenUnlockData:
+      type: object
+      properties:
+        nextCliffUnlockData:
+          type: object
+          properties:
+            nextAmountPercentOfCirculatingSupply:
+              type: number
+            nextUnlockAmount:
+              type: number
+            nextUnlockAmountUSD:
+              type: number
+            timestamp:
+              type: string
+        tokenUnlockDetails:
+          type: object
+          properties:
+            circulatingSupplyIncreaseFuturePct:
+              type: number
+            circulatingSupplyIncreasePastPct:
+              type: number
+            futureAmountUnlocked:
+              type: number
+            futureAmountUnlockedUSD:
+              type: number
+            pastAmountUnlocked:
+              type: number
+            pastAmountUnlockedUSD:
+              type: number
+            pctUnlocksCompleted:
+              type: number
+            totalUnlocked:
+              type: number
+      description: Token unlock information
+      
+    VideoPodcastResponse:
+      type: object
+      properties:
+        summary:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              sourceID:
+                type: string
+              sourceName:
+                type: string
+              summary:
+                type: string
+              title:
+                type: string
+              url:
+                type: string
+      description: Video and podcast ranking information
+      
+    SummaryResponse:
+      type: object
+      properties:
+        summary:
+          type: string
+      description: Summary information
+      
+    ExchangeRecapPoint:
+      type: object
+      properties:
+        date:
+          type: string
+        endDate:
+          type: string
+        references:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              publishDate:
+                type: string
+              sourceId:
+                type: string
+              sourceName:
+                type: string
+              title:
+                type: string
+              url:
+                type: string
+        startDate:
+          type: string
+        summary:
+          type: string
+        type:
+          type: string
+      description: A single recap point for exchanges
+      
+    ExchangeNewsRecap:
+      type: object
+      properties:
+        id:
+          type: string
+        news:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              publishDate:
+                type: string
+              sourceId:
+                type: string
+              sourceName:
+                type: string
+              title:
+                type: string
+              url:
+                type: string
+        summaries:
+          type: array
+          items:
+            type: object
+            properties:
+              _category:
+                type: integer
+              references:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    publishDate:
+                      type: string
+                    sourceId:
+                      type: string
+                    sourceName:
+                      type: string
+                    title:
+                      type: string
+                    url:
+                      type: string
+              summary:
+                type: string
+      description: News recap for exchanges
+      
+    ExchangePerformanceRecap:
+      type: object
+      properties:
+        id:
+          type: string
+        summary:
+          type: string
+        data:
+          type: object
+          properties:
+            exchangeId:
+              type: string
+            exchangeName:
+              type: string
+            exchangeType:
+              type: string
+            last30DaysVolume:
+              type: number
+            percentChangeVolume:
+              type: number
+            previous30DaysVolume:
+              type: number
+            region:
+              type: string
+            total30DVolumePercentChangeForAllExchanges:
+              type: number
+            total30DVolumePercentChangeForExchangeType:
+              type: number
+      description: Performance recap for exchanges
+      
+    ExchangeRankingsPerformanceRecap:
+      type: object
+      properties:
+        id:
+          type: string
+        summary:
+          type: string
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              exchangeId:
+                type: string
+              exchangeName:
+                type: string
+              exchangeType:
+                type: string
+              last30DaysVolume:
+                type: number
+              percentChangeVolume:
+                type: number
+              previous30DaysVolume:
+                type: number
+              region:
+                type: string
+      description: Performance recap for exchange rankings
+      
+    ExchangeRankingsNewsRecap:
+      type: object
+      properties:
+        id:
+          type: string
+        news:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              publishDate:
+                type: string
+              sourceId:
+                type: string
+              sourceName:
+                type: string
+              title:
+                type: string
+              url:
+                type: string
+        summary:
+          type: string
+        summaries:
+          type: array
+          items:
+            type: object
+            properties:
+              _category:
+                type: integer
+              references:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    publishDate:
+                      type: string
+                    sourceId:
+                      type: string
+                    sourceName:
+                      type: string
+                    title:
+                      type: string
+                    url:
+                      type: string
+              summary:
+                type: string
+      description: News recap for exchange rankings
+  
