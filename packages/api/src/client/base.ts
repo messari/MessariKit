@@ -31,7 +31,7 @@ import type {
   getAssetListResponse,
   getAssetListParameters,
 } from "@messari-kit/types";
-import { LogLevel, type Logger, makeConsoleLogger, createFilteredLogger, makeNoOpLogger } from "../logging";
+import { LogLevel, type Logger, makeConsoleLogger, createFilteredLogger, noOpLogger } from "../logging";
 import type { PaginatedResult, RequestOptions, ClientEventMap, ClientEventType, ClientEventHandler } from "./types";
 
 /**
@@ -255,7 +255,7 @@ export abstract class MessariClientBase {
    */
   public disableLogging(): void {
     this.isLoggingDisabled = true;
-    this.logger = makeNoOpLogger();
+    this.logger = noOpLogger;
   }
 
   /**

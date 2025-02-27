@@ -53,7 +53,7 @@ import type {
 } from "@messari-kit/types";
 import type { Agent } from "node:http";
 import { pick } from "../utils";
-import { LogLevel, type Logger, makeConsoleLogger, createFilteredLogger, makeNoOpLogger } from "../logging";
+import { LogLevel, type Logger, makeConsoleLogger, createFilteredLogger, noOpLogger } from "../logging";
 import { RequestTimeoutError } from "../error";
 import type {
   ClientEventHandler,
@@ -108,10 +108,10 @@ export class MessariClient extends MessariClientBase {
     // Handle logger initialization with disableLogging option
     this.isLoggingDisabled = !!options.disableLogging;
     if (this.isLoggingDisabled) {
-      this.logger = makeNoOpLogger();
+      this.logger = noOpLogger;
     } else {
       const baseLogger = options.logger || makeConsoleLogger("messari-client");
-      this.logger = options.logLevel ? createFilteredLogger(baseLogger, options.logLevel) : createFilteredLogger(baseLogger, LogLevel.INFO);
+      this.logger = createFilteredLogger(baseLogger, options.logLevel ?? LogLevel.INFO);
     }
 
     this.defaultHeaders = {

@@ -68,8 +68,8 @@ export const createFilteredLogger = (logger: Logger, minLevel: LogLevel): Logger
 };
 
 /**
- * Creates a logger that does nothing (no-op).
+ * Returns a logger that does nothing (no-op).
  * Use this when you want to completely disable logging.
  * @returns A no-op logger.
  */
-export const makeNoOpLogger: Logger = () => {};
+export const noOpLogger: Logger = () => {};
