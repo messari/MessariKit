@@ -360,6 +360,9 @@ import type { components } from './types';
   for (const schemaName of Object.keys(spec.components.schemas)) {
     exports.push(`export type ${schemaName} = components['schemas']['${schemaName}'];`);
   }
+  
+  // Alphabetize the exports for readability + easier diffs
+  exports.sort();
 
   return exports;
 }

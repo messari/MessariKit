@@ -18,11 +18,9 @@ if (!API_KEY) {
 // Initialize the Messari client
 const client = new MessariClient({
   apiKey: API_KEY,
-  // Optional: Override the base URL if needed
-  // baseUrl: "https://api.messari.io",
 });
 
-async function runChatCompletionExample() {
+async function main() {
   try {
     // Define the chat completion parameters
     const params: createChatCompletionParameters = {
@@ -51,5 +49,4 @@ async function runChatCompletionExample() {
   }
 }
 
-// Run the example
-runChatCompletionExample();
+main().catch(console.error);

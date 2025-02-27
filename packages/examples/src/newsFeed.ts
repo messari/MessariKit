@@ -20,7 +20,7 @@ const client = new MessariClient({
   apiKey: API_KEY,
 });
 
-async function runNewsFeedExample() {
+async function main() {
   try {
     console.log("1. Fetching news feed with pagination...");
 
@@ -168,4 +168,4 @@ function displaySources(sources: Source[]) {
   });
 }
 
-runNewsFeedExample();
+main().catch(console.error);

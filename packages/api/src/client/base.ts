@@ -28,6 +28,8 @@ import type {
   getExchangeRecapParameters,
   getExchangeRecapResponse,
   getProjectRecapResponse,
+  getAssetListResponse,
+  getAssetListParameters,
 } from "@messari-kit/types";
 import { LogLevel, type Logger, makeConsoleLogger, createFilteredLogger, makeNoOpLogger } from "../logging";
 import type { PaginatedResult, RequestOptions, ClientEventMap, ClientEventType, ClientEventHandler } from "./types";
@@ -51,6 +53,19 @@ export interface AIInterface {
    * @returns A promise resolving to the extracted entities
    */
   extractEntities(params: extractEntitiesParameters, options?: RequestOptions): Promise<extractEntitiesResponse>;
+}
+
+/**
+ * Interface for the Asset API methods
+ */
+export interface AssetInterface {
+  /**
+   * Gets a paginated list of assets
+   * @param params Parameters for filtering assets
+   * @param options Optional request configuration
+   * @returns A paginated result of assets
+   */
+  getAssetList(params?: getAssetListParameters, options?: RequestOptions): Promise<PaginatedResult<getAssetListResponse["data"], getAssetListParameters>>;
 }
 
 /**

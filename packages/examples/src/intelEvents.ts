@@ -126,8 +126,7 @@ function displayEvents(events: any[]) {
   });
 }
 
-// Run the examples
-async function runExamples() {
+async function main() {
   console.log("1. Getting all events with pagination...");
   // Store the events response to extract a real event ID
   const eventsResponse = await getAllEventsAndReturnResponse();
@@ -186,4 +185,4 @@ async function getAllEventsAndReturnResponse() {
   }
 }
 
-runExamples();
+main().catch(console.error);

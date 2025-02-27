@@ -7,6 +7,7 @@
 		"build": "tsc",
 		"clean": "rimraf dist",
 		"start": "tsx src/index.ts",
+		"start:asset": "tsx src/asset.ts",
 		"start:intel": "tsx src/intelEvents.ts",
 		"start:news": "tsx src/newsFeed.ts",
 		"start:chat": "tsx src/chatCompletion.ts",
