@@ -7,11 +7,14 @@ import {
   getAllEvents,
   getEventAndHistory,
   getAllAssets,
-  getAssetPrice,
+  getAssetMarketdata,
   getAssetROI,
   getAssetATH,
   getAssetsROI,
   getAssetsATH,
+  getProjectRecap,
+  getExchangeRecap,
+  getExchangeRankingsRecap,
 } from "@messari-kit/types";
 import type {
   createChatCompletionParameters,
@@ -31,14 +34,19 @@ import type {
   getAllAssetsParameters,
   getAllAssetsResponse,
   getAllEventsResponse,
-  getAssetPriceParameters,
-  getAssetPriceResponse,
+  getAssetMarketdataParameters,
+  getAssetMarketdataResponse,
   getAssetROIParameters,
   getAssetROIResponse,
   getAssetATHParameters,
   getAssetATHResponse,
   getAssetsROIResponse,
   getAssetsATHResponse,
+  getProjectRecapParameters,
+  getProjectRecapResponse,
+  getExchangeRecapParameters,
+  getExchangeRecapResponse,
+  getExchangeRankingsRecapResponse,
 } from "@messari-kit/types";
 import type { Agent } from "node:http";
 import { pick } from "./utils";
@@ -50,6 +58,7 @@ import {
   makeNoOpLogger,
 } from "./logging";
 import { RequestTimeoutError } from "./error";
+import type { RecapsAPIInterface } from "./interface";
 
 // Event types for the client
 export type ClientEventType = "error" | "request" | "response";
@@ -84,7 +93,7 @@ export type ClientEventMap = {
 };
 
 export type ClientEventHandler<T extends ClientEventType> = (
-  data: ClientEventMap[T]
+  data: ClientEventMap[T],
 ) => void;
 
 /**
@@ -227,7 +236,7 @@ export class MessariClient {
    */
   public on<T extends ClientEventType>(
     event: T,
-    handler: ClientEventHandler<T>
+    handler: ClientEventHandler<T>,
   ): void {
     if (!this.eventHandlers.has(event)) {
       this.eventHandlers.set(event, new Set());
@@ -240,7 +249,7 @@ export class MessariClient {
    */
   public off<T extends ClientEventType>(
     event: T,
-    handler: ClientEventHandler<T>
+    handler: ClientEventHandler<T>,
   ): void {
     if (this.eventHandlers.has(event)) {
       this.eventHandlers.get(event)?.delete(handler);
@@ -252,7 +261,7 @@ export class MessariClient {
    */
   private emit<T extends ClientEventType>(
     event: T,
-    data: ClientEventMap[T]
+    data: ClientEventMap[T],
   ): void {
     if (this.eventHandlers.has(event)) {
       for (const handler of this.eventHandlers.get(event) || []) {
@@ -287,12 +296,12 @@ export class MessariClient {
           return value
             .map(
               (item) =>
-                `${encodeURIComponent(key)}=${encodeURIComponent(String(item))}`
+                `${encodeURIComponent(key)}=${encodeURIComponent(String(item))}`,
             )
             .join("&");
         }
         return `${encodeURIComponent(key)}=${encodeURIComponent(
-          String(value)
+          String(value),
         )}`;
       })
       .join("&");
@@ -326,7 +335,7 @@ export class MessariClient {
           // Node.js specific option
           agent: this.agent,
         }),
-        timeoutMs
+        timeoutMs,
       );
 
       if (!response.ok) {
@@ -404,12 +413,12 @@ export class MessariClient {
           return value
             .map(
               (item) =>
-                `${encodeURIComponent(key)}=${encodeURIComponent(String(item))}`
+                `${encodeURIComponent(key)}=${encodeURIComponent(String(item))}`,
             )
             .join("&");
         }
         return `${encodeURIComponent(key)}=${encodeURIComponent(
-          String(value)
+          String(value),
         )}`;
       })
       .join("&");
@@ -443,7 +452,7 @@ export class MessariClient {
           // Node.js specific option
           agent: this.agent,
         }),
-        timeoutMs
+        timeoutMs,
       );
 
       if (!response.ok) {
@@ -507,31 +516,31 @@ export class MessariClient {
     params: P,
     fetchPage: (
       params: P,
-      options?: RequestOptions
+      options?: RequestOptions,
     ) => Promise<APIResponseWithMetadata<T, PaginationMetadata>>,
     response: APIResponseWithMetadata<T, PaginationMetadata>,
-    options?: RequestOptions
+    options?: RequestOptions,
   ): PaginatedResult<T, P> {
     // Convert PaginationResult to PaginationMetadata
     const metadata: PaginationMetadata = response.metadata
       ? {
-          page: response.metadata.page || 1,
-          limit: response.metadata.limit || 10,
-          total: response.metadata.total || 0,
-          totalRows: response.metadata.total || 0,
-          totalPages: Math.ceil(
-            (response.metadata.total || 0) / (response.metadata.limit || 10)
-          ),
-          hasMore: response.metadata.hasMore || false,
-        }
+        page: response.metadata.page || 1,
+        limit: response.metadata.limit || 10,
+        total: response.metadata.total || 0,
+        totalRows: response.metadata.total || 0,
+        totalPages: Math.ceil(
+          (response.metadata.total || 0) / (response.metadata.limit || 10),
+        ),
+        hasMore: response.metadata.hasMore || false,
+      }
       : {
-          page: 1,
-          limit: 10,
-          total: 0,
-          totalRows: 0,
-          totalPages: 0,
-          hasMore: false,
-        };
+        page: 1,
+        limit: 10,
+        total: 0,
+        totalRows: 0,
+        totalPages: 0,
+        hasMore: false,
+      };
 
     const currentPage = metadata.page;
     const hasNextPage =
@@ -563,24 +572,25 @@ export class MessariClient {
             const nextPageMetadata: PaginationMetadata =
               nextPageResponse.metadata
                 ? {
-                    page: nextPageResponse.metadata.page || nextPage,
-                    limit: nextPageResponse.metadata.limit || metadata.limit,
-                    totalRows:
-                      nextPageResponse.metadata.total ||
+                  page: nextPageResponse.metadata.page || nextPage,
+                  limit: nextPageResponse.metadata.limit || metadata.limit,
+                  totalRows:
+                    nextPageResponse.metadata.total ||
+                    metadata.totalRows ||
+                    0,
+                  totalPages: Math.ceil(
+                    (nextPageResponse.metadata.total ||
                       metadata.totalRows ||
-                      0,
-                    totalPages: Math.ceil(
-                      (nextPageResponse.metadata.total ||
-                        metadata.totalRows ||
-                        0) / (nextPageResponse.metadata.limit || metadata.limit)
-                    ),
-                  }
+                      0) /
+                    (nextPageResponse.metadata.limit || metadata.limit),
+                  ),
+                }
                 : {
-                    page: nextPage,
-                    limit: metadata.limit,
-                    totalRows: metadata.totalRows || 0,
-                    totalPages: metadata.totalPages || 0,
-                  };
+                  page: nextPage,
+                  limit: metadata.limit,
+                  totalRows: metadata.totalRows || 0,
+                  totalPages: metadata.totalPages || 0,
+                };
 
             return {
               data: nextPageResponse.data,
@@ -611,24 +621,25 @@ export class MessariClient {
             const prevPageMetadata: PaginationMetadata =
               prevPageResponse.metadata
                 ? {
-                    page: prevPageResponse.metadata.page || prevPage,
-                    limit: prevPageResponse.metadata.limit || metadata.limit,
-                    totalRows:
-                      prevPageResponse.metadata.total ||
+                  page: prevPageResponse.metadata.page || prevPage,
+                  limit: prevPageResponse.metadata.limit || metadata.limit,
+                  totalRows:
+                    prevPageResponse.metadata.total ||
+                    metadata.totalRows ||
+                    0,
+                  totalPages: Math.ceil(
+                    (prevPageResponse.metadata.total ||
                       metadata.totalRows ||
-                      0,
-                    totalPages: Math.ceil(
-                      (prevPageResponse.metadata.total ||
-                        metadata.totalRows ||
-                        0) / (prevPageResponse.metadata.limit || metadata.limit)
-                    ),
-                  }
+                      0) /
+                    (prevPageResponse.metadata.limit || metadata.limit),
+                  ),
+                }
                 : {
-                    page: prevPage,
-                    limit: metadata.limit,
-                    totalRows: metadata.totalRows || 0,
-                    totalPages: metadata.totalPages || 0,
-                  };
+                  page: prevPage,
+                  limit: metadata.limit,
+                  totalRows: metadata.totalRows || 0,
+                  totalPages: metadata.totalPages || 0,
+                };
 
             return {
               data: prevPageResponse.data,
@@ -642,9 +653,8 @@ export class MessariClient {
         goToPage: async (page: number) => {
           if (page < 1 || (metadata.totalPages && page > metadata.totalPages)) {
             throw new Error(
-              `Page ${page} is out of range. Valid range: 1-${
-                metadata.totalPages || "?"
-              }`
+              `Page ${page} is out of range. Valid range: 1-${metadata.totalPages || "?"
+              }`,
             );
           }
 
@@ -657,21 +667,21 @@ export class MessariClient {
             const pageResponse = await fetchPage(pageParams, options);
             const pageMetadata: PaginationMetadata = pageResponse.metadata
               ? {
-                  page: pageResponse.metadata.page || page,
-                  limit: pageResponse.metadata.limit || metadata.limit,
-                  totalRows:
-                    pageResponse.metadata.total || metadata.totalRows || 0,
-                  totalPages: Math.ceil(
-                    (pageResponse.metadata.total || metadata.totalRows || 0) /
-                      (pageResponse.metadata.limit || metadata.limit)
-                  ),
-                }
+                page: pageResponse.metadata.page || page,
+                limit: pageResponse.metadata.limit || metadata.limit,
+                totalRows:
+                  pageResponse.metadata.total || metadata.totalRows || 0,
+                totalPages: Math.ceil(
+                  (pageResponse.metadata.total || metadata.totalRows || 0) /
+                  (pageResponse.metadata.limit || metadata.limit),
+                ),
+              }
               : {
-                  page,
-                  limit: metadata.limit,
-                  totalRows: metadata.totalRows || 0,
-                  totalPages: metadata.totalPages || 0,
-                };
+                page,
+                limit: metadata.limit,
+                totalRows: metadata.totalRows || 0,
+                totalPages: metadata.totalPages || 0,
+              };
 
             return {
               data: pageResponse.data,
@@ -709,7 +719,7 @@ export class MessariClient {
               params,
               fetchPage,
               response,
-              options
+              options,
             ).goToPage;
             pagePromises.push(
               goToPageFn(page)
@@ -719,7 +729,7 @@ export class MessariClient {
                   }
                   return [pageResponse.data];
                 })
-                .catch(() => []) // Return empty array on error
+                .catch(() => []), // Return empty array on error
             );
           }
 
@@ -856,7 +866,7 @@ export class MessariClient {
   public readonly ai = {
     createChatCompletion: (
       params: createChatCompletionParameters,
-      options?: RequestOptions
+      options?: RequestOptions,
     ) =>
       this.request<createChatCompletionResponse>({
         method: createChatCompletion.method,
@@ -866,7 +876,7 @@ export class MessariClient {
       }),
     extractEntities: (
       params: extractEntitiesParameters,
-      options?: RequestOptions
+      options?: RequestOptions,
     ) =>
       this.request<extractEntitiesResponse>({
         method: extractEntities.method,
@@ -879,11 +889,11 @@ export class MessariClient {
   public readonly intel = {
     getAllEvents: async (
       params: getAllEventsParameters = {},
-      options?: RequestOptions
+      options?: RequestOptions,
     ) => {
       const fetchPage = async (
         p: getAllEventsParameters,
-        o?: RequestOptions
+        o?: RequestOptions,
       ) => {
         return this.requestWithMetadata<
           getAllEventsResponse["data"],
@@ -904,7 +914,7 @@ export class MessariClient {
     },
     getById: async (
       params: getEventAndHistoryParameters,
-      options?: RequestOptions
+      options?: RequestOptions,
     ) => {
       return this.request<getEventAndHistoryResponse>({
         method: getEventAndHistory.method,
@@ -914,11 +924,11 @@ export class MessariClient {
     },
     getAllAssets: async (
       params: getAllAssetsParameters = {},
-      options?: RequestOptions
+      options?: RequestOptions,
     ) => {
       const fetchPage = async (
         p: getAllAssetsParameters,
-        o?: RequestOptions
+        o?: RequestOptions,
       ) => {
         return this.requestWithMetadata<
           getAllAssetsResponse["data"],
@@ -943,11 +953,11 @@ export class MessariClient {
     // Paginated versions
     getNewsFeedPaginated: async (
       params: getNewsFeedParameters,
-      options?: RequestOptions
+      options?: RequestOptions,
     ) => {
       const fetchPage = async (
         p: getNewsFeedParameters,
-        o?: RequestOptions
+        o?: RequestOptions,
       ) => {
         return this.requestWithMetadata<
           getNewsFeedResponse["data"],
@@ -965,17 +975,17 @@ export class MessariClient {
         params,
         fetchPage,
         initialResponse,
-        options
+        options,
       );
     },
 
     getNewsFeedAssetsPaginated: async (
       params: getNewsFeedAssetsParameters,
-      options?: RequestOptions
+      options?: RequestOptions,
     ) => {
       const fetchPage = async (
         p: getNewsFeedAssetsParameters,
-        o?: RequestOptions
+        o?: RequestOptions,
       ) => {
         return this.requestWithMetadata<
           getNewsFeedAssetsResponse["data"],
@@ -997,11 +1007,11 @@ export class MessariClient {
 
     getNewsSourcesPaginated: async (
       params: getNewsSourcesParameters,
-      options?: RequestOptions
+      options?: RequestOptions,
     ) => {
       const fetchPage = async (
         p: getNewsSourcesParameters,
-        o?: RequestOptions
+        o?: RequestOptions,
       ) => {
         return this.requestWithMetadata<
           getNewsSourcesResponse["data"],
@@ -1024,10 +1034,10 @@ export class MessariClient {
 
   public readonly markets = {
     // Asset-specific endpoints
-    getAssetPrice: (params: getAssetPriceParameters) =>
-      this.request<getAssetPriceResponse>({
-        method: getAssetPrice.method,
-        path: getAssetPrice.path(params),
+    getAssetPrice: (params: getAssetMarketdataParameters) =>
+      this.request<getAssetMarketdataResponse>({
+        method: getAssetMarketdata.method,
+        path: getAssetMarketdata.path(params),
       }),
 
     getAssetROI: (params: getAssetROIParameters) =>
@@ -1054,5 +1064,28 @@ export class MessariClient {
         method: getAssetsATH.method,
         path: getAssetsATH.path(),
       }),
+  };
+
+  public readonly recaps: RecapsAPIInterface = {
+    getProjectRecap: async (params: getProjectRecapParameters) => {
+      return this.request<getProjectRecapResponse>({
+        method: getProjectRecap.method,
+        path: getProjectRecap.path(),
+        queryParams: pick(params, getProjectRecap.queryParams),
+      });
+    },
+    getExchangeRecap: async (params: getExchangeRecapParameters) => {
+      return this.request<getExchangeRecapResponse>({
+        method: getExchangeRecap.method,
+        path: getExchangeRecap.path(),
+        queryParams: pick(params, getExchangeRecap.queryParams),
+      });
+    },
+    getExchangeRankingsRecap: async () => {
+      return this.request<getExchangeRankingsRecapResponse>({
+        method: getExchangeRankingsRecap.method,
+        path: getExchangeRankingsRecap.path(),
+      });
+    },
   };
 }

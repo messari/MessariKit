@@ -167,13 +167,13 @@ export const getAssetsATH = {
 } as const;
 
 
-export type getAssetPriceResponse = components['schemas']['AssetMarketData'];
-export type getAssetPriceError = components['schemas']['APIError'];
+export type getAssetMarketdataResponse = components['schemas']['AssetMarketData'];
+export type getAssetMarketdataError = components['schemas']['APIError'];
 
-export type getAssetPriceParameters = { assetId: string };
+export type getAssetMarketdataParameters = { assetId: string };
 
 
-export const getAssetPrice = {
+export const getAssetMarketdata = {
   method: 'GET' as const,
   pathParams: ['assetId'] as const,
   queryParams: [] as const,
@@ -209,6 +209,51 @@ export const getAssetATH = {
   queryParams: [] as const,
   bodyParams: [] as const,
   path: (p: PathParams) => `/marketdata/v1/assets/${p.assetId}/ath`
+} as const;
+
+
+export type getProjectRecapResponse = components['schemas']['GetProjectRecapResponse'];
+export type getProjectRecapError = components['schemas']['APIError'];
+
+export type getProjectRecapParameters = { project_id: string };
+
+
+export const getProjectRecap = {
+  method: 'GET' as const,
+  pathParams: [] as const,
+  queryParams: ['project_id'] as const,
+  bodyParams: [] as const,
+  path: () => '/ai-digest/api/v1/recap'
+} as const;
+
+
+export type getExchangeRecapResponse = components['schemas']['ExchangeRecap'];
+export type getExchangeRecapError = components['schemas']['APIError'];
+
+export type getExchangeRecapParameters = { exchange_id: string };
+
+
+export const getExchangeRecap = {
+  method: 'GET' as const,
+  pathParams: [] as const,
+  queryParams: ['exchange_id'] as const,
+  bodyParams: [] as const,
+  path: () => '/ai-digest/api/v1/exchange-recap'
+} as const;
+
+
+export type getExchangeRankingsRecapResponse = components['schemas']['ExchangeRankingsRecap'];
+export type getExchangeRankingsRecapError = components['schemas']['APIError'];
+
+export type getExchangeRankingsRecapParameters = { period?: string };
+
+
+export const getExchangeRankingsRecap = {
+  method: 'GET' as const,
+  pathParams: [] as const,
+  queryParams: ['period'] as const,
+  bodyParams: [] as const,
+  path: () => '/ai-digest/api/v1/exchange-rankings-recap'
 } as const;
 
 // Re-export schema types
