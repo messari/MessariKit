@@ -29,14 +29,19 @@ import type {
   getExchangeRecapResponse,
   getProjectRecapResponse,
 } from "@messari-kit/types";
-import type { LogLevel, Logger } from "../logging";
+import {
+  LogLevel,
+  type Logger,
+  makeConsoleLogger,
+  createFilteredLogger,
+  makeNoOpLogger,
+} from "../logging";
 import type {
   PaginatedResult,
-  PaginationMetadata,
-  PaginationParameters,
   RequestOptions,
   ClientEventMap,
   ClientEventType,
+  ClientEventHandler,
 } from "./types";
 
 /**
@@ -231,60 +236,183 @@ export abstract class MessariClientBase {
   public abstract readonly markets: MarketsInterface;
 
   /**
-   * Disable all logging from the client
+   * Interface for Recaps-related API methods
    */
-  public abstract disableLogging(): void;
+  public abstract readonly recaps: RecapsAPIInterface;
 
   /**
-   * Enable logging with the specified log level
-   * @param level The minimum log level to display
+   * Logger instance for the client
    */
-  public abstract enableLogging(level?: LogLevel): void;
+  protected logger: Logger;
 
   /**
-   * Set a custom logger for the client
+   * Flag indicating whether logging is disabled
+   */
+  protected isLoggingDisabled: boolean;
+
+  /**
+   * Event handlers for the client
+   */
+  protected abstract readonly eventHandlers: Map<
+    ClientEventType,
+    Set<ClientEventHandler<ClientEventType>>
+  >;
+
+  /**
+   * Constructor for the MessariClientBase class
+   * Initializes the logger and logging state
+   */
+  constructor() {
+    this.isLoggingDisabled = false;
+    this.logger = makeConsoleLogger("messari-client");
+  }
+
+  /**
+   * Disable all logging from the client.
+   * This will prevent any log messages from being output, regardless of their level.
+   */
+  public disableLogging(): void {
+    this.isLoggingDisabled = true;
+    this.logger = makeNoOpLogger();
+  }
+
+  /**
+   * Enable logging with the specified log level.
+   * This will restore logging functionality if it was previously disabled.
+   *
+   * @param level The minimum log level to display (defaults to INFO)
+   */
+  public enableLogging(level: LogLevel = LogLevel.INFO): void {
+    this.isLoggingDisabled = false;
+    const baseLogger = makeConsoleLogger("messari-client");
+    this.logger = createFilteredLogger(baseLogger, level);
+  }
+
+  /**
+   * Set a custom logger for the client.
+   * This allows you to integrate with your application's logging system.
+   *
    * @param logger The logger implementation to use
    * @param level Optional minimum log level to filter messages
    */
-  public abstract setLogger(logger: Logger, level?: LogLevel): void;
+  public setLogger(logger: Logger, level?: LogLevel): void {
+    this.isLoggingDisabled = false;
+    this.logger = level ? createFilteredLogger(logger, level) : logger;
+  }
 
   /**
-   * Check if logging is currently enabled for the client
+   * Check if logging is currently enabled for the client.
+   *
    * @returns true if logging is enabled, false if it has been disabled
    */
-  public abstract isLoggingEnabled(): boolean;
+  public isLoggingEnabled(): boolean {
+    return !this.isLoggingDisabled;
+  }
 
   /**
-   * Execute an asynchronous function with logging temporarily disabled
+   * Execute an asynchronous function with logging temporarily disabled.
+   * After the function completes, the previous logging state will be restored.
+   *
    * @param fn The asynchronous function to execute with logging disabled
    * @returns A promise that resolves to the result of the function
+   * @example
+   * // Perform a sensitive operation without logging
+   * const result = await client.withLoggingDisabled(async () => {
+   *   return await client.ai.createChatCompletion({ ... });
+   * });
    */
-  public abstract withLoggingDisabled<T>(fn: () => Promise<T>): Promise<T>;
+  public async withLoggingDisabled<T>(fn: () => Promise<T>): Promise<T> {
+    const wasDisabled = this.isLoggingDisabled;
+    try {
+      // Disable logging if it was enabled
+      if (!wasDisabled) {
+        this.disableLogging();
+      }
+      // Execute the function
+      return await fn();
+    } finally {
+      // Restore previous logging state if it was enabled
+      if (!wasDisabled) {
+        this.enableLogging();
+      }
+    }
+  }
 
   /**
-   * Execute a synchronous function with logging temporarily disabled
+   * Execute a synchronous function with logging temporarily disabled.
+   * After the function completes, the previous logging state will be restored.
+   *
    * @param fn The synchronous function to execute with logging disabled
    * @returns The result of the function
+   * @example
+   * // Perform a sensitive operation without logging
+   * const result = client.withLoggingDisabledSync(() => {
+   *   return processPrivateData(data);
+   * });
    */
-  public abstract withLoggingDisabledSync<T>(fn: () => T): T;
+  public withLoggingDisabledSync<T>(fn: () => T): T {
+    const wasDisabled = this.isLoggingDisabled;
+    try {
+      // Disable logging if it was enabled
+      if (!wasDisabled) {
+        this.disableLogging();
+      }
+      // Execute the function
+      return fn();
+    } finally {
+      // Restore previous logging state if it was enabled
+      if (!wasDisabled) {
+        this.enableLogging();
+      }
+    }
+  }
 
   /**
    * Register an event handler
    * @param event The event type to listen for
    * @param handler The handler function to call when the event occurs
    */
-  public abstract on<T extends ClientEventType>(
+  public on<T extends ClientEventType>(
     event: T,
-    handler: (data: ClientEventMap[T]) => void
-  ): void;
+    handler: ClientEventHandler<T>
+  ): void {
+    if (!this.eventHandlers.has(event)) {
+      this.eventHandlers.set(event, new Set());
+    }
+    this.eventHandlers.get(event)?.add(handler as ClientEventHandler<ClientEventType>);
+  }
 
   /**
    * Remove an event handler
    * @param event The event type to remove the handler from
    * @param handler The handler function to remove
    */
-  public abstract off<T extends ClientEventType>(
+  public off<T extends ClientEventType>(
     event: T,
-    handler: (data: ClientEventMap[T]) => void
-  ): void;
+    handler: ClientEventHandler<T>
+  ): void {
+    if (this.eventHandlers.has(event)) {
+      this.eventHandlers.get(event)?.delete(handler as ClientEventHandler<ClientEventType>);
+    }
+  }
+
+  /**
+   * Emit an event to all registered handlers
+   * @param event The event type to emit
+   * @param data The event data to pass to handlers
+   */
+  protected emit<T extends ClientEventType>(
+    event: T,
+    data: ClientEventMap[T]
+  ): void {
+    if (this.eventHandlers.has(event)) {
+      for (const handler of this.eventHandlers.get(event) || []) {
+        try {
+          handler(data);
+        } catch (error) {
+          this.logger(LogLevel.ERROR, `Error in ${event} handler`, { error });
+        }
+      }
+    }
+  }
 }

@@ -100,16 +100,18 @@ export class MessariClient extends MessariClientBase {
 	private readonly fetchFn: typeof fetch;
 	private readonly agent?: Agent;
 	private readonly defaultHeaders: Record<string, string>;
-	private readonly eventHandlers: Map<
+	
+    protected readonly eventHandlers: Map<
 		ClientEventType,
 		Set<ClientEventHandler<ClientEventType>>
 	>;
 
-	private logger: Logger;
-	private isLoggingDisabled: boolean;
+	protected logger: Logger;
+	protected isLoggingDisabled: boolean;
 
 	constructor(options: MessariClientOptions) {
 		super();
+        
 		this.apiKey = options.apiKey;
 		this.baseUrl = options.baseUrl || "https://api.messari.io";
 		this.timeoutMs = options.timeoutMs || 60_000; // 60 seconds
@@ -145,53 +147,6 @@ export class MessariClient extends MessariClientBase {
 		}
 		if (options.onResponse) {
 			this.on("response", options.onResponse);
-		}
-	}
-
-	/**
-	 * Register an event handler
-	 */
-	public on<T extends ClientEventType>(
-		event: T,
-		handler: ClientEventHandler<T>,
-	): void {
-		if (!this.eventHandlers.has(event)) {
-			this.eventHandlers.set(event, new Set());
-		}
-		this.eventHandlers
-			.get(event)
-			?.add(handler as ClientEventHandler<ClientEventType>);
-	}
-
-	/**
-	 * Remove an event handler
-	 */
-	public off<T extends ClientEventType>(
-		event: T,
-		handler: ClientEventHandler<T>,
-	): void {
-		if (this.eventHandlers.has(event)) {
-			this.eventHandlers
-				.get(event)
-				?.delete(handler as ClientEventHandler<ClientEventType>);
-		}
-	}
-
-	/**
-	 * Emit an event to all registered handlers
-	 */
-	private emit<T extends ClientEventType>(
-		event: T,
-		data: ClientEventMap[T],
-	): void {
-		if (this.eventHandlers.has(event)) {
-			for (const handler of this.eventHandlers.get(event) || []) {
-				try {
-					handler(data);
-				} catch (error) {
-					this.logger(LogLevel.ERROR, `Error in ${event} handler`, { error });
-				}
-			}
 		}
 	}
 
@@ -671,118 +626,6 @@ export class MessariClient extends MessariClientBase {
 			error: response.error,
 			...createPaginationHelpers(),
 		};
-	}
-
-	/**
-	 * Disable all logging from the client.
-	 * This will prevent any log messages from being output, regardless of their level.
-	 */
-	public disableLogging(): void {
-		this.isLoggingDisabled = true;
-		this.logger = makeNoOpLogger();
-	}
-
-	/**
-	 * Enable logging with the specified log level.
-	 * This will restore logging functionality if it was previously disabled.
-	 *
-	 * @param level The minimum log level to display (defaults to INFO)
-	 * @example
-	 * // Enable all logs including debug messages
-	 * client.enableLogging(LogLevel.DEBUG);
-	 *
-	 * // Enable only warnings and errors
-	 * client.enableLogging(LogLevel.WARN);
-	 */
-	public enableLogging(level: LogLevel = LogLevel.INFO): void {
-		this.isLoggingDisabled = false;
-		const baseLogger = makeConsoleLogger("messari-client");
-		this.logger = createFilteredLogger(baseLogger, level);
-	}
-
-	/**
-	 * Set a custom logger for the client.
-	 * This allows you to integrate with your application's logging system.
-	 *
-	 * @param logger The logger implementation to use
-	 * @param level Optional minimum log level to filter messages
-	 * @example
-	 * // Use a custom logger that sends logs to a service
-	 * client.setLogger(myCustomLogger);
-	 *
-	 * // Use a custom logger but only for errors
-	 * client.setLogger(myCustomLogger, LogLevel.ERROR);
-	 */
-	public setLogger(logger: Logger, level?: LogLevel): void {
-		this.isLoggingDisabled = false;
-		this.logger = level ? createFilteredLogger(logger, level) : logger;
-	}
-
-	/**
-	 * Check if logging is currently enabled for the client.
-	 *
-	 * @returns true if logging is enabled, false if it has been disabled
-	 */
-	public isLoggingEnabled(): boolean {
-		return !this.isLoggingDisabled;
-	}
-
-	/**
-	 * Execute an asynchronous function with logging temporarily disabled.
-	 * After the function completes, the previous logging state will be restored.
-	 *
-	 * @param fn The asynchronous function to execute with logging disabled
-	 * @returns A promise that resolves to the result of the function
-	 * @example
-	 * // Perform a sensitive operation without logging
-	 * const result = await client.withLoggingDisabled(async () => {
-	 *   return await client.ai.createChatCompletion({ ... });
-	 * });
-	 */
-	public async withLoggingDisabled<T>(fn: () => Promise<T>): Promise<T> {
-		const wasDisabled = this.isLoggingDisabled;
-		try {
-			// Disable logging if it was enabled
-			if (!wasDisabled) {
-				this.disableLogging();
-			}
-			// Execute the function
-			return await fn();
-		} finally {
-			// Restore previous logging state if it was enabled
-			if (!wasDisabled) {
-				this.enableLogging();
-			}
-		}
-	}
-
-	/**
-	 * Execute a synchronous function with logging temporarily disabled.
-	 * After the function completes, the previous logging state will be restored.
-	 *
-	 * @param fn The synchronous function to execute with logging disabled
-	 * @returns The result of the function
-	 * @example
-	 * // Perform a sensitive operation without logging
-	 * const result = client.withLoggingDisabledSync(() => {
-	 *   return processPrivateData(data);
-	 * });
-	 */
-	public withLoggingDisabledSync<T>(fn: () => T): T {
-		const wasDisabled = this.isLoggingDisabled;
-		try {
-			// Disable logging if it was enabled
-			if (!wasDisabled) {
-				this.disableLogging();
-			}
-			// Execute the function
-			return fn();
-		} finally {
-			// Restore previous logging state if it was enabled
-			if (!wasDisabled) {
-				this.enableLogging();
-			}
-		}
 	}
 
 	public readonly ai: AIInterface = {
