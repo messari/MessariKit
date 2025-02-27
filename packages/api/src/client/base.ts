@@ -29,20 +29,8 @@ import type {
   getExchangeRecapResponse,
   getProjectRecapResponse,
 } from "@messari-kit/types";
-import {
-  LogLevel,
-  type Logger,
-  makeConsoleLogger,
-  createFilteredLogger,
-  makeNoOpLogger,
-} from "../logging";
-import type {
-  PaginatedResult,
-  RequestOptions,
-  ClientEventMap,
-  ClientEventType,
-  ClientEventHandler,
-} from "./types";
+import { LogLevel, type Logger, makeConsoleLogger, createFilteredLogger, makeNoOpLogger } from "../logging";
+import type { PaginatedResult, RequestOptions, ClientEventMap, ClientEventType, ClientEventHandler } from "./types";
 
 /**
  * Interface for the AI API methods
@@ -54,10 +42,7 @@ export interface AIInterface {
    * @param options Optional request configuration
    * @returns A promise resolving to the chat completion response
    */
-  createChatCompletion(
-    params: createChatCompletionParameters,
-    options?: RequestOptions
-  ): Promise<createChatCompletionResponse>;
+  createChatCompletion(params: createChatCompletionParameters, options?: RequestOptions): Promise<createChatCompletionResponse>;
 
   /**
    * Extracts entities from text content
@@ -65,10 +50,7 @@ export interface AIInterface {
    * @param options Optional request configuration
    * @returns A promise resolving to the extracted entities
    */
-  extractEntities(
-    params: extractEntitiesParameters,
-    options?: RequestOptions
-  ): Promise<extractEntitiesResponse>;
+  extractEntities(params: extractEntitiesParameters, options?: RequestOptions): Promise<extractEntitiesResponse>;
 }
 
 /**
@@ -81,10 +63,7 @@ export interface IntelInterface {
    * @param options Optional request configuration
    * @returns A paginated result of events
    */
-  getAllEvents(
-    params?: getAllEventsParameters,
-    options?: RequestOptions
-  ): Promise<PaginatedResult<getAllEventsResponse["data"], getAllEventsParameters>>;
+  getAllEvents(params?: getAllEventsParameters, options?: RequestOptions): Promise<PaginatedResult<getAllEventsResponse["data"], getAllEventsParameters>>;
 
   /**
    * Gets a specific event by ID along with its history
@@ -92,10 +71,7 @@ export interface IntelInterface {
    * @param options Optional request configuration
    * @returns A promise resolving to the event and its history
    */
-  getById(
-    params: getEventAndHistoryParameters,
-    options?: RequestOptions
-  ): Promise<getEventAndHistoryResponse>;
+  getById(params: getEventAndHistoryParameters, options?: RequestOptions): Promise<getEventAndHistoryResponse>;
 
   /**
    * Gets all assets with optional filtering
@@ -103,10 +79,7 @@ export interface IntelInterface {
    * @param options Optional request configuration
    * @returns A paginated result of assets
    */
-  getAllAssets(
-    params?: getAllAssetsParameters,
-    options?: RequestOptions
-  ): Promise<PaginatedResult<getAllAssetsResponse["data"], getAllAssetsParameters>>;
+  getAllAssets(params?: getAllAssetsParameters, options?: RequestOptions): Promise<PaginatedResult<getAllAssetsResponse["data"], getAllAssetsParameters>>;
 }
 
 /**
@@ -119,10 +92,7 @@ export interface NewsInterface {
    * @param options Optional request configuration
    * @returns A paginated result of news items
    */
-  getNewsFeedPaginated(
-    params: getNewsFeedParameters,
-    options?: RequestOptions
-  ): Promise<PaginatedResult<getNewsFeedResponse["data"], getNewsFeedParameters>>;
+  getNewsFeedPaginated(params: getNewsFeedParameters, options?: RequestOptions): Promise<PaginatedResult<getNewsFeedResponse["data"], getNewsFeedParameters>>;
 
   /**
    * Gets assets mentioned in news with pagination
@@ -132,7 +102,7 @@ export interface NewsInterface {
    */
   getNewsFeedAssetsPaginated(
     params: getNewsFeedAssetsParameters,
-    options?: RequestOptions
+    options?: RequestOptions,
   ): Promise<PaginatedResult<getNewsFeedAssetsResponse["data"], getNewsFeedAssetsParameters>>;
 
   /**
@@ -143,7 +113,7 @@ export interface NewsInterface {
    */
   getNewsSourcesPaginated(
     params: getNewsSourcesParameters,
-    options?: RequestOptions
+    options?: RequestOptions,
   ): Promise<PaginatedResult<getNewsSourcesResponse["data"], getNewsSourcesParameters>>;
 }
 
@@ -189,25 +159,25 @@ export interface MarketsInterface {
  * Interface for the recaps API endpoints
  */
 export interface RecapsAPIInterface {
-    /**
-     * Gets the latest recaps for a given project across all the time periods 1D, 7D, 30D, 90D
-     * @param params.project_id The project ID to get the recap for
-     * @return The recaps for the given project
-     */
-    getProjectRecap(params: getProjectRecapParameters): Promise<getProjectRecapResponse>;
+  /**
+   * Gets the latest recaps for a given project across all the time periods 1D, 7D, 30D, 90D
+   * @param params.project_id The project ID to get the recap for
+   * @return The recaps for the given project
+   */
+  getProjectRecap(params: getProjectRecapParameters): Promise<getProjectRecapResponse>;
 
-    /**
-     * Gets the detailed recap for a single exchange. Includes performance summary, volume data, and news items with summaries
-     * @param params.exchange_id The exchange ID to get the recap for
-     * @return The recap for the given exchange
-     */
-    getExchangeRecap(params: getExchangeRecapParameters): Promise<getExchangeRecapResponse>;
+  /**
+   * Gets the detailed recap for a single exchange. Includes performance summary, volume data, and news items with summaries
+   * @param params.exchange_id The exchange ID to get the recap for
+   * @return The recap for the given exchange
+   */
+  getExchangeRecap(params: getExchangeRecapParameters): Promise<getExchangeRecapResponse>;
 
-    /**
-     * Gets overall performance summary for all exchanges, their ranking by volume and news items with summaries
-     * @return The exchange rankings recap
-     */
-    getExchangeRankingsRecap(): Promise<getExchangeRankingsRecapResponse>;
+  /**
+   * Gets overall performance summary for all exchanges, their ranking by volume and news items with summaries
+   * @return The exchange rankings recap
+   */
+  getExchangeRankingsRecap(): Promise<getExchangeRankingsRecapResponse>;
 }
 
 /**
@@ -253,10 +223,7 @@ export abstract class MessariClientBase {
   /**
    * Event handlers for the client
    */
-  protected abstract readonly eventHandlers: Map<
-    ClientEventType,
-    Set<ClientEventHandler<ClientEventType>>
-  >;
+  protected abstract readonly eventHandlers: Map<ClientEventType, Set<ClientEventHandler<ClientEventType>>>;
 
   /**
    * Constructor for the MessariClientBase class
@@ -372,10 +339,7 @@ export abstract class MessariClientBase {
    * @param event The event type to listen for
    * @param handler The handler function to call when the event occurs
    */
-  public on<T extends ClientEventType>(
-    event: T,
-    handler: ClientEventHandler<T>
-  ): void {
+  public on<T extends ClientEventType>(event: T, handler: ClientEventHandler<T>): void {
     if (!this.eventHandlers.has(event)) {
       this.eventHandlers.set(event, new Set());
     }
@@ -387,10 +351,7 @@ export abstract class MessariClientBase {
    * @param event The event type to remove the handler from
    * @param handler The handler function to remove
    */
-  public off<T extends ClientEventType>(
-    event: T,
-    handler: ClientEventHandler<T>
-  ): void {
+  public off<T extends ClientEventType>(event: T, handler: ClientEventHandler<T>): void {
     if (this.eventHandlers.has(event)) {
       this.eventHandlers.get(event)?.delete(handler as ClientEventHandler<ClientEventType>);
     }
@@ -401,10 +362,7 @@ export abstract class MessariClientBase {
    * @param event The event type to emit
    * @param data The event data to pass to handlers
    */
-  protected emit<T extends ClientEventType>(
-    event: T,
-    data: ClientEventMap[T]
-  ): void {
+  protected emit<T extends ClientEventType>(event: T, data: ClientEventMap[T]): void {
     if (this.eventHandlers.has(event)) {
       for (const handler of this.eventHandlers.get(event) || []) {
         try {

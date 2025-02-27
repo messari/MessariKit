@@ -70,10 +70,7 @@ export type PaginationMetadata = {
   hasMore?: boolean;
 };
 
-export type PaginatedResponse<T> = APIResponseWithMetadata<
-  T,
-  PaginationMetadata
->;
+export type PaginatedResponse<T> = APIResponseWithMetadata<T, PaginationMetadata>;
 
 export type PaginatedResult<T, P extends PaginationParameters> = {
   data: T;
@@ -123,7 +120,4 @@ export type ClientEventMap = {
 
 export type ClientEventType = "error" | "request" | "response";
 
-export type ClientEventHandler<T extends ClientEventType> = (
-  data: ClientEventMap[T]
-) => void;
-
+export type ClientEventHandler<T extends ClientEventType> = (data: ClientEventMap[T]) => void;

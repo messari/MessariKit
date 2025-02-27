@@ -26,29 +26,20 @@ interface OpenAPISpec extends OpenAPIV3.Document {
 /**
  * Generates a path function for an operation
  */
-function generatePathFunction(
-  pathTemplate: string,
-  hasParams: boolean
-): string {
+function generatePathFunction(pathTemplate: string, hasParams: boolean): string {
   if (!hasParams) {
     return `() => '${pathTemplate}'`;
   }
-  return `(p: PathParams) => \`${pathTemplate.replace(
-    /{([^}]+)}/g,
-    "${p.$1}"
-  )}\``;
+  return `(p: PathParams) => \`${pathTemplate.replace(/{([^}]+)}/g, "${p.$1}")}\``;
 }
 
 /**
  * Gets properties from a schema
  */
-function getSchemaProperties(
-  schema: OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject | undefined,
-  spec: OpenAPISpec
-): string[] {
+function getSchemaProperties(schema: OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject | undefined, spec: OpenAPISpec): string[] {
   if (!schema) return [];
 
-  if ('$ref' in schema) {
+  if ("$ref" in schema) {
     const refPath = schema.$ref.split("/");
     const schemaName = refPath[refPath.length - 1];
     const refSchema = spec.components?.schemas?.[schemaName] as OpenAPIV3.SchemaObject;
@@ -61,10 +52,7 @@ function getSchemaProperties(
 /**
  * Extracts parameter names from an operation
  */
-function extractParameterNames(
-  operation: OpenAPIV3.OperationObject,
-  spec: OpenAPISpec
-): { queryParams: string[]; pathParams: string[]; bodyParams: string[] } {
+function extractParameterNames(operation: OpenAPIV3.OperationObject, spec: OpenAPISpec): { queryParams: string[]; pathParams: string[]; bodyParams: string[] } {
   // Process parameters directly defined in the operation
   const processParams = (params: (OpenAPIV3.ParameterObject | OpenAPIV3.ReferenceObject)[] | undefined) => {
     if (!params) return { queryParams: [] as string[], pathParams: [] as string[] };
@@ -74,7 +62,7 @@ function extractParameterNames(
 
     for (const p of params) {
       // Handle parameter references
-      if ('$ref' in p) {
+      if ("$ref" in p) {
         // For parameters like '#/components/parameters/page', we want to extract 'page'
         const refParts = p.$ref.split("/");
         const paramName = refParts[refParts.length - 1];
@@ -114,10 +102,8 @@ function extractParameterNames(
   const pathParams = result?.pathParams || [];
 
   // Extract body parameters from request body
-  const bodySchema = operation.requestBody && 'content' in operation.requestBody
-    ? operation.requestBody.content?.["application/json"]?.schema
-    : undefined;
-  
+  const bodySchema = operation.requestBody && "content" in operation.requestBody ? operation.requestBody.content?.["application/json"]?.schema : undefined;
+
   const bodyParams = getSchemaProperties(bodySchema, spec);
 
   return { queryParams, pathParams, bodyParams };
@@ -130,34 +116,34 @@ function generateOperationTypes(operationId: string, operation: OpenAPIV3.Operat
   // Get the schema name from the response
   const responseObj = operation.responses["200"] as OpenAPIV3.ResponseObject;
   const responseSchema = responseObj?.content?.["application/json"]?.schema;
-  
+
   // Handle different response schema structures
   let schemaRef: string | undefined;
   let metadataRef: string | undefined;
   let isArray = false;
   let arrayItemsRef: string | undefined;
-  
+
   if (responseSchema) {
-    if ('allOf' in responseSchema && responseSchema.allOf) {
+    if ("allOf" in responseSchema && responseSchema.allOf) {
       const dataSchema = responseSchema.allOf[1] as OpenAPIV3.SchemaObject;
       if (dataSchema.properties?.data) {
         const dataProperty = dataSchema.properties.data as OpenAPIV3.SchemaObject;
-        if ('$ref' in dataProperty) {
+        if ("$ref" in dataProperty) {
           schemaRef = dataProperty.$ref as string;
-        } else if (dataProperty.type === 'array' && dataProperty.items) {
+        } else if (dataProperty.type === "array" && dataProperty.items) {
           isArray = true;
-          if ('$ref' in dataProperty.items) {
+          if ("$ref" in dataProperty.items) {
             arrayItemsRef = dataProperty.items.$ref;
           }
         }
       }
-      
-      if (dataSchema.properties?.metadata && '$ref' in dataSchema.properties.metadata) {
+
+      if (dataSchema.properties?.metadata && "$ref" in dataSchema.properties.metadata) {
         metadataRef = dataSchema.properties.metadata.$ref;
       }
-    } else if ('$ref' in responseSchema) {
+    } else if ("$ref" in responseSchema) {
       schemaRef = responseSchema.$ref;
-    } else if (responseSchema.type === 'array' && responseSchema.items && '$ref' in responseSchema.items) {
+    } else if (responseSchema.type === "array" && responseSchema.items && "$ref" in responseSchema.items) {
       isArray = true;
       arrayItemsRef = responseSchema.items.$ref;
     }
@@ -191,139 +177,112 @@ function generateOperationTypes(operationId: string, operation: OpenAPIV3.Operat
   }
 
   // Process parameters to generate the parameter type
-  const queryParams = operation.parameters
-    ?.filter((p) => {
-      // Skip API key parameter
-      if ('name' in p && p.name === "x-messari-api-key") return false;
+  const queryParams =
+    operation.parameters
+      ?.filter((p) => {
+        // Skip API key parameter
+        if ("name" in p && p.name === "x-messari-api-key") return false;
 
-      // Include query parameters and referenced parameters that are likely query params
-      if ('in' in p && p.in === "query") return true;
+        // Include query parameters and referenced parameters that are likely query params
+        if ("in" in p && p.in === "query") return true;
 
-      // Handle referenced parameters
-      if ('$ref' in p) {
-        const refParts = p.$ref.split("/");
-        const paramName = refParts[refParts.length - 1];
-        // Include common pagination parameters and other non-path parameters
-        return (
-          paramName === "page" ||
-          paramName === "limit" ||
-          (!paramName.includes("path") &&
-            !paramName.includes("Path") &&
-            paramName !== "apiKey")
-        );
-      }
-
-      return false;
-    })
-    ?.map((p) => {
-      // Get parameter name
-      let paramName: string;
-      let paramSchema: OpenAPIV3.SchemaObject | undefined;
-
-      if ('$ref' in p) {
-        // Handle referenced parameter
-        const refParts = p.$ref.split("/");
-        paramName = refParts[refParts.length - 1];
-
-        // Set appropriate types for known parameters
-        if (paramName === "page" || paramName === "limit") {
-          return `${paramName}?: number`;
+        // Handle referenced parameters
+        if ("$ref" in p) {
+          const refParts = p.$ref.split("/");
+          const paramName = refParts[refParts.length - 1];
+          // Include common pagination parameters and other non-path parameters
+          return paramName === "page" || paramName === "limit" || (!paramName.includes("path") && !paramName.includes("Path") && paramName !== "apiKey");
         }
-      } else {
-        paramName = p.name;
-        paramSchema = p.schema as OpenAPIV3.SchemaObject;
-      }
 
-      // Get the parameter type from the schema
-      let paramType = "string";
-      if (paramSchema?.type) {
-        if (paramSchema.type === "integer" || paramSchema.type === "number") {
-          paramType = "number";
-        } else if (paramSchema.type === "boolean") {
-          paramType = "boolean";
-        } else if (paramSchema.type === "array") {
-          // Handle array types
-          let itemType = "string";
-          if (
-            paramSchema.items && 'type' in paramSchema.items &&
-            (paramSchema.items.type === "integer" || paramSchema.items.type === "number")
-          ) {
-            itemType = "number";
-          } else if (paramSchema.items && 'type' in paramSchema.items && paramSchema.items.type === "boolean") {
-            itemType = "boolean";
+        return false;
+      })
+      ?.map((p) => {
+        // Get parameter name
+        let paramName: string;
+        let paramSchema: OpenAPIV3.SchemaObject | undefined;
+
+        if ("$ref" in p) {
+          // Handle referenced parameter
+          const refParts = p.$ref.split("/");
+          paramName = refParts[refParts.length - 1];
+
+          // Set appropriate types for known parameters
+          if (paramName === "page" || paramName === "limit") {
+            return `${paramName}?: number`;
           }
-          paramType = `${itemType}[]`;
+        } else {
+          paramName = p.name;
+          paramSchema = p.schema as OpenAPIV3.SchemaObject;
         }
-      }
 
-      return `${paramName}${('required' in p && p.required) ? "" : "?"}: ${paramType}`;
-    })
-    ?.join("; ") || "";
+        // Get the parameter type from the schema
+        let paramType = "string";
+        if (paramSchema?.type) {
+          if (paramSchema.type === "integer" || paramSchema.type === "number") {
+            paramType = "number";
+          } else if (paramSchema.type === "boolean") {
+            paramType = "boolean";
+          } else if (paramSchema.type === "array") {
+            // Handle array types
+            let itemType = "string";
+            if (paramSchema.items && "type" in paramSchema.items && (paramSchema.items.type === "integer" || paramSchema.items.type === "number")) {
+              itemType = "number";
+            } else if (paramSchema.items && "type" in paramSchema.items && paramSchema.items.type === "boolean") {
+              itemType = "boolean";
+            }
+            paramType = `${itemType}[]`;
+          }
+        }
 
-  const pathParams = operation.parameters
-    ?.filter(
-      (p) =>
-        ('in' in p && p.in === "path") ||
-        ('$ref' in p && (p.$ref.includes("path") || p.$ref.includes("Path")))
-    )
-    ?.map((p) => {
-      // Path parameters typically need to be strings for URL construction
-      const paramName = '$ref' in p ? p.$ref.split("/").pop() : p.name;
-      return `${paramName}: string`;
-    })
-    ?.join("; ") || "";
+        return `${paramName}${"required" in p && p.required ? "" : "?"}: ${paramType}`;
+      })
+      ?.join("; ") || "";
+
+  const pathParams =
+    operation.parameters
+      ?.filter((p) => ("in" in p && p.in === "path") || ("$ref" in p && (p.$ref.includes("path") || p.$ref.includes("Path"))))
+      ?.map((p) => {
+        // Path parameters typically need to be strings for URL construction
+        const paramName = "$ref" in p ? p.$ref.split("/").pop() : p.name;
+        return `${paramName}: string`;
+      })
+      ?.join("; ") || "";
 
   let bodyType = null;
-  if (operation.requestBody && 'content' in operation.requestBody && 
-      operation.requestBody.content["application/json"]?.schema && 
-      '$ref' in operation.requestBody.content["application/json"].schema) {
+  if (
+    operation.requestBody &&
+    "content" in operation.requestBody &&
+    operation.requestBody.content["application/json"]?.schema &&
+    "$ref" in operation.requestBody.content["application/json"].schema
+  ) {
     const bodySchemaRef = operation.requestBody.content["application/json"].schema.$ref;
     const bodySchemaName = bodySchemaRef.split("/").pop();
     bodyType = `components['schemas']['${bodySchemaName}']`;
   }
 
-  const typeIntersection = [
-    bodyType,
-    queryParams ? `{ ${queryParams} }` : null,
-    pathParams ? `{ ${pathParams} }` : null,
-  ]
-    .filter(Boolean)
-    .join("; ");
+  const typeIntersection = [bodyType, queryParams ? `{ ${queryParams} }` : null, pathParams ? `{ ${pathParams} }` : null].filter(Boolean).join("; ");
 
   return `
 export type ${operationId}Response = ${finalResponseType};
 export type ${operationId}Error = components['schemas']['APIError'];
 
-export type ${operationId}Parameters = ${typeIntersection || 'null' };`;
+export type ${operationId}Parameters = ${typeIntersection || "null"};`;
 }
 
 /**
  * Generates an operation object for an operation
  */
-function generateOperationObject(
-  operationId: string,
-  method: string,
-  pathTemplate: string,
-  operation: OpenAPIV3.OperationObject,
-  spec: OpenAPISpec
-): string {
-  const { queryParams, pathParams, bodyParams } = extractParameterNames(
-    operation,
-    spec
-  );
+function generateOperationObject(operationId: string, method: string, pathTemplate: string, operation: OpenAPIV3.OperationObject, spec: OpenAPISpec): string {
+  const { queryParams, pathParams, bodyParams } = extractParameterNames(operation, spec);
 
   // Filter out the API key from query parameters
-  const filteredQueryParams = queryParams.filter(
-    (p) => p !== "x-messari-api-key"
-  );
+  const filteredQueryParams = queryParams.filter((p) => p !== "x-messari-api-key");
 
   return `
 export const ${operationId} = {
   method: '${method.toUpperCase()}' as const,
   pathParams: [${pathParams.map((p) => `'${p}'`).join(", ")}] as const,
-  queryParams: [${filteredQueryParams
-    .map((p) => `'${p}'`)
-    .join(", ")}] as const,
+  queryParams: [${filteredQueryParams.map((p) => `'${p}'`).join(", ")}] as const,
   bodyParams: [${bodyParams.map((p) => `'${p}'`).join(", ")}] as const,
   path: ${generatePathFunction(pathTemplate, pathParams.length > 0)}
 } as const;`;
@@ -359,27 +318,17 @@ export type PathParams = Record<string, string>;`);
   // Process all paths and operations
   for (const [path, pathObj] of Object.entries(spec.paths)) {
     if (!pathObj) continue;
-    
+
     for (const [method, operation] of Object.entries(pathObj)) {
       // Skip non-operation properties like parameters, summary, etc.
-      if (!['get', 'post', 'put', 'delete', 'patch', 'options', 'head', 'trace'].includes(method)) {
+      if (!["get", "post", "put", "delete", "patch", "options", "head", "trace"].includes(method)) {
         continue;
       }
-      
+
       const typedOperation = operation as OpenAPIV3.OperationObject;
       if (typedOperation.operationId) {
-        operations.push(
-          generateOperationTypes(typedOperation.operationId, typedOperation)
-        );
-        operations.push(
-          generateOperationObject(
-            typedOperation.operationId,
-            method,
-            path,
-            typedOperation,
-            spec
-          )
-        );
+        operations.push(generateOperationTypes(typedOperation.operationId, typedOperation));
+        operations.push(generateOperationObject(typedOperation.operationId, method, path, typedOperation, spec));
       }
     }
   }
@@ -409,9 +358,7 @@ import type { components } from './types';
 
   // Generate exports for each schema
   for (const schemaName of Object.keys(spec.components.schemas)) {
-    exports.push(
-      `export type ${schemaName} = components['schemas']['${schemaName}'];`
-    );
+    exports.push(`export type ${schemaName} = components['schemas']['${schemaName}'];`);
   }
 
   return exports;
@@ -422,10 +369,7 @@ import type { components } from './types';
  */
 function main(): void {
   const typesDir = path.resolve(__dirname, "../../packages/types/src");
-  const combinedSpecPath = path.resolve(
-    __dirname,
-    "../openapi/dist/combined.yaml"
-  );
+  const combinedSpecPath = path.resolve(__dirname, "../openapi/dist/combined.yaml");
 
   // Check if the combined spec exists
   if (!fs.existsSync(combinedSpecPath)) {
@@ -459,8 +403,7 @@ function main(): void {
     let updatedContent = indexContent;
 
     if (!indexContent.includes("export * from './schema'")) {
-      updatedContent +=
-        "\n\n// Re-export schema types\nexport * from './schema';\n";
+      updatedContent += "\n\n// Re-export schema types\nexport * from './schema';\n";
     }
 
     if (updatedContent !== indexContent) {

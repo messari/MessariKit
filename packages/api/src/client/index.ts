@@ -1,4 +1,3 @@
-
 // Type exports
 export { MessariClientOptions } from "./types";
 export type { ClientEventType } from "./types";
