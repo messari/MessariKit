@@ -1,5 +1,5 @@
 import { MessariClient, LogLevel } from "@messari-kit/api";
-import { printTable } from "console-table-printer";
+import { Table } from "console-table-printer";
 import dotenv from "dotenv";
 
 // Load environment variables from .env file
@@ -21,6 +21,23 @@ const client = new MessariClient({
   logLevel: LogLevel.INFO,
 });
 
+const newAssetTable = () => {
+  const t = new Table({
+    disabledColumns: ["Slug"], // Hide the slug column because some are super long
+    columns: [
+      { name: "Rank", alignment: "right" },
+      { name: "Name", alignment: "left" },
+      { name: "Symbol", alignment: "left" },
+      { name: "Slug", alignment: "left" },
+      { name: "Category", alignment: "left" },
+      { name: "Sector", alignment: "left" },
+      { name: "Tags", alignment: "left", maxLen: 40 },
+      { name: "Asset ID", alignment: "left" },
+    ],
+  });
+  return t;
+};
+
 /**
  * Example 1: Basic usage - Get all assets with default pagination
  */
@@ -28,9 +45,10 @@ async function getAllAssetsBasic() {
   try {
     const response = await client.asset.getAssetList();
 
-    console.log(`Retrieved ${response.data.length} assets out of ${response.metadata?.total} total assets`);
-    printTable(
-      response.data.slice(0, 3).map((asset) => ({
+    console.log(`Retrieved ${response.data.length} assets out of ${response.metadata?.total} total assets. Top 10 Assets:`);
+    const t = newAssetTable();
+    for (const asset of response.data.slice(0, 10)) {
+      t.addRow({
         "Rank": asset.rank,
         "Name": asset.name,
         "Symbol": asset.symbol,
@@ -38,8 +56,10 @@ async function getAllAssetsBasic() {
         "Category": asset.category,
         "Sector": asset.sector,
         "Tags": asset.tags.join(", "),
-      })),
-    );
+        "Asset ID": asset.id,
+      });
+    }
+    t.printTable();
 
     return response;
   } catch (error) {
@@ -58,8 +78,9 @@ async function getAssetsBySymbol(symbols: string[]) {
     });
 
     console.log(`Retrieved ${response.data.length} assets matching symbols: ${symbols.join(", ")}`);
-    printTable(
-      response.data.map((asset) => ({
+    const t = newAssetTable();
+    for (const asset of response.data) {
+      t.addRow({
         "Rank": asset.rank,
         "Name": asset.name,
         "Symbol": asset.symbol,
@@ -67,8 +88,10 @@ async function getAssetsBySymbol(symbols: string[]) {
         "Category": asset.category,
         "Sector": asset.sector,
         "Tags": asset.tags.join(", "),
-      })),
-    );
+        "Asset ID": asset.id,
+      });
+    }
+    t.printTable();
 
     return response;
   } catch (error) {
@@ -89,8 +112,9 @@ async function getAssetsByCategory(category: string, page = 1, limit = 20) {
     });
 
     console.log(`Retrieved ${response.data.length} assets with category=${category}`);
-    printTable(
-      response.data.map((asset) => ({
+    const t = newAssetTable();
+    for (const asset of response.data) {
+      t.addRow({
         "Rank": asset.rank,
         "Name": asset.name,
         "Symbol": asset.symbol,
@@ -98,8 +122,10 @@ async function getAssetsByCategory(category: string, page = 1, limit = 20) {
         "Category": asset.category,
         "Sector": asset.sector,
         "Tags": asset.tags.join(", "),
-      })),
-    );
+        "Asset ID": asset.id,
+      });
+    }
+    t.printTable();
 
     return response;
   } catch (error) {
@@ -125,8 +151,9 @@ async function getAssetsWithMultipleFilters(sector: string, tags: string[]) {
     }
 
     console.log(`Retrieved ${response.data.length} assets with sector=${sector} and tags=[${tags.join(", ")}]`);
-    printTable(
-      response.data.map((asset) => ({
+    const t = newAssetTable();
+    for (const asset of response.data) {
+      t.addRow({
         "Rank": asset.rank,
         "Name": asset.name,
         "Symbol": asset.symbol,
@@ -134,8 +161,10 @@ async function getAssetsWithMultipleFilters(sector: string, tags: string[]) {
         "Category": asset.category,
         "Sector": asset.sector,
         "Tags": asset.tags.join(", "),
-      })),
-    );
+        "Asset ID": asset.id,
+      });
+    }
+    t.printTable();
 
     return response;
   } catch (error) {
