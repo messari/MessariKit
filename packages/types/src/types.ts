@@ -5,9 +5,30 @@
 
 
 export type paths = {
+  "/ai-digest/api/v1/exchange-rankings-recap": {
+    /**
+     * Get Exchange Rankings Recap
+     * @description Gets daily recap for the exchange rankings page
+     */
+    get: operations["getExchangeRankingsRecap"];
+  };
+  "/ai-digest/api/v1/exchange-recap": {
+    /**
+     * Get Exchange Recap
+     * @description Gets news and performance recap for a given exchange
+     */
+    get: operations["getExchangeRecap"];
+  };
+  "/ai-digest/api/v1/recap": {
+    /**
+     * Get Recap
+     * @description Gets a recap of the latest news and intel for a given set of assets
+     */
+    get: operations["getProjectRecap"];
+  };
   "/ai/v1/chat/completions": {
     /**
-     * Create a chat completion
+     * Chat Completion
      * @description Creates a completion for the chat message. Supports both streaming and non-streaming responses.
      * The last message must be from the user role.
      */
@@ -15,7 +36,7 @@ export type paths = {
   };
   "/ai/v1/classification/extraction": {
     /**
-     * Extract entities from text
+     * Entity Extraction
      * @description Extracts entities from the provided text content using AI models and database lookups.
      * Supports various entity types and can return similar entities based on the extracted names.
      */
@@ -46,35 +67,35 @@ export type paths = {
   };
   [path: `/marketdata/v1/assets/${string}/ath`]: {
     /**
-     * Returns a single asset's ATH data
+     * Asset ATH
      * @description Returns a single asset's ATH data
      */
     get: operations["getAssetATH"];
   };
   [path: `/marketdata/v1/assets/${string}/price`]: {
     /**
-     * Returns a single asset's market data
+     * Asset Market Data
      * @description Returns a single asset's market data
      */
-    get: operations["getAssetPrice"];
+    get: operations["getAssetMarketdata"];
   };
   [path: `/marketdata/v1/assets/${string}/roi`]: {
     /**
-     * Returns a single asset's ROI data
+     * ROI by Asset
      * @description Returns a single asset's ROI data
      */
     get: operations["getAssetROI"];
   };
   "/marketdata/v1/assets/ath": {
     /**
-     * Returns a list of all time high data for all assets
+     * ATHs
      * @description Returns a list of all time high data for all assets
      */
     get: operations["getAssetsATH"];
   };
   "/marketdata/v1/assets/roi": {
     /**
-     * Returns a list ROI data for all assets
+     * ROIs
      * @description Returns a list ROI data for all assets
      */
     get: operations["getAssetsROI"];
@@ -354,6 +375,158 @@ export type components = {
       /** @description Details about the update */
       updateDetails?: string | null;
     };
+    /** @description News recap for exchanges */
+    ExchangeNewsRecap: {
+      id?: string;
+      news?: {
+          id?: string;
+          publishDate?: string;
+          sourceId?: string;
+          sourceName?: string;
+          title?: string;
+          url?: string;
+        }[];
+      summaries?: {
+          _category?: number;
+          references?: {
+              id?: string;
+              publishDate?: string;
+              sourceId?: string;
+              sourceName?: string;
+              title?: string;
+              url?: string;
+            }[];
+          summary?: string;
+        }[];
+    };
+    /** @description Performance recap for exchanges */
+    ExchangePerformanceRecap: {
+      data?: {
+        exchangeId?: string;
+        exchangeName?: string;
+        exchangeType?: string;
+        last30DaysVolume?: number;
+        percentChangeVolume?: number;
+        previous30DaysVolume?: number;
+        region?: string;
+        total30DVolumePercentChangeForAllExchanges?: number;
+        total30DVolumePercentChangeForExchangeType?: number;
+      };
+      id?: string;
+      summary?: string;
+    };
+    /** @description News recap for exchange rankings */
+    ExchangeRankingsNewsRecap: {
+      id?: string;
+      news?: {
+          id?: string;
+          publishDate?: string;
+          sourceId?: string;
+          sourceName?: string;
+          title?: string;
+          url?: string;
+        }[];
+      summaries?: {
+          _category?: number;
+          references?: {
+              id?: string;
+              publishDate?: string;
+              sourceId?: string;
+              sourceName?: string;
+              title?: string;
+              url?: string;
+            }[];
+          summary?: string;
+        }[];
+      summary?: string;
+    };
+    /** @description Performance recap for exchange rankings */
+    ExchangeRankingsPerformanceRecap: {
+      data?: {
+        /** @description List of top exchanges */
+        topExchanges?: {
+            id?: string;
+            name?: string;
+            project_id?: string;
+            slug?: string;
+            type?: string;
+          }[];
+        /** @description List of top listed tokens */
+        topListedTokens?: {
+            assetId?: string;
+            listedCount?: number;
+            name?: string;
+            symbol?: string;
+          }[];
+        /** @description Volume of top listed tokens */
+        topListedTokenVolume?: number;
+        /** @description Total spot trading volumes */
+        totalSpotVolumes?: number;
+      };
+      id?: string;
+      summary?: string;
+    };
+    ExchangeRankingsRecap: {
+      /**
+       * Format: uuid
+       * @description Unique identifier for the recap
+       */
+      id?: string;
+      /** @description News recap information */
+      newsRecap?: components["schemas"]["ExchangeRankingsNewsRecap"];
+      /** @description Performance recap information */
+      performanceRecap?: components["schemas"]["ExchangeRankingsPerformanceRecap"];
+      /** @description Brief recap points */
+      recapBrief?: components["schemas"]["ExchangeRecapPoint"][];
+      /**
+       * Format: date-time
+       * @description Date of the recap
+       */
+      recapDate?: string;
+      /** @description Time period of the recap */
+      recapPeriod?: string;
+      /**
+       * Format: date-time
+       * @description Last update timestamp
+       */
+      updatedAt?: string;
+    };
+    ExchangeRecap: {
+      /** @description News recap information */
+      newsRecap?: components["schemas"]["ExchangeNewsRecap"];
+      /** @description Performance recap information */
+      performanceRecap?: components["schemas"]["ExchangePerformanceRecap"];
+      /** @description Brief recap points */
+      recapBrief?: components["schemas"]["ExchangeRecapPoint"][];
+      /**
+       * Format: date-time
+       * @description Date of the recap
+       */
+      recapDate?: string;
+      /** @description Time period of the recap */
+      recapPeriod?: components["schemas"]["RecapSlug"];
+      /**
+       * Format: date-time
+       * @description Last update timestamp
+       */
+      updatedAt?: string;
+    };
+    /** @description A single recap point for exchanges */
+    ExchangeRecapPoint: {
+      date?: string;
+      endDate?: string;
+      references?: {
+          id?: string;
+          publishDate?: string;
+          sourceId?: string;
+          sourceName?: string;
+          title?: string;
+          url?: string;
+        }[];
+      startDate?: string;
+      summary?: string;
+      type?: string;
+    };
     ExtractRequest: {
       /**
        * @description Whether to return all similar entities or just the best matches
@@ -419,6 +592,8 @@ export type components = {
       /** @description History of the event */
       eventHistory: components["schemas"]["EventHistory"][];
     };
+    /** @description List of project recaps */
+    GetProjectRecapResponse: components["schemas"]["ProjectRecapResponse"][];
     GroupedEntity: {
       /** @description The name extracted from the content */
       extractedName?: string;
@@ -426,6 +601,25 @@ export type components = {
       selectedEntity?: components["schemas"]["Entity"];
       /** @description List of similar entities found */
       similarEntities?: components["schemas"]["Entity"][];
+    };
+    /** @description Intel information response */
+    IntelResponse: {
+      metadata?: {
+          eventId?: string;
+          eventName?: string;
+        }[];
+      summary?: string;
+    };
+    /** @description Network metrics data */
+    NetworkMetrics: {
+      active_addresses?: number;
+      active_addresses_percent_change?: number;
+      dex_volume?: number;
+      dex_volume_percent_change?: number;
+      fee_revenue?: number;
+      fee_revenue_percent_change?: number;
+      tvl_percent_change?: number;
+      tvl_usd?: number;
     };
     NewsAsset: {
       /**
@@ -437,6 +631,18 @@ export type components = {
       name: string;
       /** @description Symbol of the asset */
       symbol?: string;
+    };
+    /** @description News information response */
+    NewsResponse: {
+      metadata?: {
+          documentId?: string;
+          documentName?: string;
+          documentUrl?: string;
+          sourceId?: string;
+          sourceName?: string;
+          sourceType?: string;
+        }[];
+      summary?: string;
     };
     OHLCV: {
       /** Format: double */
@@ -477,6 +683,67 @@ export type components = {
     PlatformContract: {
       contractAddress?: string;
       platform?: string;
+    };
+    ProjectRecapResponse: {
+      /** @description Unique identifier for the asset */
+      asset_id?: string;
+      /** @description Intel information */
+      intel?: components["schemas"]["IntelResponse"];
+      /** @description Count of intel items */
+      intelCount?: number;
+      /** @description Network metrics data */
+      networkMetricsData?: components["schemas"]["NetworkMetrics"];
+      /** @description News information */
+      news?: components["schemas"]["NewsResponse"];
+      /** @description Count of news items */
+      newsCount?: number;
+      /** @description Count of proposition items */
+      propositionCount?: number;
+      /** @description Propositions information */
+      propositions?: components["schemas"]["PropositionResponse"];
+      /**
+       * Format: date
+       * @description Date of the recap
+       */
+      recapDate?: string;
+      /** @description Research information */
+      research?: components["schemas"]["ResearchResponse"];
+      /** @description Count of research items */
+      researchCount?: number;
+      /** @description Summary information */
+      summary?: components["schemas"]["SummaryResponse"];
+      /** @description Time period of the recap */
+      timePeriod?: components["schemas"]["RecapSlug"];
+      /** @description Token unlock information */
+      unlocks?: components["schemas"]["TokenUnlockData"];
+      /**
+       * Format: date-time
+       * @description Last update timestamp
+       */
+      updatedAt?: string;
+      /** @description Video and podcast ranking information */
+      videoPodcastRanking?: components["schemas"]["VideoPodcastResponse"];
+    };
+    /** @description Proposition information response */
+    PropositionResponse: {
+      metadata?: {
+          propositionId?: string;
+          title?: string;
+        }[];
+      summary?: string;
+    };
+    /**
+     * @description Time period for the recap
+     * @enum {string}
+     */
+    RecapSlug: "daily" | "weekly" | "monthly";
+    /** @description Research information response */
+    ResearchResponse: {
+      metadata?: {
+          slug?: string;
+          title?: string;
+        }[];
+      summary?: string;
     };
     Resource: {
       /** @description Title of the resource */
@@ -537,11 +804,45 @@ export type components = {
      * @enum {string}
      */
     SourceType: "News" | "Forum" | "Blog";
+    /** @description Summary information */
+    SummaryResponse: {
+      summary?: string;
+    };
     /**
      * Format: date-time
      * @description UTC timestamp
      */
     TimeUTC: string;
+    /** @description Token unlock information */
+    TokenUnlockData: {
+      nextCliffUnlockData?: {
+        nextAmountPercentOfCirculatingSupply?: number;
+        nextUnlockAmount?: number;
+        nextUnlockAmountUSD?: number;
+        timestamp?: string;
+      };
+      tokenUnlockDetails?: {
+        circulatingSupplyIncreaseFuturePct?: number;
+        circulatingSupplyIncreasePastPct?: number;
+        futureAmountUnlocked?: number;
+        futureAmountUnlockedUSD?: number;
+        pastAmountUnlocked?: number;
+        pastAmountUnlockedUSD?: number;
+        pctUnlocksCompleted?: number;
+        totalUnlocked?: number;
+      };
+    };
+    /** @description Video and podcast ranking information */
+    VideoPodcastResponse: {
+      summary?: {
+          id?: string;
+          sourceID?: string;
+          sourceName?: string;
+          summary?: string;
+          title?: string;
+          url?: string;
+        }[];
+    };
   };
   responses: never;
   parameters: {
@@ -564,7 +865,130 @@ export type external = Record<string, never>;
 export type operations = {
 
   /**
-   * Create a chat completion
+   * Get Exchange Rankings Recap
+   * @description Gets daily recap for the exchange rankings page
+   */
+  getExchangeRankingsRecap: {
+    parameters: {
+      query?: {
+        /** @description Optional time period for the recap */
+        period?: components["schemas"]["RecapSlug"];
+      };
+      header: {
+        "x-messari-api-key": components["parameters"]["apiKey"];
+      };
+    };
+    responses: {
+      /** @description Successful response */
+      200: {
+        content: {
+          "application/json": components["schemas"]["APIResponseWithMetadata"] & {
+            data?: components["schemas"]["ExchangeRankingsRecap"];
+          };
+        };
+      };
+      /** @description Bad request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+    };
+  };
+  /**
+   * Get Exchange Recap
+   * @description Gets news and performance recap for a given exchange
+   */
+  getExchangeRecap: {
+    parameters: {
+      query: {
+        /** @description Exchange identifier */
+        exchange_id: string;
+      };
+      header: {
+        "x-messari-api-key": components["parameters"]["apiKey"];
+      };
+    };
+    responses: {
+      /** @description Successful response */
+      200: {
+        content: {
+          "application/json": components["schemas"]["APIResponseWithMetadata"] & {
+            data?: components["schemas"]["ExchangeRecap"];
+          };
+        };
+      };
+      /** @description Bad request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Exchange not found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+    };
+  };
+  /**
+   * Get Recap
+   * @description Gets a recap of the latest news and intel for a given set of assets
+   */
+  getProjectRecap: {
+    parameters: {
+      query: {
+        /** @description Project identifier */
+        project_id: string;
+      };
+      header: {
+        "x-messari-api-key": components["parameters"]["apiKey"];
+      };
+    };
+    responses: {
+      /** @description Successful response */
+      200: {
+        content: {
+          "application/json": components["schemas"]["APIResponseWithMetadata"] & {
+            data?: components["schemas"]["GetProjectRecapResponse"];
+          };
+        };
+      };
+      /** @description Bad request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Project not found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+    };
+  };
+  /**
+   * Chat Completion
    * @description Creates a completion for the chat message. Supports both streaming and non-streaming responses.
    * The last message must be from the user role.
    */
@@ -605,7 +1029,7 @@ export type operations = {
     };
   };
   /**
-   * Extract entities from text
+   * Entity Extraction
    * @description Extracts entities from the provided text content using AI models and database lookups.
    * Supports various entity types and can return similar entities based on the extracted names.
    */
@@ -765,7 +1189,7 @@ export type operations = {
     };
   };
   /**
-   * Returns a single asset's ATH data
+   * Asset ATH
    * @description Returns a single asset's ATH data
    */
   getAssetATH: {
@@ -797,10 +1221,10 @@ export type operations = {
     };
   };
   /**
-   * Returns a single asset's market data
+   * Asset Market Data
    * @description Returns a single asset's market data
    */
-  getAssetPrice: {
+  getAssetMarketdata: {
     parameters: {
       path: {
         /** @description Asset ID */
@@ -829,7 +1253,7 @@ export type operations = {
     };
   };
   /**
-   * Returns a single asset's ROI data
+   * ROI by Asset
    * @description Returns a single asset's ROI data
    */
   getAssetROI: {
@@ -861,7 +1285,7 @@ export type operations = {
     };
   };
   /**
-   * Returns a list of all time high data for all assets
+   * ATHs
    * @description Returns a list of all time high data for all assets
    */
   getAssetsATH: {
@@ -887,7 +1311,7 @@ export type operations = {
     };
   };
   /**
-   * Returns a list ROI data for all assets
+   * ROIs
    * @description Returns a list ROI data for all assets
    */
   getAssetsROI: {

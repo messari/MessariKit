@@ -83,3 +83,13 @@ paths:
     $ref: './services/marketdata/openapi.yaml#/paths/~1marketdata~1v1~1assets~1{assetId}~1roi'
   /marketdata/v1/assets/{assetId}/ath:
     $ref: './services/marketdata/openapi.yaml#/paths/~1marketdata~1v1~1assets~1{assetId}~1ath'
+
+  # Recaps Service Paths
+  /ai-digest/api/v1/recap:
+    $ref: './services/recaps/openapi.yaml#/paths/~1ai-digest~1api~1v1~1recap'
+  /ai-digest/api/v1/exchange-recap:
+    $ref: './services/recaps/openapi.yaml#/paths/~1ai-digest~1api~1v1~1exchange-recap'
+  /ai-digest/api/v1/exchange-rankings-recap:
+    $ref: './services/recaps/openapi.yaml#/paths/~1ai-digest~1api~1v1~1exchange-rankings-recap'
+
+
