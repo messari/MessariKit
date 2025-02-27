@@ -1,29 +1,30 @@
 {
-  "name": "messari-kit",
-  "version": "0.0.1",
-  "private": true,
-  "scripts": {
-    "build": "pnpm -r build",
-    "test": "pnpm -r test",
-    "clean": "pnpm -r clean",
-    "dev": "pnpm -r dev",
-    "dev:examples": "pnpm --filter @messari-kit/examples dev",
-    "dev:api": "pnpm --filter @messari-kit/api dev",
-    "dev:types": "pnpm --filter @messari-kit/types dev",
-    "start:examples": "pnpm --filter @messari-kit/examples start",
-    "api:validate": "redocly lint typegen/openapi/**/*.yaml",
-    "api:bundle": "redocly bundle typegen/openapi/index.yaml --output typegen/openapi/dist/combined.yaml",
-    "api:docs": "redocly preview-docs typegen/openapi/index.yaml",
-    "api:types": "./typegen/scripts/generate-types.sh && tsx typegen/scripts/generate-operation-types.ts",
-    "api:build": "pnpm run api:validate && pnpm run api:bundle && pnpm run api:types"
-  },
-  "devDependencies": {
-    "@redocly/cli": "^1.8.1",
-    "@types/js-yaml": "^4.0.9",
-    "@types/node": "^20.11.24",
-    "js-yaml": "^4.1.0",
-    "openapi-typescript": "^6.7.4",
-    "tsx": "^4.7.1",
-    "typescript": "^5.3.3"
-  }
-} 
+	"name": "messari-kit",
+	"version": "0.0.1",
+	"private": true,
+	"scripts": {
+		"build": "pnpm -r build",
+		"test": "pnpm -r test",
+		"clean": "pnpm -r clean",
+		"dev": "pnpm -r dev",
+		"dev:examples": "pnpm --filter @messari-kit/examples dev",
+		"dev:api": "pnpm --filter @messari-kit/api dev",
+		"dev:types": "pnpm --filter @messari-kit/types dev",
+		"start:examples": "pnpm --filter @messari-kit/examples start",
+		"api:validate": "redocly lint typegen/openapi/**/*.yaml",
+		"api:bundle": "redocly bundle typegen/openapi/index.yaml --output typegen/openapi/dist/combined.yaml",
+		"api:docs": "redocly preview-docs typegen/openapi/index.yaml",
+		"api:types": "./typegen/scripts/generate-types.sh && tsx typegen/scripts/generate-operation-types.ts",
+		"api:build": "pnpm run api:validate && pnpm run api:bundle && pnpm run api:types"
+	},
+	"devDependencies": {
+		"@redocly/cli": "^1.31.2",
+		"@types/js-yaml": "^4.0.9",
+		"@types/node": "^20.11.24",
+		"js-yaml": "^4.1.0",
+		"openapi-types": "^12.1.3",
+		"openapi-typescript": "^6.7.4",
+		"tsx": "^4.7.1",
+		"typescript": "^5.3.3"
+	}
+}

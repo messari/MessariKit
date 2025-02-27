@@ -44,6 +44,41 @@ export type paths = {
      */
     get: operations["getEventAndHistory"];
   };
+  [path: `/marketdata/v1/assets/${string}/ath`]: {
+    /**
+     * Returns a single asset's ATH data
+     * @description Returns a single asset's ATH data
+     */
+    get: operations["getAssetATH"];
+  };
+  [path: `/marketdata/v1/assets/${string}/price`]: {
+    /**
+     * Returns a single asset's market data
+     * @description Returns a single asset's market data
+     */
+    get: operations["getAssetPrice"];
+  };
+  [path: `/marketdata/v1/assets/${string}/roi`]: {
+    /**
+     * Returns a single asset's ROI data
+     * @description Returns a single asset's ROI data
+     */
+    get: operations["getAssetROI"];
+  };
+  "/marketdata/v1/assets/ath": {
+    /**
+     * Returns a list of all time high data for all assets
+     * @description Returns a list of all time high data for all assets
+     */
+    get: operations["getAssetsATH"];
+  };
+  "/marketdata/v1/assets/roi": {
+    /**
+     * Returns a list ROI data for all assets
+     * @description Returns a list ROI data for all assets
+     */
+    get: operations["getAssetsROI"];
+  };
   "/news/v1/news/assets": {
     /**
      * Get assets mentioned in news
@@ -106,6 +141,89 @@ export type components = {
     };
     /** @description List of assets */
     AssetList: components["schemas"]["NewsAsset"][];
+    AssetMarketcap: {
+      /** Format: double */
+      circulatingUsd?: number;
+      /** Format: double */
+      dominance?: number;
+      /** Format: double */
+      fullyDilutedUsd?: number;
+    };
+    AssetMarketData: {
+      lastPriceAt?: components["schemas"]["TimeUTC"];
+      lastTradeAt?: components["schemas"]["TimeUTC"];
+      marketcap?: components["schemas"]["AssetMarketcap"];
+      ohlcv1Hour?: components["schemas"]["OHLCV"];
+      ohlcv24Hours?: components["schemas"]["OHLCV"];
+      /** Format: double */
+      percentChangeBtc1Hour?: number;
+      /** Format: double */
+      percentChangeBtc24Hours?: number;
+      /** Format: double */
+      percentChangeEth1Hour?: number;
+      /** Format: double */
+      percentChangeEth24Hours?: number;
+      /** Format: double */
+      percentChangeUsd1Hour?: number;
+      /** Format: double */
+      percentChangeUsd24Hours?: number;
+      /** Format: double */
+      priceBtc?: number;
+      /** Format: double */
+      priceEth?: number;
+      /** Format: double */
+      priceUsd?: number;
+      /** Format: double */
+      realVolume24Hours?: number;
+      supply?: components["schemas"]["AssetSupply"];
+      /** Format: double */
+      volume24Hours?: number;
+      /** Format: double */
+      volume24HoursOverstatementMultiple?: number;
+    };
+    AssetSupply: {
+      /** Format: double */
+      circulating?: number;
+      /** Format: double */
+      max?: number;
+      /** Format: double */
+      total?: number;
+    };
+    AssetWithATHData: {
+      allTimeHighData?: {
+        at?: components["schemas"]["TimeUTC"];
+        /** Format: double */
+        breakevenMultiple?: number;
+        /** Format: double */
+        daysSince?: number;
+        /** Format: double */
+        percentDown?: number;
+        /** Format: double */
+        price?: number;
+      };
+      contractAddresses?: components["schemas"]["PlatformContract"][];
+      cycleLowData?: {
+        at?: components["schemas"]["TimeUTC"];
+        /** Format: double */
+        daysSince?: number;
+        /** Format: double */
+        percentUp?: number;
+        /** Format: double */
+        price?: number;
+      };
+      id?: string;
+      name?: string;
+      slug?: string;
+      symbol?: string;
+    };
+    AssetWithROIData: {
+      contractAddresses?: components["schemas"]["PlatformContract"][];
+      id?: string;
+      name?: string;
+      roiData?: components["schemas"]["ROIData"];
+      slug?: string;
+      symbol?: string;
+    };
     ChatCompletionMessage: {
       /** @description The message content */
       content: string;
@@ -320,6 +438,19 @@ export type components = {
       /** @description Symbol of the asset */
       symbol?: string;
     };
+    OHLCV: {
+      /** Format: double */
+      close?: number;
+      /** Format: double */
+      high?: number;
+      /** Format: double */
+      low?: number;
+      /** Format: double */
+      open?: number;
+      timestamp?: components["schemas"]["TimeUTC"];
+      /** Format: double */
+      volume?: number;
+    };
     /** @description Pagination metadata for list endpoints */
     PaginationResult: {
       /**
@@ -343,6 +474,10 @@ export type components = {
        */
       total?: number;
     };
+    PlatformContract: {
+      contractAddress?: string;
+      platform?: string;
+    };
     Resource: {
       /** @description Title of the resource */
       title?: string;
@@ -351,6 +486,38 @@ export type components = {
        * @description URL of the resource
        */
       url?: string;
+    };
+    ROIData: {
+      /** Format: double */
+      percentChange1Month?: number;
+      /** Format: double */
+      percentChange1Week?: number;
+      /** Format: double */
+      percentChange1Year?: number;
+      /** Format: double */
+      percentChange3Months?: number;
+      /** Format: double */
+      percentChangeBtc1Month?: number;
+      /** Format: double */
+      percentChangeBtc1Week?: number;
+      /** Format: double */
+      percentChangeBtc1Year?: number;
+      /** Format: double */
+      percentChangeBtc3Months?: number;
+      /** Format: double */
+      percentChangeEth1Month?: number;
+      /** Format: double */
+      percentChangeEth1Week?: number;
+      /** Format: double */
+      percentChangeEth1Year?: number;
+      /** Format: double */
+      percentChangeEth3Months?: number;
+      /** Format: double */
+      percentChangeMonthToDate?: number;
+      /** Format: double */
+      percentChangeQuarterToDate?: number;
+      /** Format: double */
+      percentChangeYearToDate?: number;
     };
     Source: {
       /**
@@ -370,6 +537,11 @@ export type components = {
      * @enum {string}
      */
     SourceType: "News" | "Forum" | "Blog";
+    /**
+     * Format: date-time
+     * @description UTC timestamp
+     */
+    TimeUTC: string;
   };
   responses: never;
   parameters: {
@@ -424,6 +596,12 @@ export type operations = {
           "text/event-stream": string;
         };
       };
+      /** @description Server error response */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
     };
   };
   /**
@@ -456,6 +634,12 @@ export type operations = {
             data?: components["schemas"]["ExtractResponse"];
             metadata?: components["schemas"]["ExtractResponseMetadata"];
           };
+        };
+      };
+      /** @description Server error response */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
         };
       };
     };
@@ -495,6 +679,12 @@ export type operations = {
           };
         };
       };
+      /** @description Server error response */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
     };
   };
   /**
@@ -529,6 +719,12 @@ export type operations = {
           };
         };
       };
+      /** @description Server error response */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
     };
   };
   /**
@@ -558,6 +754,160 @@ export type operations = {
           "application/json": components["schemas"]["APIResponseWithMetadata"] & {
             data?: components["schemas"]["GetEventResponse"];
           };
+        };
+      };
+      /** @description Server error response */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+    };
+  };
+  /**
+   * Returns a single asset's ATH data
+   * @description Returns a single asset's ATH data
+   */
+  getAssetATH: {
+    parameters: {
+      path: {
+        /** @description Asset ID */
+        assetId: string;
+      };
+    };
+    responses: {
+      /** @description Client error response */
+      "4XX": {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Successful operation */
+      200: {
+        content: {
+          "application/json": components["schemas"]["AssetWithATHData"];
+        };
+      };
+      /** @description Server error response */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+    };
+  };
+  /**
+   * Returns a single asset's market data
+   * @description Returns a single asset's market data
+   */
+  getAssetPrice: {
+    parameters: {
+      path: {
+        /** @description Asset ID */
+        assetId: string;
+      };
+    };
+    responses: {
+      /** @description Client error response */
+      "4XX": {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Successful operation */
+      200: {
+        content: {
+          "application/json": components["schemas"]["AssetMarketData"];
+        };
+      };
+      /** @description Server error response */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+    };
+  };
+  /**
+   * Returns a single asset's ROI data
+   * @description Returns a single asset's ROI data
+   */
+  getAssetROI: {
+    parameters: {
+      path: {
+        /** @description Asset ID */
+        assetId: string;
+      };
+    };
+    responses: {
+      /** @description Client error response */
+      "4XX": {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Successful operation */
+      200: {
+        content: {
+          "application/json": components["schemas"]["AssetWithROIData"];
+        };
+      };
+      /** @description Server error response */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+    };
+  };
+  /**
+   * Returns a list of all time high data for all assets
+   * @description Returns a list of all time high data for all assets
+   */
+  getAssetsATH: {
+    responses: {
+      /** @description Client error response */
+      "4XX": {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Successful operation */
+      200: {
+        content: {
+          "application/json": components["schemas"]["AssetWithATHData"][];
+        };
+      };
+      /** @description Server error response */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+    };
+  };
+  /**
+   * Returns a list ROI data for all assets
+   * @description Returns a list ROI data for all assets
+   */
+  getAssetsROI: {
+    responses: {
+      /** @description Client error response */
+      "4XX": {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Successful operation */
+      200: {
+        content: {
+          "application/json": components["schemas"]["AssetWithROIData"][];
+        };
+      };
+      /** @description Server error response */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
         };
       };
     };

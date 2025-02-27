@@ -1,9 +1,8 @@
 import { MessariClient } from "@messari-kit/api";
-import {
+import type {
   getAllEventsParameters,
   getEventAndHistoryParameters,
   getAllAssetsParameters,
-  Event,
   Asset,
   EventHistory,
 } from "@messari-kit/types";
@@ -52,10 +51,9 @@ async function getAllEvents() {
 
     // Get the second page if available
     if (
-      paginatedEvents.metadata &&
-      paginatedEvents.metadata.page &&
-      paginatedEvents.metadata.totalPages &&
-      paginatedEvents.metadata.page < paginatedEvents.metadata.totalPages
+      paginatedEvents.metadata?.page &&
+      paginatedEvents.metadata?.totalPages &&
+      paginatedEvents.metadata?.page < paginatedEvents.metadata?.totalPages
     ) {
       console.log("\nFetching page 2...");
       const page2Params = { ...params, page: 2 };
@@ -135,6 +133,7 @@ async function getAllAssets() {
 }
 
 // Helper function to display events
+// biome-ignore lint/suspicious/noExplicitAny: It's chill
 function displayEvents(events: any[]) {
   events.forEach((event, index: number) => {
     console.log(`${index + 1}. ${event.eventName}`);
@@ -152,7 +151,7 @@ async function runExamples() {
   const eventsResponse = await getAllEventsAndReturnResponse();
 
   // Check if we have events to get details for
-  if (eventsResponse && eventsResponse.data && eventsResponse.data.length > 0) {
+  if (eventsResponse?.data && eventsResponse.data.length > 0) {
     console.log("\n2. Getting details for a specific event...");
     // Use the ID from the first event in the response
     const eventId = eventsResponse.data[0].id;
@@ -192,10 +191,9 @@ async function getAllEventsAndReturnResponse() {
 
     // Get the second page if available
     if (
-      paginatedEvents.metadata &&
-      paginatedEvents.metadata.page &&
-      paginatedEvents.metadata.totalPages &&
-      paginatedEvents.metadata.page < paginatedEvents.metadata.totalPages
+      paginatedEvents.metadata?.page &&
+      paginatedEvents.metadata?.totalPages &&
+      paginatedEvents.metadata?.page < paginatedEvents.metadata?.totalPages
     ) {
       console.log("\nFetching page 2...");
       const page2Params = { ...params, page: 2 };

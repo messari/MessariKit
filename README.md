@@ -47,6 +47,30 @@ const entities = await client.ai.extractEntities({
 
 ## API Services
 
+| Service Name | Endpoint Name | Endpoint Route | Implemented |
+|--------------|---------------|----------------|-------------|
+| AI | Chat Completion | `/ai/v1/chat/completions` | ✅ |
+| AI | Entity Extraction | `/ai/v1/classification/extraction` | ✅ |
+| |
+| Intel | TODO | `/intel/v1/events` | ✅ |
+| |
+| Marketdata | Marketdata by AssetID | `/marketdata/v1/assets/{assetId}/price` | ✅ |
+| Marketdata | ROI | `/marketdata/v1/assets/roi` | ✅ |
+| Marketdata | ROI by AssetID | `/marketdata/v1/assets/{assetId}/roi` | ✅ |
+| Marketdata | ATH | `/marketdata/v1/assets/ath` | ✅ |
+| Marketdata | ATH by Asset | `/marketdata/v1/assets/{assetId}/ath` | ✅ |
+| Marketdata | Timeseries by AssetID | `/marketdata/v1/assets/{assetId}/price/time-series` | ❌ |
+| Marketdata | Markets | `/marketdata/v1/markets` | ❌ |
+| Marketdata | Markets by MarketID | `/marketdata/v1/markets/{id}` | ❌ |
+| Marketdata | Timeseries by MarketID | `/marketdata/v1/markets/{marketId}/price/time-series` | ❌ |
+| Marketdata | Markets by MarketID | `/marketdata/v1/markets/{id}` | ❌ |
+| Marketdata | Exchanges | `/marketdata/v1/exchanges` | ❌ |
+| Marketdata | Volume Timeseries by ExchangeID | `/marketdata/v1/exchanges/{exchangeId}/volume/time-series` | ❌ |
+| |
+| News | TODO | `/news/v1/news/assets` | ✅ |
+
+
+
 ### AI Service
 
 The AI service provides access to Messari's AI-powered features:
