@@ -134,6 +134,27 @@ export type paths = {
      */
     get: operations["getNewsSources"];
   };
+  "/research/v1/report/tags": {
+    /**
+     * Get Research Report Tags
+     * @description Get a list of all tags associated with research reports.
+     */
+    get: operations["getResearchReportTags"];
+  };
+  "/research/v1/reports": {
+    /**
+     * Get Research Reports
+     * @description Get a paginated list of research reports.
+     */
+    get: operations["getResearchReports"];
+  };
+  [path: `/research/v1/reports/${string}`]: {
+    /**
+     * Get Research Report by ID
+     * @description Get a research report by its ID.
+     */
+    get: operations["getResearchReportById"];
+  };
 };
 
 export type webhooks = Record<string, never>;
@@ -146,6 +167,13 @@ export type components = {
        * @example Internal server error, please try again
        */
       error: string;
+    };
+    /** @description Standard response wrapper. */
+    APIResponse: {
+      /** @description Response payload */
+      data: Record<string, never>;
+      /** @description Error message if request failed */
+      error?: string;
     };
     /**
      * @description Standard response wrapper with additional metadata.
@@ -254,6 +282,16 @@ export type components = {
       roiData?: components["schemas"]["ROIData"];
       slug?: string;
       symbol?: string;
+    };
+    Author: {
+      /** @description Unique identifier for the author */
+      id: string;
+      /** @description Image URL of the author */
+      image: string;
+      /** @description LinkedIn URL of the author */
+      linkedinUrl: string;
+      /** @description Name of the author */
+      name: string;
     };
     BasicAsset: {
       /** @description Category of the asset */
@@ -773,6 +811,51 @@ export type components = {
      * @enum {string}
      */
     RecapSlug: "daily" | "weekly" | "monthly";
+    ResearchReport: {
+      /** @description Array of asset IDs associated with the research report */
+      assetIds: string[];
+      /** @description Array of authors associated with the research report */
+      authors: components["schemas"]["Author"][];
+      /** @description Content of the research report (either HTML or Markdown) */
+      content: string;
+      /**
+       * Format: date-time
+       * @description Date and time the research report was created
+       */
+      createdAt: string;
+      /** @description Hook of the research report */
+      hook: string;
+      /**
+       * Format: uuid
+       * @description Unique identifier for the research report
+       */
+      id: string;
+      /**
+       * Format: date-time
+       * @description Date and time the research report was published
+       */
+      publishDate: string;
+      /**
+       * Format: float
+       * @description Estimated reading time in minutes
+       */
+      readingTimeInMinutes: number;
+      /** @description Slug of the research report */
+      slug: string;
+      /** @description Subscription tier required to access the report */
+      subscriptionTier: string;
+      /** @description Summary of the research report */
+      summary: string;
+      /** @description Tags associated with the research report */
+      tags: components["schemas"]["Tag"][];
+      /** @description Title of the research report */
+      title: string;
+      /**
+       * Format: date-time
+       * @description Date and time the research report was updated
+       */
+      updatedAt: string;
+    };
     /** @description Research information response */
     ResearchResponse: {
       metadata?: {
@@ -843,6 +926,12 @@ export type components = {
     /** @description Summary information */
     SummaryResponse: {
       summary?: string;
+    };
+    Tag: {
+      /** @description Unique identifier for the tag */
+      id: string;
+      /** @description Name of the tag */
+      name: string;
     };
     /**
      * Format: date-time
@@ -1540,6 +1629,108 @@ export type operations = {
             data?: components["schemas"]["SourceList"];
             metadata?: components["schemas"]["PaginationResult"];
           };
+        };
+      };
+    };
+  };
+  /**
+   * Get Research Report Tags
+   * @description Get a list of all tags associated with research reports.
+   */
+  getResearchReportTags: {
+    responses: {
+      /** @description Successful response */
+      200: {
+        content: {
+          "application/json": components["schemas"]["APIResponse"] & {
+            data?: string[];
+          };
+        };
+      };
+      /** @description Client error response */
+      400: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Server error response */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+    };
+  };
+  /**
+   * Get Research Reports
+   * @description Get a paginated list of research reports.
+   */
+  getResearchReports: {
+    parameters: {
+      query: {
+        page?: components["parameters"]["page"];
+        limit?: components["parameters"]["limit"];
+        /** @description Filter by asset ID. */
+        assetId?: string;
+        /** @description Filter by asset tags (comma-separated) */
+        tags?: string;
+        /** @description Filter by content type. */
+        contentType: "html" | "markdown";
+      };
+    };
+    responses: {
+      /** @description Successful response */
+      200: {
+        content: {
+          "application/json": components["schemas"]["APIResponse"] & {
+            data?: components["schemas"]["ResearchReport"][];
+          };
+        };
+      };
+      /** @description Client error response */
+      400: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Server error response */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+    };
+  };
+  /**
+   * Get Research Report by ID
+   * @description Get a research report by its ID.
+   */
+  getResearchReportById: {
+    parameters: {
+      path: {
+        /** @description ID of the research report */
+        id: string;
+      };
+    };
+    responses: {
+      /** @description Successful response */
+      200: {
+        content: {
+          "application/json": components["schemas"]["APIResponse"] & {
+            data?: components["schemas"]["ResearchReport"];
+          };
+        };
+      };
+      /** @description Client error response */
+      400: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Server error response */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
         };
       };
     };

@@ -271,5 +271,50 @@ export const getExchangeRankingsRecap = {
   path: () => '/ai-digest/api/v1/exchange-rankings-recap'
 } as const;
 
+
+export type getResearchReportsResponse = components['schemas']['ResearchReport'][];
+export type getResearchReportsError = components['schemas']['APIError'];
+
+export type getResearchReportsParameters = { page?: number; limit?: number; assetId?: string; tags?: string; contentType: string };
+
+
+export const getResearchReports = {
+  method: 'GET' as const,
+  pathParams: [] as const,
+  queryParams: ['page', 'limit', 'assetId', 'tags', 'contentType'] as const,
+  bodyParams: [] as const,
+  path: () => '/research/v1/reports'
+} as const;
+
+
+export type getResearchReportByIdResponse = components['schemas']['ResearchReport'];
+export type getResearchReportByIdError = components['schemas']['APIError'];
+
+export type getResearchReportByIdParameters = { id: string };
+
+
+export const getResearchReportById = {
+  method: 'GET' as const,
+  pathParams: ['id'] as const,
+  queryParams: [] as const,
+  bodyParams: [] as const,
+  path: (p: PathParams) => `/research/v1/reports/${p.id}`
+} as const;
+
+
+export type getResearchReportTagsResponse = void;
+export type getResearchReportTagsError = components['schemas']['APIError'];
+
+export type getResearchReportTagsParameters = null;
+
+
+export const getResearchReportTags = {
+  method: 'GET' as const,
+  pathParams: [] as const,
+  queryParams: [] as const,
+  bodyParams: [] as const,
+  path: () => '/research/v1/report/tags'
+} as const;
+
 // Re-export schema types
 export * from './schema';
