@@ -95,3 +95,11 @@ paths:
     $ref: "./services/recaps/openapi.yaml#/paths/~1ai-digest~1api~1v1~1exchange-recap"
   /ai-digest/api/v1/exchange-rankings-recap:
     $ref: "./services/recaps/openapi.yaml#/paths/~1ai-digest~1api~1v1~1exchange-rankings-recap"
+
+  # Research Service Paths
+  /research/v1/reports:
+    $ref: "./services/research/openapi.yaml#/paths/~1research~1v1~1reports"
+  /research/v1/reports/{id}:
+    $ref: "./services/research/openapi.yaml#/paths/~1research~1v1~1reports~1{id}"
+  /research/v1/report/tags:
+    $ref: "./services/research/openapi.yaml#/paths/~1research~1v1~1report~1tags"
