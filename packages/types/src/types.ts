@@ -68,28 +68,28 @@ export type paths = {
      */
     post: operations["getAllEvents"];
   };
-  [path: `/intel/v1/events/${string}`]: {
+  "/intel/v1/events/{eventId}": {
     /**
      * Get event and its history
      * @description Returns a specific event by ID along with its history.
      */
     get: operations["getEventAndHistory"];
   };
-  [path: `/marketdata/v1/assets/${string}/ath`]: {
+  "/marketdata/v1/assets/{assetId}/ath": {
     /**
      * Asset ATH
      * @description Returns a single asset's ATH data
      */
     get: operations["getAssetATH"];
   };
-  [path: `/marketdata/v1/assets/${string}/price`]: {
+  "/marketdata/v1/assets/{assetId}/price": {
     /**
      * Asset Market Data
      * @description Returns a single asset's market data
      */
     get: operations["getAssetMarketdata"];
   };
-  [path: `/marketdata/v1/assets/${string}/roi`]: {
+  "/marketdata/v1/assets/{assetId}/roi": {
     /**
      * ROI by Asset
      * @description Returns a single asset's ROI data
@@ -141,7 +141,7 @@ export type paths = {
      */
     get: operations["getResearchReports"];
   };
-  [path: `/research/v1/reports/${string}`]: {
+  "/research/v1/reports/{id}": {
     /**
      * Get Research Report by ID
      * @description Get a research report by its ID.

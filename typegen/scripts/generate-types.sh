@@ -25,7 +25,7 @@ if [ -f "typegen/openapi/dist/combined.yaml" ]; then
         --root-types \
         --root-types-no-schema-prefix \
         --alphabetize \
-        --path-params-as-types
+        --path-params-as-types false # Leave false to avoid path name collisions with dynamic /{id} and /static paths
     
     echo "Combined type generation complete!"
 else
