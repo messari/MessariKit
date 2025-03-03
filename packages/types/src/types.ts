@@ -134,13 +134,6 @@ export type paths = {
      */
     get: operations["getNewsSources"];
   };
-  "/research/v1/report/tags": {
-    /**
-     * Get Research Report Tags
-     * @description Get a list of all tags associated with research reports.
-     */
-    get: operations["getResearchReportTags"];
-  };
   "/research/v1/reports": {
     /**
      * Get Research Reports
@@ -154,6 +147,13 @@ export type paths = {
      * @description Get a research report by its ID.
      */
     get: operations["getResearchReportById"];
+  };
+  "/research/v1/reports/tags": {
+    /**
+     * Get Research Report Tags
+     * @description Get a list of all tags associated with research reports.
+     */
+    get: operations["getResearchReportTags"];
   };
 };
 
@@ -171,7 +171,7 @@ export type components = {
     /** @description Standard response wrapper. */
     APIResponse: {
       /** @description Response payload */
-      data: Record<string, never>;
+      data: Record<string, never> | string[];
       /** @description Error message if request failed */
       error?: string;
     };
@@ -1634,34 +1634,6 @@ export type operations = {
     };
   };
   /**
-   * Get Research Report Tags
-   * @description Get a list of all tags associated with research reports.
-   */
-  getResearchReportTags: {
-    responses: {
-      /** @description Successful response */
-      200: {
-        content: {
-          "application/json": components["schemas"]["APIResponse"] & {
-            data?: string[];
-          };
-        };
-      };
-      /** @description Client error response */
-      400: {
-        content: {
-          "application/json": components["schemas"]["APIError"];
-        };
-      };
-      /** @description Server error response */
-      500: {
-        content: {
-          "application/json": components["schemas"]["APIError"];
-        };
-      };
-    };
-  };
-  /**
    * Get Research Reports
    * @description Get a paginated list of research reports.
    */
@@ -1718,6 +1690,34 @@ export type operations = {
         content: {
           "application/json": components["schemas"]["APIResponse"] & {
             data?: components["schemas"]["ResearchReport"];
+          };
+        };
+      };
+      /** @description Client error response */
+      400: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Server error response */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+    };
+  };
+  /**
+   * Get Research Report Tags
+   * @description Get a list of all tags associated with research reports.
+   */
+  getResearchReportTags: {
+    responses: {
+      /** @description Successful response */
+      200: {
+        content: {
+          "application/json": components["schemas"]["APIResponse"] & {
+            data: string[];
           };
         };
       };

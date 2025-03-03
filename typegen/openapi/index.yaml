@@ -101,5 +101,5 @@ paths:
     $ref: "./services/research/openapi.yaml#/paths/~1research~1v1~1reports"
   /research/v1/reports/{id}:
     $ref: "./services/research/openapi.yaml#/paths/~1research~1v1~1reports~1{id}"
-  /research/v1/report/tags:
-    $ref: "./services/research/openapi.yaml#/paths/~1research~1v1~1report~1tags"
+  /research/v1/reports/tags:
+    $ref: "./services/research/openapi.yaml#/paths/~1research~1v1~1reports~1tags"

@@ -126,7 +126,7 @@ paths:
             application/json:
               schema:
                 $ref: '../../common/components.yaml#/components/schemas/APIError'
-  /research/v1/report/tags:
+  /research/v1/reports/tags:
     get:
       operationId: getResearchReportTags
       summary: Get Research Report Tags
@@ -144,6 +144,8 @@ paths:
                 allOf:
                   - $ref: '../../common/components.yaml#/components/schemas/APIResponse'
                   - type: object
+                    required:
+                      - data
                     properties:
                       data:
                         type: array

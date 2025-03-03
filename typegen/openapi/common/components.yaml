@@ -28,9 +28,12 @@ components:
           type: string
           description: Error message if request failed
         data:
-          type: object
           description: Response payload
-
+          anyOf:
+            - type: object
+            - type: array
+              items:
+                type: string
     APIResponseWithMetadata:
       type: object
       description: |

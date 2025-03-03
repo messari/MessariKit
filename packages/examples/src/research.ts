@@ -19,7 +19,7 @@ if (!API_KEY) {
 // Initialize the client with your API key
 const client = new MessariClient({
   apiKey: API_KEY,
-  logLevel: LogLevel.INFO,
+  // logLevel: LogLevel.DEBUG,
 });
 
 const newReportTable = () => {
@@ -106,7 +106,29 @@ async function getReportsByAsset(assetId: string) {
 }
 
 /**
- * Example 3: Get research reports with tag filter
+ * Example 3: Get all available research report tags
+ */
+async function getResearchTags() {
+  try {
+    const tags = await client.research.getResearchReportTags();
+
+    console.log(`Retrieved ${tags.length} research report tags:`);
+    // Display tags in columns
+    const tagsPerRow = 3;
+    for (let i = 0; i < tags.length; i += tagsPerRow) {
+      const row = tags.slice(i, i + tagsPerRow).map((tag: string) => tag.padEnd(25));
+      console.log(row.join(" | "));
+    }
+
+    return tags;
+  } catch (error) {
+    console.error("Error fetching research tags:", error);
+    throw error;
+  }
+}
+
+/**
+ * Example 4: Get research reports with tag filter
  */
 async function getReportsByTag(tag: string) {
   try {
@@ -139,7 +161,7 @@ async function getReportsByTag(tag: string) {
 }
 
 /**
- * Example 4: Get a specific research report by ID
+ * Example 5: Get a specific research report by ID
  */
 async function getReportById(reportId: string) {
   try {
@@ -170,28 +192,6 @@ async function getReportById(reportId: string) {
   }
 }
 
-/**
- * Example 5: Get all available research report tags
- */
-// async function getResearchTags() {
-//   try {
-//     const tags = await client.research.getResearchReportTags();
-
-//     console.log(`Retrieved ${tags.length} research report tags:`);
-//     // Display tags in columns
-//     const tagsPerRow = 3;
-//     for (let i = 0; i < tags.length; i += tagsPerRow) {
-//       const row = tags.slice(i, i + tagsPerRow).map((tag: string) => tag.padEnd(25));
-//       console.log(row.join(" | "));
-//     }
-
-//     return tags;
-//   } catch (error) {
-//     console.error("Error fetching research tags:", error);
-//     throw error;
-//   }
-// }
-
 async function main() {
   try {
     // 1. Get basic research reports
@@ -202,18 +202,19 @@ async function main() {
     await getReportsByAsset("1e31218a-e44e-4285-820c-8282ee222035"); // Bitcoin ID
     console.log("\n");
 
-    // 3. Get reports by tag
+    // 3. Get all research tags
+    await getResearchTags();
+    console.log("\n");
+
+    // 4. Get reports by tag
     await getReportsByTag("DePIN");
     console.log("\n");
 
-    // 4. Get a specific report by ID
+    // 5. Get a specific report by ID
     if (firstReportId) {
       await getReportById(firstReportId);
       console.log("\n");
     }
-
-    // 5. Get all research tags
-    // await getResearchTags();
   } catch (error) {
     console.error("An error occurred:", error);
   }

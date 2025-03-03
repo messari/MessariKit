@@ -302,7 +302,7 @@ export const getResearchReportById = {
 } as const;
 
 
-export type getResearchReportTagsResponse = void;
+export type getResearchReportTagsResponse = string[];
 export type getResearchReportTagsError = components['schemas']['APIError'];
 
 export type getResearchReportTagsParameters = null;
@@ -313,7 +313,7 @@ export const getResearchReportTags = {
   pathParams: [] as const,
   queryParams: [] as const,
   bodyParams: [] as const,
-  path: () => '/research/v1/report/tags'
+  path: () => '/research/v1/reports/tags'
 } as const;
 
 // Re-export schema types
