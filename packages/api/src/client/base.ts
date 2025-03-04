@@ -30,6 +30,9 @@ import type {
   getProjectRecapResponse,
   getAssetListResponse,
   getAssetListParameters,
+  getPreviewsResponse,
+  getReportByAssetIDParameters,
+  getReportByAssetIDResponse,
 } from "@messari-kit/types";
 import { LogLevel, type Logger, makeConsoleLogger, createFilteredLogger, noOpLogger } from "../logging";
 import type { PaginatedResult, RequestOptions, ClientEventMap, ClientEventType, ClientEventHandler } from "./types";
@@ -193,6 +196,24 @@ export interface RecapsAPIInterface {
    * @return The exchange rankings recap
    */
   getExchangeRankingsRecap(): Promise<getExchangeRankingsRecapResponse>;
+}
+
+/**
+ * Interface for the Diligence API methods
+ */
+export interface DiligenceAPIInterface {
+  /**
+   * Gets a preview of the available diligence reports
+   * @return The diligence reports
+   */
+  getDiligencePreview(): Promise<getPreviewsResponse>;
+
+  /**
+   * Gets a diligence report by asset ID
+   * @param params The parameters for the diligence report
+   * @return The diligence report
+   */
+  getDiligenceReport(params: getReportByAssetIDParameters): Promise<getReportByAssetIDResponse>;
 }
 
 /**

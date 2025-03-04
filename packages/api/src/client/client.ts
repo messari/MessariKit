@@ -16,6 +16,8 @@ import {
   getExchangeRecap,
   getExchangeRankingsRecap,
   getAssetList,
+  getPreviews,
+  getReportByAssetID,
 } from "@messari-kit/types";
 import type {
   createChatCompletionParameters,
@@ -50,6 +52,9 @@ import type {
   getExchangeRankingsRecapResponse,
   getAssetListParameters,
   getAssetListResponse,
+  getPreviewsResponse,
+  getReportByAssetIDResponse,
+  getReportByAssetIDParameters,
 } from "@messari-kit/types";
 import type { Agent } from "node:http";
 import { pick } from "../utils";
@@ -66,7 +71,7 @@ import type {
   RequestOptions,
   RequestParameters,
 } from "./types";
-import type { AIInterface, AssetInterface, IntelInterface, MarketsInterface, NewsInterface, RecapsAPIInterface } from "./base";
+import type { AIInterface, AssetInterface, DiligenceAPIInterface, IntelInterface, MarketsInterface, NewsInterface, RecapsAPIInterface } from "./base";
 import { MessariClientBase } from "./base";
 
 /**
@@ -712,6 +717,21 @@ export class MessariClient extends MessariClientBase {
       return this.request<getExchangeRankingsRecapResponse>({
         method: getExchangeRankingsRecap.method,
         path: getExchangeRankingsRecap.path(),
+      });
+    },
+  };
+
+  public readonly diligence: DiligenceAPIInterface = {
+    getDiligencePreview: async () => {
+      return this.request<getPreviewsResponse>({
+        method: getPreviews.method,
+        path: getPreviews.path(),
+      });
+    },
+    getDiligenceReport: async (params: getReportByAssetIDParameters) => {
+      return this.request<getReportByAssetIDResponse>({
+        method: getReportByAssetID.method,
+        path: getReportByAssetID.path(params),
       });
     },
   };
