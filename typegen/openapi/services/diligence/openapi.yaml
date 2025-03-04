@@ -77,12 +77,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/ReportResponse'
+                $ref: '#/components/schemas/GetPreviewsResponse'
         '400':
           $ref: '#/components/schemas/ErrorResponse'
         '500':
@@ -112,10 +107,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  data:
-                    $ref: '#/components/schemas/AssetReport'
+                $ref: '#/components/schemas/AssetReport'
         '400':
           $ref: '#/components/schemas/ErrorResponse'
         '403':
@@ -204,12 +196,12 @@ components:
       type: object
       description: A section within a diligence report
       properties:
-        type:
+        markdown:
           type: string
-          description: Type of the section
-        content:
+          description: Markdown content of the section
+        updatedAt:
           type: string
-          description: Content of the section
+          description: Timestamp of last revision
 
     GetReportPreviewsRequest:
       type: object
@@ -234,4 +226,8 @@ components:
         order:
           type: string
           enum: [asc, desc]
-          description: Sort order
+
+    GetPreviewsResponse:
+        type: array
+        items:
+          $ref: '#/components/schemas/ReportResponse'
