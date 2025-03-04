@@ -23,6 +23,8 @@ servers:
 tags:
   - name: funding:Rounds
     description: Fund raising round endpoints
+  - name: funding:MergersAndAcquisitions
+    description: Mergers and acquisitions endpoints
 
 paths:
   /funding/v1/rounds:
@@ -297,6 +299,86 @@ paths:
               schema:
                 $ref: '../../common/components.yaml#/components/schemas/APIError'
 
+  /funding/v1/mergers-and-acquisitions:
+    get:
+      operationId: getAcquisitionDeals
+      summary: Get Acquisition Deals
+      description: Lookup M&A Deals given a set of filters
+      tags:
+        - funding:MergersAndAcquisitions
+      security:
+        - apiKey: []
+      parameters:
+        - $ref: '../../common/parameters.yaml#/components/parameters/apiKey'
+        - name: acquiringEntityId
+          in: query
+          description: Comma-separated list of acquiring entity (projects, organizations) uuids
+          required: false
+          schema:
+            type: string
+        - name: acquiredEntityId
+          in: query
+          description: Comma-separated list of acquired entity (projects, organizations) uuids
+          required: false
+          schema:
+            type: string
+        - name: transactionAmountMin
+          in: query
+          description: Filter by minimum transaction amount in USD
+          required: false
+          schema:
+            type: number
+            format: double
+        - name: transactionAmountMax
+          in: query
+          description: Filter by maximum transaction amount in USD
+          required: false
+          schema:
+            type: number
+            format: double
+        - name: announcedBefore
+          in: query
+          description: Filter by deals announced before the specified date
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: announcedAfter
+          in: query
+          description: Filter by deals announced after the specified date
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - $ref: '../../common/parameters.yaml#/components/parameters/page'
+        - $ref: '../../common/parameters.yaml#/components/parameters/limit'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../../common/components.yaml#/components/schemas/APIResponseWithMetadata'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/AcquisitionDeal'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+
 components:
   securitySchemes:
     apiKey:
@@ -428,3 +510,41 @@ components:
     Person:
       type: object
       description: Person details (to be defined)
+
+    AcquisitionDealStatus:
+      type: string
+      enum:
+        - Announced
+        - Completed
+        - Canceled
+      description: Status of the acquisition deal
+
+    AcquisitionDeal:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the acquisition deal
+        announcements:
+          type: array
+          items:
+            $ref: '#/components/schemas/Announcement'
+          description: List of announcements related to the acquisition deal
+        announcementDate:
+          type: string
+          format: date-time
+          description: Date when the acquisition deal was announced
+        transactionAmountUSD:
+          type: number
+          format: double
+          nullable: true
+          description: Transaction amount in USD
+        status:
+          $ref: '#/components/schemas/AcquisitionDealStatus'
+          description: Status of the acquisition deal
+        acquiringEntity:
+          $ref: '#/components/schemas/FundingEntity'
+          description: Entity that is acquiring
+        acquiredEntity:
+          $ref: '#/components/schemas/FundingEntity'
+          description: Entity that is being acquired

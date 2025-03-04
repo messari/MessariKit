@@ -35,6 +35,8 @@ import type {
   FundingRound,
   getFundingRoundsInvestorsParameters,
   Investors,
+  AcquisitionDeal,
+  getAcquisitionDealsParameters,
 } from "@messari-kit/types";
 import { LogLevel, type Logger, makeConsoleLogger, createFilteredLogger, noOpLogger } from "../logging";
 import type { PaginatedResult, RequestOptions, ClientEventMap, ClientEventType, ClientEventHandler } from "./types";
@@ -215,6 +217,12 @@ export interface FundraisingAPIInterface {
    * @param params Query parameters for filtering investors
    */
   getFundingRoundsInvestors(params?: getFundingRoundsInvestorsParameters): Promise<APIResponseWithMetadata<Investors[]>>;
+
+  /**
+   * Gets a list of all acquisition deals based on provided filters
+   * @param params Query parameters for filtering acquisition deals
+   */
+  getAcquisitionDeals(params?: getAcquisitionDealsParameters): Promise<APIResponseWithMetadata<AcquisitionDeal[]>>;
 }
 
 /**
