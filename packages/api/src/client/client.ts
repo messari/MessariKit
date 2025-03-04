@@ -16,6 +16,11 @@ import {
   getExchangeRecap,
   getExchangeRankingsRecap,
   getAssetList,
+  getPreviews,
+  getReportByAssetID,
+  getResearchReports,
+  getResearchReportById,
+  getResearchReportTags,
   getFundingRounds,
   getFundingRoundsInvestors,
   getAcquisitionDeals,
@@ -53,6 +58,14 @@ import type {
   getExchangeRankingsRecapResponse,
   getAssetListParameters,
   getAssetListResponse,
+  getPreviewsResponse,
+  getReportByAssetIDResponse,
+  getReportByAssetIDParameters,
+  getResearchReportsParameters,
+  getResearchReportsResponse,
+  getResearchReportByIdParameters,
+  getResearchReportByIdResponse,
+  getResearchReportTagsResponse,
   getFundingRoundsParameters,
   getFundingRoundsResponse,
   getFundingRoundsInvestorsParameters,
@@ -75,7 +88,17 @@ import type {
   RequestOptions,
   RequestParameters,
 } from "./types";
-import type { AIInterface, AssetInterface, FundraisingAPIInterface, IntelInterface, MarketsInterface, NewsInterface, RecapsAPIInterface } from "./base";
+import type {
+  AIInterface,
+  AssetInterface,
+  FundraisingAPIInterface,
+  DiligenceAPIInterface,
+  IntelInterface,
+  MarketsInterface,
+  NewsInterface,
+  RecapsAPIInterface,
+  ResearchInterface,
+} from "./base";
 import { MessariClientBase } from "./base";
 
 /**
@@ -721,6 +744,43 @@ export class MessariClient extends MessariClientBase {
       return this.request<getExchangeRankingsRecapResponse>({
         method: getExchangeRankingsRecap.method,
         path: getExchangeRankingsRecap.path(),
+      });
+    },
+  };
+
+  public readonly research: ResearchInterface = {
+    getResearchReports: (params: getResearchReportsParameters, options?: RequestOptions) =>
+      this.request<getResearchReportsResponse>({
+        method: getResearchReports.method,
+        path: getResearchReports.path(),
+        queryParams: pick(params, getResearchReports.queryParams),
+        options,
+      }),
+    getResearchReportById: (params: getResearchReportByIdParameters, options?: RequestOptions) =>
+      this.request<getResearchReportByIdResponse>({
+        method: getResearchReportById.method,
+        path: getResearchReportById.path(params),
+        options,
+      }),
+    getResearchReportTags: (options?: RequestOptions) =>
+      this.request<getResearchReportTagsResponse>({
+        method: getResearchReportTags.method,
+        path: getResearchReportTags.path(),
+        options,
+      }),
+  };
+
+  public readonly diligence: DiligenceAPIInterface = {
+    getDiligencePreview: async () => {
+      return this.request<getPreviewsResponse>({
+        method: getPreviews.method,
+        path: getPreviews.path(),
+      });
+    },
+    getDiligenceReport: async (params: getReportByAssetIDParameters) => {
+      return this.request<getReportByAssetIDResponse>({
+        method: getReportByAssetID.method,
+        path: getReportByAssetID.path(params),
       });
     },
   };

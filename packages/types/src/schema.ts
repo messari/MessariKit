@@ -9,6 +9,8 @@ import type { components } from './types';
 
 export type APIError = components['schemas']['APIError'];
 
+export type APIResponse = components['schemas']['APIResponse'];
+
 export type APIResponseWithMetadata = components['schemas']['APIResponseWithMetadata'];
 
 export type AcquisitionDeal = components['schemas']['AcquisitionDeal'];
@@ -25,11 +27,15 @@ export type AssetMarketData = components['schemas']['AssetMarketData'];
 
 export type AssetMarketcap = components['schemas']['AssetMarketcap'];
 
+export type AssetReport = components['schemas']['AssetReport'];
+
 export type AssetSupply = components['schemas']['AssetSupply'];
 
 export type AssetWithATHData = components['schemas']['AssetWithATHData'];
 
 export type AssetWithROIData = components['schemas']['AssetWithROIData'];
+
+export type Author = components['schemas']['Author'];
 
 export type BasicAsset = components['schemas']['BasicAsset'];
 
@@ -85,6 +91,8 @@ export type GetAllEventsRequest = components['schemas']['GetAllEventsRequest'];
 
 export type GetEventResponse = components['schemas']['GetEventResponse'];
 
+export type GetPreviewsResponse = components['schemas']['GetPreviewsResponse'];
+
 export type GetProjectRecapResponse = components['schemas']['GetProjectRecapResponse'];
 
 export type GroupedEntity = components['schemas']['GroupedEntity'];
@@ -119,6 +127,12 @@ export type ROIData = components['schemas']['ROIData'];
 
 export type RecapSlug = components['schemas']['RecapSlug'];
 
+export type ReportResponse = components['schemas']['ReportResponse'];
+
+export type ReportSection = components['schemas']['ReportSection'];
+
+export type ResearchReport = components['schemas']['ResearchReport'];
+
 export type ResearchResponse = components['schemas']['ResearchResponse'];
 
 export type Resource = components['schemas']['Resource'];
@@ -130,6 +144,8 @@ export type SourceList = components['schemas']['SourceList'];
 export type SourceType = components['schemas']['SourceType'];
 
 export type SummaryResponse = components['schemas']['SummaryResponse'];
+
+export type Tag = components['schemas']['Tag'];
 
 export type TimeUTC = components['schemas']['TimeUTC'];
 
