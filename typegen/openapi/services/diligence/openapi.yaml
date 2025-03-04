@@ -1,0 +1,237 @@
+openapi: 3.1.0
+info:
+  title: Messari Diligence Service API
+  description: |
+    API for diligence report service.
+    This service provides access to preview and actual diligence reports.
+  version: 0.0.1
+  contact:
+    name: Messari Engineering
+    url: https://messari.io
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://api.messari.io/diligence
+    description: Production server
+  - url: https://api.staging.messari.io/diligence
+    description: Staging server
+  - url: http://localhost:8080/diligence
+    description: Local development server
+
+tags:
+  - name: diligence:Reports
+    description: Diligence report endpoints
+
+paths:
+  /diligence/v1/reports/preview:
+    get:
+      operationId: getPreviews
+      summary: Get Diligence Previews
+      description: Gets a preview of the available diligence reports
+      tags:
+        - diligence:Reports
+      parameters:
+        - name: sector
+          in: query
+          description: Filter reports by sector
+          required: false
+          schema:
+            type: string
+        - name: isDefaultIncluded
+          in: query
+          description: Filter reports by default inclusion status
+          required: false
+          schema:
+            type: boolean
+        - name: isPublished
+          in: query
+          description: Filter reports by published status
+          required: false
+          schema:
+            type: boolean
+        - name: isPurchased
+          in: query
+          description: Filter reports by purchase status
+          required: false
+          schema:
+            type: boolean
+        - name: sort
+          in: query
+          description: Sort field (updated_at or created_at)
+          required: false
+          schema:
+            type: string
+            enum: [updated_at, created_at]
+        - name: order
+          in: query
+          description: Sort order (asc or desc)
+          required: false
+          schema:
+            type: string
+            enum: [asc, desc]
+      responses:
+        '200':
+          description: Successfully retrieved report previews
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ReportResponse'
+        '400':
+          $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/schemas/ErrorResponse'
+
+  /diligence/v1/report/asset/{assetId}:
+    get:
+      operationId: getReportByAssetID
+      summary: Get Diligence Report
+      description: Gets a specific diligence report by asset ID. Requires authentication and appropriate enterprise access.
+      tags:
+        - diligence:Reports
+      x-typescript-type: '"/diligence/v1/report/asset/" + assetId'
+      parameters:
+        - name: assetId
+          in: path
+          description: UUID of the asset to get the report for
+          required: true
+          schema:
+            type: string
+            format: uuid
+      security:
+        - apiKey: []
+      responses:
+        '200':
+          description: Successfully retrieved diligence report
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/AssetReport'
+        '400':
+          $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  securitySchemes:
+    apiKey:
+      type: apiKey
+      name: x-messari-api-key
+      in: header
+      description: API key for authentication
+
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      description: Standard error response
+
+    ReportResponse:
+      type: object
+      description: A diligence report response
+      properties:
+        assetId:
+          type: string
+          format: uuid
+          description: Unique identifier for the asset
+        assetSlug:
+          type: string
+          description: Slug identifier for the asset
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the report
+        lastRevisedAt:
+          type: string
+          format: date-time
+          description: Timestamp of last revision
+        projectName:
+          type: string
+          description: Name of the project
+        slug:
+          type: string
+          description: Slug identifier for the report
+        sector:
+          type: string
+          description: Sector classification
+        symbol:
+          type: string
+          nullable: true
+          description: Asset symbol
+        publishStatus:
+          type: string
+          description: Publication status of the report
+        sections:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/ReportSection'
+          description: Map of report sections
+
+    AssetReport:
+      allOf:
+        - $ref: '#/components/schemas/ReportResponse'
+        - type: object
+          description: Report response specifically for asset-based lookups
+          properties:
+            lookupType:
+              type: string
+              enum: [asset]
+              default: asset
+
+    ReportByAssetIDResponse:
+      type: object
+      description: Response wrapper for report by asset ID
+      properties:
+        data:
+          $ref: '#/components/schemas/AssetReport'
+
+    ReportSection:
+      type: object
+      description: A section within a diligence report
+      properties:
+        type:
+          type: string
+          description: Type of the section
+        content:
+          type: string
+          description: Content of the section
+
+    GetReportPreviewsRequest:
+      type: object
+      description: Request parameters for getting report previews
+      properties:
+        sector:
+          type: string
+          description: Filter by sector
+        isDefaultIncluded:
+          type: boolean
+          description: Filter by default inclusion
+        isPublished:
+          type: boolean
+          description: Filter by published status
+        isPurchased:
+          type: boolean
+          description: Filter by purchase status
+        sort:
+          type: string
+          enum: [updated_at, created_at]
+          description: Sort field
+        order:
+          type: string
+          enum: [asc, desc]
+          description: Sort order
