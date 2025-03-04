@@ -52,6 +52,27 @@ export type paths = {
      */
     get: operations["getAssetList"];
   };
+  "/funding/v1/mergers-and-acquisitions": {
+    /**
+     * Get Acquisition Deals
+     * @description Lookup M&A Deals given a set of filters
+     */
+    get: operations["getAcquisitionDeals"];
+  };
+  "/funding/v1/rounds": {
+    /**
+     * Get Fundraising Rounds
+     * @description Gets a list of all fundraising rounds
+     */
+    get: operations["getFundingRounds"];
+  };
+  "/funding/v1/rounds/investors": {
+    /**
+     * Get Fundraising Rounds Investors
+     * @description Gets a list of all investors for a given fundraising round
+     */
+    get: operations["getFundingRoundsInvestors"];
+  };
   "/intel/v1/assets": {
     /**
      * Get all assets
@@ -140,6 +161,35 @@ export type webhooks = Record<string, never>;
 
 export type components = {
   schemas: {
+    AcquisitionDeal: {
+      /** @description Entity that is being acquired */
+      acquiredEntity?: components["schemas"]["FundingEntity"];
+      /** @description Entity that is acquiring */
+      acquiringEntity?: components["schemas"]["FundingEntity"];
+      /**
+       * Format: date-time
+       * @description Date when the acquisition deal was announced
+       */
+      announcementDate?: string;
+      /** @description List of announcements related to the acquisition deal */
+      announcements?: components["schemas"]["Announcement"][];
+      /** @description Unique identifier for the acquisition deal */
+      id?: string;
+      /** @description Status of the acquisition deal */
+      status?: components["schemas"]["AcquisitionDealStatus"];
+      /**
+       * Format: double
+       * @description Transaction amount in USD
+       */
+      transactionAmountUSD?: number | null;
+    };
+    /**
+     * @description Status of the acquisition deal
+     * @enum {string}
+     */
+    AcquisitionDealStatus: "Announced" | "Completed" | "Canceled";
+    /** @description Announcement details (to be defined) */
+    Announcement: Record<string, never>;
     APIError: {
       /**
        * @description Error message when something goes wrong
@@ -582,6 +632,42 @@ export type components = {
       /** @description Current status of the extraction request */
       status?: string;
     };
+    /** @description Entity that received funding (to be defined) */
+    FundingEntity: Record<string, never>;
+    FundingRound: {
+      /**
+       * Format: double
+       * @description Amount raised in USD
+       */
+      amountRaisedUSD?: number | null;
+      /**
+       * Format: date-time
+       * @description Date when the funding round was announced
+       */
+      announcementDate?: string;
+      /** @description List of announcements related to the funding round */
+      announcements?: components["schemas"]["Announcement"][];
+      /** @description Entity that received the funding */
+      fundedEntity?: components["schemas"]["FundingEntity"];
+      /** @description Unique identifier for the funding round */
+      id?: string;
+      /** @description Whether the round was funded with tokens */
+      isTokenFunded?: boolean;
+      /** @description Stage of the funding round */
+      stage?: components["schemas"]["FundingRoundStage"];
+      /** @description Type of the funding round */
+      type?: components["schemas"]["FundingRoundType"];
+    };
+    /**
+     * @description Stage of the funding round
+     * @enum {string}
+     */
+    FundingRoundStage: "Seed" | "Early Stage" | "Late Stage" | "Public Equity Offering" | "Post Public Equity" | "Miscellaneous";
+    /**
+     * @description Type of the funding round
+     * @enum {string}
+     */
+    FundingRoundType: "Accelerator" | "Debt Financing" | "Extended Pre Seed" | "Extended Seed" | "Extended Series A" | "Extended Series B" | "Extended Series C" | "Extended Series D" | "Grant" | "ICO" | "IPO" | "Post IPO" | "Post IPO Debt" | "Pre Seed" | "Pre Series A" | "Pre Series B" | "Private Token Sale" | "Public Token Sale" | "Seed" | "Series A" | "Series B" | "Series C" | "Series D" | "Series E" | "Series F" | "Series G" | "Series H" | "Strategic" | "Treasury Diversification" | "Undisclosed";
     GetAllEventsRequest: {
       /** @description Filter by categories */
       category?: string[];
@@ -646,6 +732,16 @@ export type components = {
         }[];
       summary?: string;
     };
+    Investors: {
+      /** @description ID of the funding round */
+      fundingRoundId?: string;
+      /** @description List of organizations that invested */
+      organizations?: components["schemas"]["Organization"][];
+      /** @description List of persons that invested */
+      persons?: components["schemas"]["Person"][];
+      /** @description List of projects that invested */
+      projects?: components["schemas"]["Project"][];
+    };
     /** @description Network metrics data */
     NetworkMetrics: {
       active_addresses?: number;
@@ -693,6 +789,8 @@ export type components = {
       /** Format: double */
       volume?: number;
     };
+    /** @description Organization details (to be defined) */
+    Organization: Record<string, never>;
     /** @description Pagination metadata for list endpoints */
     PaginationResult: {
       /**
@@ -716,10 +814,14 @@ export type components = {
        */
       total?: number;
     };
+    /** @description Person details (to be defined) */
+    Person: Record<string, never>;
     PlatformContract: {
       contractAddress?: string;
       platform?: string;
     };
+    /** @description Project details (to be defined) */
+    Project: Record<string, never>;
     ProjectRecapResponse: {
       /** @description Unique identifier for the asset */
       asset_id?: string;
@@ -1148,6 +1250,165 @@ export type operations = {
         };
       };
       /** @description Server error response */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+    };
+  };
+  /**
+   * Get Acquisition Deals
+   * @description Lookup M&A Deals given a set of filters
+   */
+  getAcquisitionDeals: {
+    parameters: {
+      query?: {
+        /** @description Comma-separated list of acquiring entity (projects, organizations) uuids */
+        acquiringEntityId?: string;
+        /** @description Comma-separated list of acquired entity (projects, organizations) uuids */
+        acquiredEntityId?: string;
+        /** @description Filter by minimum transaction amount in USD */
+        transactionAmountMin?: number;
+        /** @description Filter by maximum transaction amount in USD */
+        transactionAmountMax?: number;
+        /** @description Filter by deals announced before the specified date */
+        announcedBefore?: string;
+        /** @description Filter by deals announced after the specified date */
+        announcedAfter?: string;
+        page?: components["parameters"]["page"];
+        limit?: components["parameters"]["limit"];
+      };
+      header: {
+        "x-messari-api-key": components["parameters"]["apiKey"];
+      };
+    };
+    responses: {
+      /** @description Successful response */
+      200: {
+        content: {
+          "application/json": components["schemas"]["APIResponseWithMetadata"] & {
+            data?: components["schemas"]["AcquisitionDeal"][];
+          };
+        };
+      };
+      /** @description Bad request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+    };
+  };
+  /**
+   * Get Fundraising Rounds
+   * @description Gets a list of all fundraising rounds
+   */
+  getFundingRounds: {
+    parameters: {
+      query?: {
+        /** @description Comma-separated list of projects or organizations uuids which received funding */
+        fundedEntityId?: string;
+        /** @description Comma-separated list of investor (persons, projects, orgs) IDs who invested in the funding rounds */
+        investorId?: string;
+        /** @description Comma-separated list of funding round types to filter by */
+        type?: "Accelerator" | "Debt Financing" | "Extended Pre Seed" | "Extended Seed" | "Extended Series A" | "Extended Series B" | "Extended Series C" | "Extended Series D" | "Grant" | "ICO" | "IPO" | "Post IPO" | "Post IPO Debt" | "Pre Seed" | "Pre Series A" | "Pre Series B" | "Private Token Sale" | "Public Token Sale" | "Seed" | "Series A" | "Series B" | "Series C" | "Series D" | "Series E" | "Series F" | "Series G" | "Series H" | "Strategic" | "Treasury Diversification" | "Undisclosed";
+        /** @description Comma-separated list of funding round stages to filter by */
+        stage?: "Seed" | "Early Stage" | "Late Stage" | "Public Equity Offering" | "Post Public Equity" | "Miscellaneous";
+        /** @description Filter by maximum amount raised in USD */
+        raisedAmountMax?: number;
+        /** @description Filter by minimum amount raised in USD */
+        raisedAmountMin?: number;
+        /** @description Filter by rounds that were funded with tokens */
+        isTokenFunded?: boolean;
+        /** @description Filter by rounds announced before the specified date */
+        announcedBefore?: string;
+        /** @description Filter by rounds announced after the specified date */
+        announcedAfter?: string;
+        page?: components["parameters"]["page"];
+        limit?: components["parameters"]["limit"];
+      };
+      header: {
+        "x-messari-api-key": components["parameters"]["apiKey"];
+      };
+    };
+    responses: {
+      /** @description Successful response */
+      200: {
+        content: {
+          "application/json": components["schemas"]["APIResponseWithMetadata"] & {
+            data?: components["schemas"]["FundingRound"][];
+          };
+        };
+      };
+      /** @description Bad request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+    };
+  };
+  /**
+   * Get Fundraising Rounds Investors
+   * @description Gets a list of all investors for a given fundraising round
+   */
+  getFundingRoundsInvestors: {
+    parameters: {
+      query?: {
+        /** @description Comma-separated list of projects or organizations uuids which received funding */
+        fundedEntityId?: string;
+        /** @description Comma-separated list of investor (persons, projects, orgs) IDs who invested in the funding rounds */
+        investorId?: string;
+        /** @description Comma-separated list of funding round types to filter by */
+        type?: "Accelerator" | "Debt Financing" | "Extended Pre Seed" | "Extended Seed" | "Extended Series A" | "Extended Series B" | "Extended Series C" | "Extended Series D" | "Grant" | "ICO" | "IPO" | "Post IPO" | "Post IPO Debt" | "Pre Seed" | "Pre Series A" | "Pre Series B" | "Private Token Sale" | "Public Token Sale" | "Seed" | "Series A" | "Series B" | "Series C" | "Series D" | "Series E" | "Series F" | "Series G" | "Series H" | "Strategic" | "Treasury Diversification" | "Undisclosed";
+        /** @description Comma-separated list of funding round stages to filter by */
+        stage?: "Seed" | "Early Stage" | "Late Stage" | "Public Equity Offering" | "Post Public Equity" | "Miscellaneous";
+        /** @description Filter by maximum amount raised in USD */
+        raisedAmountMax?: number;
+        /** @description Filter by minimum amount raised in USD */
+        raisedAmountMin?: number;
+        /** @description Filter by rounds that were funded with tokens */
+        isTokenFunded?: boolean;
+        /** @description Filter by rounds announced before the specified date */
+        announcedBefore?: string;
+        /** @description Filter by rounds announced after the specified date */
+        announcedAfter?: string;
+        page?: components["parameters"]["page"];
+        limit?: components["parameters"]["limit"];
+      };
+      header: {
+        "x-messari-api-key": components["parameters"]["apiKey"];
+      };
+    };
+    responses: {
+      /** @description Successful response */
+      200: {
+        content: {
+          "application/json": components["schemas"]["APIResponseWithMetadata"] & {
+            data?: components["schemas"]["Investors"][];
+          };
+        };
+      };
+      /** @description Bad request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Internal server error */
       500: {
         content: {
           "application/json": components["schemas"]["APIError"];
