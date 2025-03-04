@@ -18,6 +18,9 @@ import {
   getAssetList,
   getPreviews,
   getReportByAssetID,
+  getResearchReports,
+  getResearchReportById,
+  getResearchReportTags,
 } from "@messari-kit/types";
 import type {
   createChatCompletionParameters,
@@ -55,6 +58,11 @@ import type {
   getPreviewsResponse,
   getReportByAssetIDResponse,
   getReportByAssetIDParameters,
+  getResearchReportsParameters,
+  getResearchReportsResponse,
+  getResearchReportByIdParameters,
+  getResearchReportByIdResponse,
+  getResearchReportTagsResponse,
 } from "@messari-kit/types";
 import type { Agent } from "node:http";
 import { pick } from "../utils";
@@ -71,7 +79,16 @@ import type {
   RequestOptions,
   RequestParameters,
 } from "./types";
-import type { AIInterface, AssetInterface, DiligenceAPIInterface, IntelInterface, MarketsInterface, NewsInterface, RecapsAPIInterface } from "./base";
+import type {
+  AIInterface,
+  AssetInterface,
+  DiligenceAPIInterface,
+  IntelInterface,
+  MarketsInterface,
+  NewsInterface,
+  RecapsAPIInterface,
+  ResearchInterface,
+} from "./base";
 import { MessariClientBase } from "./base";
 
 /**
@@ -719,6 +736,28 @@ export class MessariClient extends MessariClientBase {
         path: getExchangeRankingsRecap.path(),
       });
     },
+  };
+
+  public readonly research: ResearchInterface = {
+    getResearchReports: (params: getResearchReportsParameters, options?: RequestOptions) =>
+      this.request<getResearchReportsResponse>({
+        method: getResearchReports.method,
+        path: getResearchReports.path(),
+        queryParams: pick(params, getResearchReports.queryParams),
+        options,
+      }),
+    getResearchReportById: (params: getResearchReportByIdParameters, options?: RequestOptions) =>
+      this.request<getResearchReportByIdResponse>({
+        method: getResearchReportById.method,
+        path: getResearchReportById.path(params),
+        options,
+      }),
+    getResearchReportTags: (options?: RequestOptions) =>
+      this.request<getResearchReportTagsResponse>({
+        method: getResearchReportTags.method,
+        path: getResearchReportTags.path(),
+        options,
+      }),
   };
 
   public readonly diligence: DiligenceAPIInterface = {

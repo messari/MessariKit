@@ -33,6 +33,11 @@ import type {
   getPreviewsResponse,
   getReportByAssetIDParameters,
   getReportByAssetIDResponse,
+  getResearchReportsParameters,
+  getResearchReportsResponse,
+  getResearchReportByIdParameters,
+  getResearchReportByIdResponse,
+  getResearchReportTagsResponse,
 } from "@messari-kit/types";
 import { LogLevel, type Logger, makeConsoleLogger, createFilteredLogger, noOpLogger } from "../logging";
 import type { PaginatedResult, RequestOptions, ClientEventMap, ClientEventType, ClientEventHandler } from "./types";
@@ -199,6 +204,34 @@ export interface RecapsAPIInterface {
 }
 
 /**
+ * Interface for the Research API methods
+ */
+export interface ResearchInterface {
+  /**
+   * Gets research reports with optional filtering
+   * @param params Parameters for filtering research reports
+   * @param options Optional request configuration
+   * @returns A promise resolving to the research reports
+   */
+  getResearchReports(params: getResearchReportsParameters, options?: RequestOptions): Promise<getResearchReportsResponse>;
+
+  /**
+   * Gets a specific research report by ID
+   * @param params Parameters including the report ID
+   * @param options Optional request configuration
+   * @returns A promise resolving to the research report
+   */
+  getResearchReportById(params: getResearchReportByIdParameters, options?: RequestOptions): Promise<getResearchReportByIdResponse>;
+
+  /**
+   * Gets all available research report tags
+   * @param options Optional request configuration
+   * @returns A promise that resolves when the operation completes
+   */
+  getResearchReportTags(options?: RequestOptions): Promise<getResearchReportTagsResponse>;
+}
+
+/**
  * Interface for the Diligence API methods
  */
 export interface DiligenceAPIInterface {
@@ -245,6 +278,11 @@ export abstract class MessariClientBase {
    * Interface for Recaps-related API methods
    */
   public abstract readonly recaps: RecapsAPIInterface;
+
+  /**
+   * Interface for Research-related API methods
+   */
+  public abstract readonly research: ResearchInterface;
 
   /**
    * Logger instance for the client

@@ -42,7 +42,7 @@ async function main() {
     }
     printTable(rows);
   } catch (error) {
-    console.error("Error calling getProjectRecap:", error);
+    console.error("Error calling getDiligencePreview:", error);
   }
 
   // Get a report by asset ID

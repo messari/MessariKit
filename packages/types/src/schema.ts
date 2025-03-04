@@ -9,6 +9,8 @@ import type { components } from './types';
 
 export type APIError = components['schemas']['APIError'];
 
+export type APIResponse = components['schemas']['APIResponse'];
+
 export type APIResponseWithMetadata = components['schemas']['APIResponseWithMetadata'];
 
 export type Asset = components['schemas']['Asset'];
@@ -26,6 +28,8 @@ export type AssetSupply = components['schemas']['AssetSupply'];
 export type AssetWithATHData = components['schemas']['AssetWithATHData'];
 
 export type AssetWithROIData = components['schemas']['AssetWithROIData'];
+
+export type Author = components['schemas']['Author'];
 
 export type BasicAsset = components['schemas']['BasicAsset'];
 
@@ -105,6 +109,8 @@ export type ReportResponse = components['schemas']['ReportResponse'];
 
 export type ReportSection = components['schemas']['ReportSection'];
 
+export type ResearchReport = components['schemas']['ResearchReport'];
+
 export type ResearchResponse = components['schemas']['ResearchResponse'];
 
 export type Resource = components['schemas']['Resource'];
@@ -116,6 +122,8 @@ export type SourceList = components['schemas']['SourceList'];
 export type SourceType = components['schemas']['SourceType'];
 
 export type SummaryResponse = components['schemas']['SummaryResponse'];
+
+export type Tag = components['schemas']['Tag'];
 
 export type TimeUTC = components['schemas']['TimeUTC'];
 

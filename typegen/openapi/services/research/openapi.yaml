@@ -1,0 +1,280 @@
+openapi: 3.1.0
+info:
+  title: Messari Research Service API
+  description: This service provides access to crypto research reports.
+  version: 0.0.1
+  contact:
+    name: Messari Engineering
+    url: https://messari.io
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://api.messari.io/research
+    description: Production server
+  - url: https://api.staging.messari.io/research
+    description: Staging server
+  - url: http://localhost:8080/research
+    description: Local development server
+
+tags:
+  - name: Research
+    description: Research-related endpoints
+
+security:
+  - apiKey: []
+
+paths:
+  /research/v1/reports:
+    get:
+      operationId: getResearchReports
+      summary: Get Research Reports
+      description: |
+        Get a paginated list of research reports.
+      tags:
+        - Research
+      security:
+        - apiKey: []
+      parameters:
+        - $ref: '../../common/parameters.yaml#/components/parameters/page'
+        - $ref: '../../common/parameters.yaml#/components/parameters/limit'
+        - name: assetId
+          in: query
+          required: false
+          description: Filter by asset ID.
+          schema:
+            type: string
+        - name: tags
+          in: query
+          required: false
+          description: Filter by asset tags (comma-separated)
+          schema:
+            type: string
+        - name: contentType
+          in: query
+          required: true
+          description: Filter by content type.
+          schema:
+            type: string
+            enum:
+              - html
+              - markdown
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../../common/components.yaml#/components/schemas/APIResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/ResearchReport'
+        '400':
+          description: Client error response
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+        '500':
+          description: Server error response
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+  /research/v1/reports/{id}:
+    get:
+      operationId: getResearchReportById
+      summary: Get Research Report by ID
+      description: Get a research report by its ID.
+      tags:
+        - Research
+      security:
+        - apiKey: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the research report
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../../common/components.yaml#/components/schemas/APIResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/ResearchReport'
+        '400':
+          description: Client error response
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+        '500':
+          description: Server error response
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+  /research/v1/reports/tags:
+    get:
+      operationId: getResearchReportTags
+      summary: Get Research Report Tags
+      description: Get a list of all tags associated with research reports.
+      tags:
+        - Research
+      security:
+        - apiKey: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../../common/components.yaml#/components/schemas/APIResponse'
+                  - type: object
+                    required:
+                      - data
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          type: string
+        '400':
+          description: Client error response
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+        '500':
+          description: Server error response
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+
+components:
+  securitySchemes:
+    apiKey:
+      type: apiKey
+      name: x-messari-api-key
+      in: header
+      description: API key for authentication
+  schemas:
+    Author:
+      type: object
+      required:
+        - id
+        - name
+        - image
+        - linkedinUrl
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the author
+        name:
+          type: string
+          description: Name of the author
+        image:
+          type: string
+          description: Image URL of the author
+        linkedinUrl:
+          type: string
+          description: LinkedIn URL of the author
+    
+    Tag:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the tag
+        name:
+          type: string
+          description: Name of the tag
+          
+    ResearchReport:
+      type: object
+      required:
+        - id
+        - createdAt
+        - updatedAt
+        - assetIds
+        - authors
+        - content
+        - hook
+        - publishDate
+        - readingTimeInMinutes
+        - slug
+        - subscriptionTier
+        - summary
+        - tags
+        - title
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the research report
+        createdAt:
+          type: string
+          format: date-time
+          description: Date and time the research report was created
+        updatedAt:
+          type: string
+          format: date-time
+          description: Date and time the research report was updated
+        assetIds:
+          type: array
+          items:
+            type: string
+          description: Array of asset IDs associated with the research report
+        authors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Author'
+          description: Array of authors associated with the research report
+        content:
+          type: string
+          description: Content of the research report (either HTML or Markdown)
+        hook:
+          type: string
+          description: Hook of the research report
+        publishDate:
+          type: string
+          format: date-time
+          description: Date and time the research report was published
+        readingTimeInMinutes:
+          type: number
+          format: float
+          description: Estimated reading time in minutes
+        slug:
+          type: string
+          description: Slug of the research report
+        subscriptionTier:
+          type: string
+          description: Subscription tier required to access the report
+        summary:
+          type: string
+          description: Summary of the research report
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+          description: Tags associated with the research report
+        title:
+          type: string
+          description: Title of the research report
+
