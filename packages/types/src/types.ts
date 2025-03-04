@@ -52,6 +52,20 @@ export type paths = {
      */
     get: operations["getAssetList"];
   };
+  "/diligence/v1/report/asset/{assetId}": {
+    /**
+     * Get Diligence Report
+     * @description Gets a specific diligence report by asset ID. Requires authentication and appropriate enterprise access.
+     */
+    get: operations["getReportByAssetID"];
+  };
+  "/diligence/v1/reports/preview": {
+    /**
+     * Get Diligence Previews
+     * @description Gets a preview of the available diligence reports
+     */
+    get: operations["getPreviews"];
+  };
   "/funding/v1/mergers-and-acquisitions": {
     /**
      * Get Acquisition Deals
@@ -103,28 +117,28 @@ export type paths = {
      */
     post: operations["getAllEvents"];
   };
-  [path: `/intel/v1/events/${string}`]: {
+  "/intel/v1/events/{eventId}": {
     /**
      * Get event and its history
      * @description Returns a specific event by ID along with its history.
      */
     get: operations["getEventAndHistory"];
   };
-  [path: `/marketdata/v1/assets/${string}/ath`]: {
+  "/marketdata/v1/assets/{assetId}/ath": {
     /**
      * Asset ATH
      * @description Returns a single asset's ATH data
      */
     get: operations["getAssetATH"];
   };
-  [path: `/marketdata/v1/assets/${string}/price`]: {
+  "/marketdata/v1/assets/{assetId}/price": {
     /**
      * Asset Market Data
      * @description Returns a single asset's market data
      */
     get: operations["getAssetMarketdata"];
   };
-  [path: `/marketdata/v1/assets/${string}/roi`]: {
+  "/marketdata/v1/assets/{assetId}/roi": {
     /**
      * ROI by Asset
      * @description Returns a single asset's ROI data
@@ -169,6 +183,27 @@ export type paths = {
      */
     get: operations["getNewsSources"];
   };
+  "/research/v1/reports": {
+    /**
+     * Get Research Reports
+     * @description Get a paginated list of research reports.
+     */
+    get: operations["getResearchReports"];
+  };
+  "/research/v1/reports/{id}": {
+    /**
+     * Get Research Report by ID
+     * @description Get a research report by its ID.
+     */
+    get: operations["getResearchReportById"];
+  };
+  "/research/v1/reports/tags": {
+    /**
+     * Get Research Report Tags
+     * @description Get a list of all tags associated with research reports.
+     */
+    get: operations["getResearchReportTags"];
+  };
 };
 
 export type webhooks = Record<string, never>;
@@ -210,6 +245,13 @@ export type components = {
        * @example Internal server error, please try again
        */
       error: string;
+    };
+    /** @description Standard response wrapper. */
+    APIResponse: {
+      /** @description Response payload */
+      data: Record<string, never> | string[];
+      /** @description Error message if request failed */
+      error?: string;
     };
     /**
      * @description Standard response wrapper with additional metadata.
@@ -276,6 +318,13 @@ export type components = {
       /** Format: double */
       volume24HoursOverstatementMultiple?: number;
     };
+    AssetReport: components["schemas"]["ReportResponse"] & {
+      /**
+       * @default asset
+       * @enum {string}
+       */
+      lookupType?: "asset";
+    };
     AssetSupply: {
       /** Format: double */
       circulating?: number;
@@ -318,6 +367,16 @@ export type components = {
       roiData?: components["schemas"]["ROIData"];
       slug?: string;
       symbol?: string;
+    };
+    Author: {
+      /** @description Unique identifier for the author */
+      id: string;
+      /** @description Image URL of the author */
+      image: string;
+      /** @description LinkedIn URL of the author */
+      linkedinUrl: string;
+      /** @description Name of the author */
+      name: string;
     };
     BasicAsset: {
       /** @description Category of the asset */
@@ -728,6 +787,7 @@ export type components = {
       /** @description History of the event */
       eventHistory: components["schemas"]["EventHistory"][];
     };
+    GetPreviewsResponse: components["schemas"]["ReportResponse"][];
     /** @description List of project recaps */
     GetProjectRecapResponse: components["schemas"]["ProjectRecapResponse"][];
     GroupedEntity: {
@@ -923,6 +983,92 @@ export type components = {
      * @enum {string}
      */
     RecapSlug: "daily" | "weekly" | "monthly";
+    /** @description A diligence report response */
+    ReportResponse: {
+      /**
+       * Format: uuid
+       * @description Unique identifier for the asset
+       */
+      assetId?: string;
+      /** @description Slug identifier for the asset */
+      assetSlug?: string;
+      /**
+       * Format: uuid
+       * @description Unique identifier for the report
+       */
+      id?: string;
+      /**
+       * Format: date-time
+       * @description Timestamp of last revision
+       */
+      lastRevisedAt?: string;
+      /** @description Name of the project */
+      projectName?: string;
+      /** @description Publication status of the report */
+      publishStatus?: string;
+      /** @description Map of report sections */
+      sections?: {
+        [key: string]: components["schemas"]["ReportSection"];
+      };
+      /** @description Sector classification */
+      sector?: string;
+      /** @description Slug identifier for the report */
+      slug?: string;
+      /** @description Asset symbol */
+      symbol?: string | null;
+    };
+    /** @description A section within a diligence report */
+    ReportSection: {
+      /** @description Markdown content of the section */
+      markdown?: string;
+      /** @description Timestamp of last revision */
+      updatedAt?: string;
+    };
+    ResearchReport: {
+      /** @description Array of asset IDs associated with the research report */
+      assetIds: string[];
+      /** @description Array of authors associated with the research report */
+      authors: components["schemas"]["Author"][];
+      /** @description Content of the research report (either HTML or Markdown) */
+      content: string;
+      /**
+       * Format: date-time
+       * @description Date and time the research report was created
+       */
+      createdAt: string;
+      /** @description Hook of the research report */
+      hook: string;
+      /**
+       * Format: uuid
+       * @description Unique identifier for the research report
+       */
+      id: string;
+      /**
+       * Format: date-time
+       * @description Date and time the research report was published
+       */
+      publishDate: string;
+      /**
+       * Format: float
+       * @description Estimated reading time in minutes
+       */
+      readingTimeInMinutes: number;
+      /** @description Slug of the research report */
+      slug: string;
+      /** @description Subscription tier required to access the report */
+      subscriptionTier: string;
+      /** @description Summary of the research report */
+      summary: string;
+      /** @description Tags associated with the research report */
+      tags: components["schemas"]["Tag"][];
+      /** @description Title of the research report */
+      title: string;
+      /**
+       * Format: date-time
+       * @description Date and time the research report was updated
+       */
+      updatedAt: string;
+    };
     /** @description Research information response */
     ResearchResponse: {
       metadata?: {
@@ -994,6 +1140,12 @@ export type components = {
     SummaryResponse: {
       summary?: string;
     };
+    Tag: {
+      /** @description Unique identifier for the tag */
+      id: string;
+      /** @description Name of the tag */
+      name: string;
+    };
     /**
      * Format: date-time
      * @description UTC timestamp
@@ -1030,7 +1182,12 @@ export type components = {
         }[];
     };
   };
-  responses: never;
+  responses: {
+    /** @description Standard error response */
+    ErrorResponse: {
+      content: never;
+    };
+  };
   parameters: {
     /** @description API key for authentication */
     apiKey: string;
@@ -1303,6 +1460,62 @@ export type operations = {
           "application/json": components["schemas"]["APIError"];
         };
       };
+    };
+  };
+  /**
+   * Get Diligence Report
+   * @description Gets a specific diligence report by asset ID. Requires authentication and appropriate enterprise access.
+   */
+  getReportByAssetID: {
+    parameters: {
+      path: {
+        /** @description UUID of the asset to get the report for */
+        assetId: string;
+      };
+    };
+    responses: {
+      /** @description Successfully retrieved diligence report */
+      200: {
+        content: {
+          "application/json": components["schemas"]["AssetReport"];
+        };
+      };
+      400: components["responses"]["ErrorResponse"];
+      403: components["responses"]["ErrorResponse"];
+      404: components["responses"]["ErrorResponse"];
+      500: components["responses"]["ErrorResponse"];
+    };
+  };
+  /**
+   * Get Diligence Previews
+   * @description Gets a preview of the available diligence reports
+   */
+  getPreviews: {
+    parameters: {
+      query?: {
+        /** @description Filter reports by sector */
+        sector?: string;
+        /** @description Filter reports by default inclusion status */
+        isDefaultIncluded?: boolean;
+        /** @description Filter reports by published status */
+        isPublished?: boolean;
+        /** @description Filter reports by purchase status */
+        isPurchased?: boolean;
+        /** @description Sort field (updated_at or created_at) */
+        sort?: "updated_at" | "created_at";
+        /** @description Sort order (asc or desc) */
+        order?: "asc" | "desc";
+      };
+    };
+    responses: {
+      /** @description Successfully retrieved report previews */
+      200: {
+        content: {
+          "application/json": components["schemas"]["GetPreviewsResponse"];
+        };
+      };
+      400: components["responses"]["ErrorResponse"];
+      500: components["responses"]["ErrorResponse"];
     };
   };
   /**
@@ -1947,6 +2160,108 @@ export type operations = {
             data?: components["schemas"]["SourceList"];
             metadata?: components["schemas"]["PaginationResult"];
           };
+        };
+      };
+    };
+  };
+  /**
+   * Get Research Reports
+   * @description Get a paginated list of research reports.
+   */
+  getResearchReports: {
+    parameters: {
+      query: {
+        page?: components["parameters"]["page"];
+        limit?: components["parameters"]["limit"];
+        /** @description Filter by asset ID. */
+        assetId?: string;
+        /** @description Filter by asset tags (comma-separated) */
+        tags?: string;
+        /** @description Filter by content type. */
+        contentType: "html" | "markdown";
+      };
+    };
+    responses: {
+      /** @description Successful response */
+      200: {
+        content: {
+          "application/json": components["schemas"]["APIResponse"] & {
+            data?: components["schemas"]["ResearchReport"][];
+          };
+        };
+      };
+      /** @description Client error response */
+      400: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Server error response */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+    };
+  };
+  /**
+   * Get Research Report by ID
+   * @description Get a research report by its ID.
+   */
+  getResearchReportById: {
+    parameters: {
+      path: {
+        /** @description ID of the research report */
+        id: string;
+      };
+    };
+    responses: {
+      /** @description Successful response */
+      200: {
+        content: {
+          "application/json": components["schemas"]["APIResponse"] & {
+            data?: components["schemas"]["ResearchReport"];
+          };
+        };
+      };
+      /** @description Client error response */
+      400: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Server error response */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+    };
+  };
+  /**
+   * Get Research Report Tags
+   * @description Get a list of all tags associated with research reports.
+   */
+  getResearchReportTags: {
+    responses: {
+      /** @description Successful response */
+      200: {
+        content: {
+          "application/json": components["schemas"]["APIResponse"] & {
+            data: string[];
+          };
+        };
+      };
+      /** @description Client error response */
+      400: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Server error response */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
         };
       };
     };

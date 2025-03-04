@@ -122,6 +122,7 @@ function generateOperationTypes(operationId: string, operation: OpenAPIV3.Operat
   let metadataRef: string | undefined;
   let isArray = false;
   let arrayItemsRef: string | undefined;
+  let arrayItemsType: string | undefined;
 
   if (responseSchema) {
     if ("allOf" in responseSchema && responseSchema.allOf) {
@@ -130,10 +131,13 @@ function generateOperationTypes(operationId: string, operation: OpenAPIV3.Operat
         const dataProperty = dataSchema.properties.data as OpenAPIV3.SchemaObject;
         if ("$ref" in dataProperty) {
           schemaRef = dataProperty.$ref as string;
-        } else if (dataProperty.type === "array" && dataProperty.items) {
+        } else if (dataProperty.type === "array") {
           isArray = true;
-          if ("$ref" in dataProperty.items) {
+          if (dataProperty.items && "$ref" in dataProperty.items) {
             arrayItemsRef = dataProperty.items.$ref;
+          } else if (dataProperty.items && "type" in dataProperty.items) {
+            // Handle primitive array types
+            arrayItemsType = dataProperty.items.type;
           }
         }
       }
@@ -143,9 +147,14 @@ function generateOperationTypes(operationId: string, operation: OpenAPIV3.Operat
       }
     } else if ("$ref" in responseSchema) {
       schemaRef = responseSchema.$ref;
-    } else if (responseSchema.type === "array" && responseSchema.items && "$ref" in responseSchema.items) {
+    } else if (responseSchema.type === "array") {
       isArray = true;
-      arrayItemsRef = responseSchema.items.$ref;
+      if (responseSchema.items && "$ref" in responseSchema.items) {
+        arrayItemsRef = responseSchema.items.$ref;
+      } else if (responseSchema.items && "type" in responseSchema.items) {
+        // Handle primitive array types
+        arrayItemsType = responseSchema.items.type;
+      }
     }
   }
 
@@ -156,10 +165,15 @@ function generateOperationTypes(operationId: string, operation: OpenAPIV3.Operat
     // Direct reference case
     const schemaName = schemaRef.split("/").pop();
     responseType = `components['schemas']['${schemaName}']`;
-  } else if (isArray && arrayItemsRef) {
-    // Array with items reference case
-    const itemSchemaName = arrayItemsRef.split("/").pop();
-    responseType = `components['schemas']['${itemSchemaName}'][]`;
+  } else if (isArray) {
+    if (arrayItemsRef) {
+      // Array with items reference case
+      const itemSchemaName = arrayItemsRef.split("/").pop();
+      responseType = `components['schemas']['${itemSchemaName}'][]`;
+    } else if (arrayItemsType) {
+      // Array with primitive type case
+      responseType = `${arrayItemsType}[]`;
+    }
   }
 
   if (metadataRef) {

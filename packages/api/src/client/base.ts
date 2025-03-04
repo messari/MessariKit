@@ -31,16 +31,22 @@ import type {
   getAssetListResponse,
   getAssetListParameters,
   APIResponseWithMetadata,
+  getPreviewsResponse,
+  getReportByAssetIDParameters,
+  getReportByAssetIDResponse,
+  getResearchReportsParameters,
+  getResearchReportsResponse,
+  getResearchReportByIdParameters,
+  getResearchReportByIdResponse,
+  getResearchReportTagsResponse,
   getFundingRoundsParameters,
   FundingRound,
   getFundingRoundsInvestorsParameters,
   Investors,
-  AcquisitionDeal,
   getAcquisitionDealsParameters,
   Organization,
-  getOrganizationsParameters,
   Project,
-  getProjectsParameters,
+  AcquisitionDeal,
 } from "@messari-kit/types";
 import { LogLevel, type Logger, makeConsoleLogger, createFilteredLogger, noOpLogger } from "../logging";
 import type { PaginatedResult, RequestOptions, ClientEventMap, ClientEventType, ClientEventHandler } from "./types";
@@ -207,6 +213,52 @@ export interface RecapsAPIInterface {
 }
 
 /**
+ * Interface for the Research API methods
+ */
+export interface ResearchInterface {
+  /**
+   * Gets research reports with optional filtering
+   * @param params Parameters for filtering research reports
+   * @param options Optional request configuration
+   * @returns A promise resolving to the research reports
+   */
+  getResearchReports(params: getResearchReportsParameters, options?: RequestOptions): Promise<getResearchReportsResponse>;
+
+  /**
+   * Gets a specific research report by ID
+   * @param params Parameters including the report ID
+   * @param options Optional request configuration
+   * @returns A promise resolving to the research report
+   */
+  getResearchReportById(params: getResearchReportByIdParameters, options?: RequestOptions): Promise<getResearchReportByIdResponse>;
+
+  /**
+   * Gets all available research report tags
+   * @param options Optional request configuration
+   * @returns A promise that resolves when the operation completes
+   */
+  getResearchReportTags(options?: RequestOptions): Promise<getResearchReportTagsResponse>;
+}
+
+/**
+ * Interface for the Diligence API methods
+ */
+export interface DiligenceAPIInterface {
+  /**
+   * Gets a preview of the available diligence reports
+   * @return The diligence reports
+   */
+  getDiligencePreview(): Promise<getPreviewsResponse>;
+
+  /**
+   * Gets a diligence report by asset ID
+   * @param params The parameters for the diligence report
+   * @return The diligence report
+   */
+  getDiligenceReport(params: getReportByAssetIDParameters): Promise<getReportByAssetIDResponse>;
+}
+
+/**
  * Interface for the Fundraising API methods
  */
 export interface FundraisingAPIInterface {
@@ -270,6 +322,11 @@ export abstract class MessariClientBase {
    * Interface for Recaps-related API methods
    */
   public abstract readonly recaps: RecapsAPIInterface;
+
+  /**
+   * Interface for Research-related API methods
+   */
+  public abstract readonly research: ResearchInterface;
 
   /**
    * Logger instance for the client
