@@ -55,7 +55,6 @@ import type {
   getTokenUnlocksResponse,
   getTokenUnlockEventsParameters,
   getTokenUnlockEventsResponse,
-  APIResponse,
 } from "@messari-kit/types";
 import { LogLevel, type Logger, makeConsoleLogger, createFilteredLogger, noOpLogger } from "../logging";
 import type { PaginatedResult, RequestOptions, ClientEventMap, ClientEventType, ClientEventHandler } from "./types";
