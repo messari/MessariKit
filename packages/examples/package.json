@@ -12,7 +12,8 @@
 		"start:news": "tsx src/newsFeed.ts",
 		"start:chat": "tsx src/chatCompletion.ts",
 		"start:marketdata": "tsx src/marketData.ts",
-		"start:recaps": "tsx src/recaps.ts"
+		"start:recaps": "tsx src/recaps.ts",
+		"start:fundraising": "tsx src/fundraising.ts"
 	},
 	"dependencies": {
 		"@messari-kit/api": "workspace:*",

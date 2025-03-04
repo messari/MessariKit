@@ -1,12 +1,6 @@
 import { MessariClient } from "@messari-kit/api";
 import { printTable } from "console-table-printer";
-import type {
-  getExchangeRecapParameters,
-  getFundingRoundsInvestorsParameters,
-  getFundingRoundsParameters,
-  getProjectRecapParameters,
-  Investors,
-} from "@messari-kit/types";
+import type { getAcquisitionDealsParameters, getFundingRoundsInvestorsParameters, getFundingRoundsParameters } from "@messari-kit/types";
 import dotenv from "dotenv";
 
 // Load environment variables from .env file
@@ -30,7 +24,7 @@ const client = new MessariClient({
 });
 
 async function main() {
-  const roundMap: Record<string, { entityName: string, type: string }> = {};
+  const roundMap: Record<string, { entityName: string; type: string }> = {};
   // Get the latest funding rounds filter by type and announcedAfter date
   try {
     const roundsParams: getFundingRoundsParameters = { page: 1, limit: 10, type: "Seed,Series A", announcedAfter: "2025-01-01T00:00:00Z" };
@@ -88,11 +82,33 @@ async function main() {
         }
       }
     }
-  }
-  catch (error) {
+  } catch (error) {
     console.error("Error calling getProjectRecap:", error);
   }
-}
 
+  // Get the acquisition deals
+  try {
+    const dealsParams: getAcquisitionDealsParameters = { page: 1, limit: 10 };
+    const resp = await client.fundraising.getAcquisitionDeals(dealsParams);
+
+    console.log("\n--------------------------------");
+    console.log("M&A Deals");
+    console.log("--------------------------------");
+
+    const deals = resp.data;
+    if (deals.length > 0) {
+      const rows = deals.map((d) => ({
+        "Date": d.announcementDate,
+        "Entity": d.acquiredEntity?.name,
+        "Acquirer": d.acquiringEntity?.name,
+        "Type": d.status,
+        "Amount Raised": d.transactionAmountUSD,
+      }));
+      printTable(rows);
+    }
+  } catch (error) {
+    console.error("Error calling getAcquisitionDeals:", error);
+  }
+}
 
 main().catch(console.error);
