@@ -316,5 +316,35 @@ export const getAcquisitionDeals = {
   path: () => '/funding/v1/mergers-and-acquisitions'
 } as const;
 
+
+export type getOrganizationsResponse = components['schemas']['Organization'][];
+export type getOrganizationsError = components['schemas']['APIError'];
+
+export type getOrganizationsParameters = { id?: string; category?: string; sector?: string; tags?: string; foundedBefore?: string; foundedAfter?: string; page?: number; limit?: number };
+
+
+export const getOrganizations = {
+  method: 'GET' as const,
+  pathParams: [] as const,
+  queryParams: ['id', 'category', 'sector', 'tags', 'foundedBefore', 'foundedAfter', 'page', 'limit'] as const,
+  bodyParams: [] as const,
+  path: () => '/funding/v1/organizations'
+} as const;
+
+
+export type getProjectsResponse = components['schemas']['Project'][];
+export type getProjectsError = components['schemas']['APIError'];
+
+export type getProjectsParameters = { id?: string; category?: string; sector?: string; tags?: string; foundedBefore?: string; foundedAfter?: string; page?: number; limit?: number };
+
+
+export const getProjects = {
+  method: 'GET' as const,
+  pathParams: [] as const,
+  queryParams: ['id', 'category', 'sector', 'tags', 'foundedBefore', 'foundedAfter', 'page', 'limit'] as const,
+  bodyParams: [] as const,
+  path: () => '/funding/v1/projects'
+} as const;
+
 // Re-export schema types
 export * from './schema';
