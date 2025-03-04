@@ -21,6 +21,9 @@ import {
   getResearchReports,
   getResearchReportById,
   getResearchReportTags,
+  getFundingRounds,
+  getFundingRoundsInvestors,
+  getAcquisitionDeals,
 } from "@messari-kit/types";
 import type {
   createChatCompletionParameters,
@@ -63,6 +66,12 @@ import type {
   getResearchReportByIdParameters,
   getResearchReportByIdResponse,
   getResearchReportTagsResponse,
+  getFundingRoundsParameters,
+  getFundingRoundsResponse,
+  getFundingRoundsInvestorsParameters,
+  getFundingRoundsInvestorsResponse,
+  getAcquisitionDealsParameters,
+  getAcquisitionDealsResponse,
 } from "@messari-kit/types";
 import type { Agent } from "node:http";
 import { pick } from "../utils";
@@ -82,6 +91,7 @@ import type {
 import type {
   AIInterface,
   AssetInterface,
+  FundraisingAPIInterface,
   DiligenceAPIInterface,
   IntelInterface,
   MarketsInterface,
@@ -771,6 +781,32 @@ export class MessariClient extends MessariClientBase {
       return this.request<getReportByAssetIDResponse>({
         method: getReportByAssetID.method,
         path: getReportByAssetID.path(params),
+      });
+    },
+  };
+
+  public readonly fundraising: FundraisingAPIInterface = {
+    getFundingRounds: async (params: getFundingRoundsParameters) => {
+      return this.requestWithMetadata<getFundingRoundsResponse, PaginationMetadata>({
+        method: getFundingRounds.method,
+        path: getFundingRounds.path(),
+        queryParams: pick(params, getFundingRounds.queryParams),
+      });
+    },
+
+    getFundingRoundsInvestors: async (params: getFundingRoundsInvestorsParameters) => {
+      return this.requestWithMetadata<getFundingRoundsInvestorsResponse, PaginationMetadata>({
+        method: getFundingRoundsInvestors.method,
+        path: getFundingRoundsInvestors.path(),
+        queryParams: pick(params, getFundingRoundsInvestors.queryParams),
+      });
+    },
+
+    getAcquisitionDeals: async (params: getAcquisitionDealsParameters) => {
+      return this.requestWithMetadata<getAcquisitionDealsResponse, PaginationMetadata>({
+        method: getAcquisitionDeals.method,
+        path: getAcquisitionDeals.path(),
+        queryParams: pick(params, getAcquisitionDeals.queryParams),
       });
     },
   };

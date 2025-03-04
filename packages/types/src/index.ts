@@ -346,5 +346,50 @@ export const getReportByAssetID = {
   path: (p: PathParams) => `/diligence/v1/report/asset/${p.assetId}`
 } as const;
 
+
+export type getFundingRoundsResponse = components['schemas']['FundingRound'][];
+export type getFundingRoundsError = components['schemas']['APIError'];
+
+export type getFundingRoundsParameters = { fundedEntityId?: string; investorId?: string; type?: string; stage?: string; raisedAmountMax?: number; raisedAmountMin?: number; isTokenFunded?: boolean; announcedBefore?: string; announcedAfter?: string; page?: number; limit?: number };
+
+
+export const getFundingRounds = {
+  method: 'GET' as const,
+  pathParams: [] as const,
+  queryParams: ['fundedEntityId', 'investorId', 'type', 'stage', 'raisedAmountMax', 'raisedAmountMin', 'isTokenFunded', 'announcedBefore', 'announcedAfter', 'page', 'limit'] as const,
+  bodyParams: [] as const,
+  path: () => '/funding/v1/rounds'
+} as const;
+
+
+export type getFundingRoundsInvestorsResponse = components['schemas']['Investors'][];
+export type getFundingRoundsInvestorsError = components['schemas']['APIError'];
+
+export type getFundingRoundsInvestorsParameters = { fundedEntityId?: string; investorId?: string; type?: string; stage?: string; raisedAmountMax?: number; raisedAmountMin?: number; isTokenFunded?: boolean; announcedBefore?: string; announcedAfter?: string; page?: number; limit?: number };
+
+
+export const getFundingRoundsInvestors = {
+  method: 'GET' as const,
+  pathParams: [] as const,
+  queryParams: ['fundedEntityId', 'investorId', 'type', 'stage', 'raisedAmountMax', 'raisedAmountMin', 'isTokenFunded', 'announcedBefore', 'announcedAfter', 'page', 'limit'] as const,
+  bodyParams: [] as const,
+  path: () => '/funding/v1/rounds/investors'
+} as const;
+
+
+export type getAcquisitionDealsResponse = components['schemas']['AcquisitionDeal'][];
+export type getAcquisitionDealsError = components['schemas']['APIError'];
+
+export type getAcquisitionDealsParameters = { acquiringEntityId?: string; acquiredEntityId?: string; transactionAmountMin?: number; transactionAmountMax?: number; announcedBefore?: string; announcedAfter?: string; page?: number; limit?: number };
+
+
+export const getAcquisitionDeals = {
+  method: 'GET' as const,
+  pathParams: [] as const,
+  queryParams: ['acquiringEntityId', 'acquiredEntityId', 'transactionAmountMin', 'transactionAmountMax', 'announcedBefore', 'announcedAfter', 'page', 'limit'] as const,
+  bodyParams: [] as const,
+  path: () => '/funding/v1/mergers-and-acquisitions'
+} as const;
+
 // Re-export schema types
 export * from './schema';

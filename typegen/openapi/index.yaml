@@ -113,3 +113,11 @@ paths:
   # being used at the same time as the path template resolution explodes. They return the same values so only using one endpoint for now
   # /diligence/v1/report/{id}: 
   #   $ref: "./services/diligence/openapi.yaml#/paths/~1diligence~1v1~1report~1{id}"
+  
+  # Fundraising Service Paths
+  /funding/v1/rounds:
+    $ref: "./services/fundraising/openapi.yaml#/paths/~1funding~1v1~1rounds"
+  /funding/v1/rounds/investors:
+    $ref: "./services/fundraising/openapi.yaml#/paths/~1funding~1v1~1rounds~1investors"
+  /funding/v1/mergers-and-acquisitions:
+    $ref: "./services/fundraising/openapi.yaml#/paths/~1funding~1v1~1mergers-and-acquisitions"

@@ -1,0 +1,550 @@
+openapi: 3.1.0
+info:
+  title: Messari Recaps Service API
+  description: |
+    API for recap services.
+    This service provides access to project and exchange recaps.
+  version: 0.0.1
+  contact:
+    name: Messari Engineering
+    url: https://messari.io
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://api.messari.io/funding
+    description: Production server
+  - url: https://api.staging.messari.io/funding
+    description: Staging server
+  - url: http://localhost:8080/funding
+    description: Local development server
+
+tags:
+  - name: funding:Rounds
+    description: Fund raising round endpoints
+  - name: funding:MergersAndAcquisitions
+    description: Mergers and acquisitions endpoints
+
+paths:
+  /funding/v1/rounds:
+    get:
+      operationId: getFundingRounds
+      summary: Get Fundraising Rounds
+      description: Gets a list of all fundraising rounds
+      tags:
+        - funding:Rounds
+      security:
+        - apiKey: []
+      parameters:
+        - $ref: '../../common/parameters.yaml#/components/parameters/apiKey'
+        - name: fundedEntityId
+          in: query
+          description: Comma-separated list of projects or organizations uuids which received funding
+          required: false
+          schema:
+            type: string
+        - name: investorId
+          in: query
+          description: Comma-separated list of investor (persons, projects, orgs) IDs who invested in the funding rounds
+          required: false
+          schema:
+            type: string
+        - name: type
+          in: query
+          description: Comma-separated list of funding round types to filter by
+          required: false
+          schema:
+            type: string
+            enum:
+              - Accelerator
+              - Debt Financing
+              - Extended Pre Seed
+              - Extended Seed
+              - Extended Series A
+              - Extended Series B
+              - Extended Series C
+              - Extended Series D
+              - Grant
+              - ICO
+              - IPO
+              - Post IPO
+              - Post IPO Debt
+              - Pre Seed
+              - Pre Series A
+              - Pre Series B
+              - Private Token Sale
+              - Public Token Sale
+              - Seed
+              - Series A
+              - Series B
+              - Series C
+              - Series D
+              - Series E
+              - Series F
+              - Series G
+              - Series H
+              - Strategic
+              - Treasury Diversification
+              - Undisclosed
+        - name: stage
+          in: query
+          description: Comma-separated list of funding round stages to filter by
+          required: false
+          schema:
+            type: string
+            enum:
+              - Seed
+              - Early Stage
+              - Late Stage
+              - Public Equity Offering
+              - Post Public Equity
+              - Miscellaneous
+        - name: raisedAmountMax
+          in: query
+          description: Filter by maximum amount raised in USD
+          required: false
+          schema:
+            type: number
+            format: double
+        - name: raisedAmountMin
+          in: query
+          description: Filter by minimum amount raised in USD
+          required: false
+          schema:
+            type: number
+            format: double
+        - name: isTokenFunded
+          in: query
+          description: Filter by rounds that were funded with tokens
+          required: false
+          schema:
+            type: boolean
+        - name: announcedBefore
+          in: query
+          description: Filter by rounds announced before the specified date
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: announcedAfter
+          in: query
+          description: Filter by rounds announced after the specified date
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - $ref: '../../common/parameters.yaml#/components/parameters/page'
+        - $ref: '../../common/parameters.yaml#/components/parameters/limit'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../../common/components.yaml#/components/schemas/APIResponseWithMetadata'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/FundingRound'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+
+  /funding/v1/rounds/investors:
+    get:
+      operationId: getFundingRoundsInvestors
+      summary: Get Fundraising Rounds Investors
+      description: Gets a list of all investors for a given fundraising round
+      tags:
+        - funding:Rounds
+      security:
+        - apiKey: []
+      parameters:
+        - $ref: '../../common/parameters.yaml#/components/parameters/apiKey'
+        - name: fundedEntityId
+          in: query
+          description: Comma-separated list of projects or organizations uuids which received funding
+          required: false
+          schema:
+            type: string
+        - name: investorId
+          in: query
+          description: Comma-separated list of investor (persons, projects, orgs) IDs who invested in the funding rounds
+          required: false
+          schema:
+            type: string
+        - name: type
+          in: query
+          description: Comma-separated list of funding round types to filter by
+          required: false
+          schema:
+            type: string
+            enum:
+              - Accelerator
+              - Debt Financing
+              - Extended Pre Seed
+              - Extended Seed
+              - Extended Series A
+              - Extended Series B
+              - Extended Series C
+              - Extended Series D
+              - Grant
+              - ICO
+              - IPO
+              - Post IPO
+              - Post IPO Debt
+              - Pre Seed
+              - Pre Series A
+              - Pre Series B
+              - Private Token Sale
+              - Public Token Sale
+              - Seed
+              - Series A
+              - Series B
+              - Series C
+              - Series D
+              - Series E
+              - Series F
+              - Series G
+              - Series H
+              - Strategic
+              - Treasury Diversification
+              - Undisclosed
+        - name: stage
+          in: query
+          description: Comma-separated list of funding round stages to filter by
+          required: false
+          schema:
+            type: string
+            enum:
+              - Seed
+              - Early Stage
+              - Late Stage
+              - Public Equity Offering
+              - Post Public Equity
+              - Miscellaneous
+        - name: raisedAmountMax
+          in: query
+          description: Filter by maximum amount raised in USD
+          required: false
+          schema:
+            type: number
+            format: double
+        - name: raisedAmountMin
+          in: query
+          description: Filter by minimum amount raised in USD
+          required: false
+          schema:
+            type: number
+            format: double
+        - name: isTokenFunded
+          in: query
+          description: Filter by rounds that were funded with tokens
+          required: false
+          schema:
+            type: boolean
+        - name: announcedBefore
+          in: query
+          description: Filter by rounds announced before the specified date
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: announcedAfter
+          in: query
+          description: Filter by rounds announced after the specified date
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - $ref: '../../common/parameters.yaml#/components/parameters/page'
+        - $ref: '../../common/parameters.yaml#/components/parameters/limit'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../../common/components.yaml#/components/schemas/APIResponseWithMetadata'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Investors'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+
+  /funding/v1/mergers-and-acquisitions:
+    get:
+      operationId: getAcquisitionDeals
+      summary: Get Acquisition Deals
+      description: Lookup M&A Deals given a set of filters
+      tags:
+        - funding:MergersAndAcquisitions
+      security:
+        - apiKey: []
+      parameters:
+        - $ref: '../../common/parameters.yaml#/components/parameters/apiKey'
+        - name: acquiringEntityId
+          in: query
+          description: Comma-separated list of acquiring entity (projects, organizations) uuids
+          required: false
+          schema:
+            type: string
+        - name: acquiredEntityId
+          in: query
+          description: Comma-separated list of acquired entity (projects, organizations) uuids
+          required: false
+          schema:
+            type: string
+        - name: transactionAmountMin
+          in: query
+          description: Filter by minimum transaction amount in USD
+          required: false
+          schema:
+            type: number
+            format: double
+        - name: transactionAmountMax
+          in: query
+          description: Filter by maximum transaction amount in USD
+          required: false
+          schema:
+            type: number
+            format: double
+        - name: announcedBefore
+          in: query
+          description: Filter by deals announced before the specified date
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: announcedAfter
+          in: query
+          description: Filter by deals announced after the specified date
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - $ref: '../../common/parameters.yaml#/components/parameters/page'
+        - $ref: '../../common/parameters.yaml#/components/parameters/limit'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../../common/components.yaml#/components/schemas/APIResponseWithMetadata'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/AcquisitionDeal'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+
+components:
+  securitySchemes:
+    apiKey:
+      type: apiKey
+      name: x-messari-api-key
+      in: header
+      description: API key for authentication
+
+  schemas:
+    FundingRoundStage:
+      type: string
+      enum:
+        - Seed
+        - Early Stage
+        - Late Stage
+        - Public Equity Offering
+        - Post Public Equity
+        - Miscellaneous
+      description: Stage of the funding round
+
+    FundingRoundType:
+      type: string
+      enum:
+        - Accelerator
+        - Debt Financing
+        - Extended Pre Seed
+        - Extended Seed
+        - Extended Series A
+        - Extended Series B
+        - Extended Series C
+        - Extended Series D
+        - Grant
+        - ICO
+        - IPO
+        - Post IPO
+        - Post IPO Debt
+        - Pre Seed
+        - Pre Series A
+        - Pre Series B
+        - Private Token Sale
+        - Public Token Sale
+        - Seed
+        - Series A
+        - Series B
+        - Series C
+        - Series D
+        - Series E
+        - Series F
+        - Series G
+        - Series H
+        - Strategic
+        - Treasury Diversification
+        - Undisclosed
+      description: Type of the funding round
+
+    FundingRound:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the funding round
+        announcements:
+          type: array
+          items:
+            $ref: '#/components/schemas/Announcement'
+          description: List of announcements related to the funding round
+        announcementDate:
+          type: string
+          format: date-time
+          description: Date when the funding round was announced
+        type:
+          $ref: '#/components/schemas/FundingRoundType'
+          description: Type of the funding round
+        stage:
+          $ref: '#/components/schemas/FundingRoundStage'
+          description: Stage of the funding round
+        isTokenFunded:
+          type: boolean
+          description: Whether the round was funded with tokens
+        amountRaisedUSD:
+          type: number
+          format: double
+          nullable: true
+          description: Amount raised in USD
+        fundedEntity:
+          $ref: '#/components/schemas/FundingEntity'
+          description: Entity that received the funding
+
+    Investors:
+      type: object
+      properties:
+        fundingRoundId:
+          type: string
+          description: ID of the funding round
+        organizations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Organization'
+          description: List of organizations that invested
+        projects:
+          type: array
+          items:
+            $ref: '#/components/schemas/Project'
+          description: List of projects that invested
+        persons:
+          type: array
+          items:
+            $ref: '#/components/schemas/Person'
+          description: List of persons that invested
+
+    # Note: The following schemas are referenced but not defined in the provided code
+    # They should be defined based on your actual models
+    Announcement:
+      type: object
+      description: Announcement details (to be defined)
+
+    FundingEntity:
+      type: object
+      description: Entity that received funding (to be defined)
+
+    Organization:
+      type: object
+      description: Organization details (to be defined)
+
+    Project:
+      type: object
+      description: Project details (to be defined)
+
+    Person:
+      type: object
+      description: Person details (to be defined)
+
+    AcquisitionDealStatus:
+      type: string
+      enum:
+        - Announced
+        - Completed
+        - Canceled
+      description: Status of the acquisition deal
+
+    AcquisitionDeal:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the acquisition deal
+        announcements:
+          type: array
+          items:
+            $ref: '#/components/schemas/Announcement'
+          description: List of announcements related to the acquisition deal
+        announcementDate:
+          type: string
+          format: date-time
+          description: Date when the acquisition deal was announced
+        transactionAmountUSD:
+          type: number
+          format: double
+          nullable: true
+          description: Transaction amount in USD
+        status:
+          $ref: '#/components/schemas/AcquisitionDealStatus'
+          description: Status of the acquisition deal
+        acquiringEntity:
+          $ref: '#/components/schemas/FundingEntity'
+          description: Entity that is acquiring
+        acquiredEntity:
+          $ref: '#/components/schemas/FundingEntity'
+          description: Entity that is being acquired

@@ -13,6 +13,12 @@ export type APIResponse = components['schemas']['APIResponse'];
 
 export type APIResponseWithMetadata = components['schemas']['APIResponseWithMetadata'];
 
+export type AcquisitionDeal = components['schemas']['AcquisitionDeal'];
+
+export type AcquisitionDealStatus = components['schemas']['AcquisitionDealStatus'];
+
+export type Announcement = components['schemas']['Announcement'];
+
 export type Asset = components['schemas']['Asset'];
 
 export type AssetList = components['schemas']['AssetList'];
@@ -73,6 +79,14 @@ export type ExtractResponse = components['schemas']['ExtractResponse'];
 
 export type ExtractResponseMetadata = components['schemas']['ExtractResponseMetadata'];
 
+export type FundingEntity = components['schemas']['FundingEntity'];
+
+export type FundingRound = components['schemas']['FundingRound'];
+
+export type FundingRoundStage = components['schemas']['FundingRoundStage'];
+
+export type FundingRoundType = components['schemas']['FundingRoundType'];
+
 export type GetAllEventsRequest = components['schemas']['GetAllEventsRequest'];
 
 export type GetEventResponse = components['schemas']['GetEventResponse'];
@@ -85,6 +99,8 @@ export type GroupedEntity = components['schemas']['GroupedEntity'];
 
 export type IntelResponse = components['schemas']['IntelResponse'];
 
+export type Investors = components['schemas']['Investors'];
+
 export type NetworkMetrics = components['schemas']['NetworkMetrics'];
 
 export type NewsAsset = components['schemas']['NewsAsset'];
@@ -93,9 +109,15 @@ export type NewsResponse = components['schemas']['NewsResponse'];
 
 export type OHLCV = components['schemas']['OHLCV'];
 
+export type Organization = components['schemas']['Organization'];
+
 export type PaginationResult = components['schemas']['PaginationResult'];
 
+export type Person = components['schemas']['Person'];
+
 export type PlatformContract = components['schemas']['PlatformContract'];
+
+export type Project = components['schemas']['Project'];
 
 export type ProjectRecapResponse = components['schemas']['ProjectRecapResponse'];
 

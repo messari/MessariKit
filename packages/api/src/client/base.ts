@@ -30,6 +30,7 @@ import type {
   getProjectRecapResponse,
   getAssetListResponse,
   getAssetListParameters,
+  APIResponseWithMetadata,
   getPreviewsResponse,
   getReportByAssetIDParameters,
   getReportByAssetIDResponse,
@@ -38,6 +39,12 @@ import type {
   getResearchReportByIdParameters,
   getResearchReportByIdResponse,
   getResearchReportTagsResponse,
+  getFundingRoundsParameters,
+  FundingRound,
+  getFundingRoundsInvestorsParameters,
+  Investors,
+  getAcquisitionDealsParameters,
+  AcquisitionDeal,
 } from "@messari-kit/types";
 import { LogLevel, type Logger, makeConsoleLogger, createFilteredLogger, noOpLogger } from "../logging";
 import type { PaginatedResult, RequestOptions, ClientEventMap, ClientEventType, ClientEventHandler } from "./types";
@@ -247,6 +254,29 @@ export interface DiligenceAPIInterface {
    * @return The diligence report
    */
   getDiligenceReport(params: getReportByAssetIDParameters): Promise<getReportByAssetIDResponse>;
+}
+
+/**
+ * Interface for the Fundraising API methods
+ */
+export interface FundraisingAPIInterface {
+  /**
+   * Gets a list of all fundraising rounds based on provided filters
+   * @param params Query parameters for filtering funding rounds
+   */
+  getFundingRounds(params?: getFundingRoundsParameters): Promise<APIResponseWithMetadata<FundingRound[]>>;
+
+  /**
+   * Gets a list of all investors for a given fundraising round
+   * @param params Query parameters for filtering investors
+   */
+  getFundingRoundsInvestors(params?: getFundingRoundsInvestorsParameters): Promise<APIResponseWithMetadata<Investors[]>>;
+
+  /**
+   * Gets a list of all acquisition deals based on provided filters
+   * @param params Query parameters for filtering acquisition deals
+   */
+  getAcquisitionDeals(params?: getAcquisitionDealsParameters): Promise<APIResponseWithMetadata<AcquisitionDeal[]>>;
 }
 
 /**
