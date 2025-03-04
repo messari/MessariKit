@@ -271,5 +271,35 @@ export const getExchangeRankingsRecap = {
   path: () => '/ai-digest/api/v1/exchange-rankings-recap'
 } as const;
 
+
+export type getPreviewsResponse = components['schemas']['GetPreviewsResponse'];
+export type getPreviewsError = components['schemas']['APIError'];
+
+export type getPreviewsParameters = { sector?: string; isDefaultIncluded?: boolean; isPublished?: boolean; isPurchased?: boolean; sort?: string; order?: string };
+
+
+export const getPreviews = {
+  method: 'GET' as const,
+  pathParams: [] as const,
+  queryParams: ['sector', 'isDefaultIncluded', 'isPublished', 'isPurchased', 'sort', 'order'] as const,
+  bodyParams: [] as const,
+  path: () => '/diligence/v1/reports/preview'
+} as const;
+
+
+export type getReportByAssetIDResponse = components['schemas']['AssetReport'];
+export type getReportByAssetIDError = components['schemas']['APIError'];
+
+export type getReportByAssetIDParameters = { assetId: string };
+
+
+export const getReportByAssetID = {
+  method: 'GET' as const,
+  pathParams: ['assetId'] as const,
+  queryParams: [] as const,
+  bodyParams: [] as const,
+  path: (p: PathParams) => `/diligence/v1/report/asset/${p.assetId}`
+} as const;
+
 // Re-export schema types
 export * from './schema';
