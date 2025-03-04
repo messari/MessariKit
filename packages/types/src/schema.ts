@@ -21,6 +21,8 @@ export type AssetMarketData = components['schemas']['AssetMarketData'];
 
 export type AssetMarketcap = components['schemas']['AssetMarketcap'];
 
+export type AssetReport = components['schemas']['AssetReport'];
+
 export type AssetSupply = components['schemas']['AssetSupply'];
 
 export type AssetWithATHData = components['schemas']['AssetWithATHData'];
@@ -75,6 +77,8 @@ export type GetAllEventsRequest = components['schemas']['GetAllEventsRequest'];
 
 export type GetEventResponse = components['schemas']['GetEventResponse'];
 
+export type GetPreviewsResponse = components['schemas']['GetPreviewsResponse'];
+
 export type GetProjectRecapResponse = components['schemas']['GetProjectRecapResponse'];
 
 export type GroupedEntity = components['schemas']['GroupedEntity'];
@@ -100,6 +104,10 @@ export type PropositionResponse = components['schemas']['PropositionResponse'];
 export type ROIData = components['schemas']['ROIData'];
 
 export type RecapSlug = components['schemas']['RecapSlug'];
+
+export type ReportResponse = components['schemas']['ReportResponse'];
+
+export type ReportSection = components['schemas']['ReportSection'];
 
 export type ResearchReport = components['schemas']['ResearchReport'];
 

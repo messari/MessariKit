@@ -103,3 +103,13 @@ paths:
     $ref: "./services/research/openapi.yaml#/paths/~1research~1v1~1reports~1{id}"
   /research/v1/reports/tags:
     $ref: "./services/research/openapi.yaml#/paths/~1research~1v1~1reports~1tags"
+
+  # Diligence Service Paths
+  /diligence/v1/reports/preview:
+    $ref: "./services/diligence/openapi.yaml#/paths/~1diligence~1v1~1reports~1preview"
+  /diligence/v1/report/asset/{assetId}:
+    $ref: "./services/diligence/openapi.yaml#/paths/~1diligence~1v1~1report~1asset~1{assetId}"
+  # A build issue is preventing /diligence/v1/report/asset/{assetId} and /diligence/v1/report/{id} from 
+  # being used at the same time as the path template resolution explodes. They return the same values so only using one endpoint for now
+  # /diligence/v1/report/{id}: 
+  #   $ref: "./services/diligence/openapi.yaml#/paths/~1diligence~1v1~1report~1{id}"

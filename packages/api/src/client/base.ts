@@ -30,6 +30,9 @@ import type {
   getProjectRecapResponse,
   getAssetListResponse,
   getAssetListParameters,
+  getPreviewsResponse,
+  getReportByAssetIDParameters,
+  getReportByAssetIDResponse,
   getResearchReportsParameters,
   getResearchReportsResponse,
   getResearchReportByIdParameters,
@@ -226,6 +229,24 @@ export interface ResearchInterface {
    * @returns A promise that resolves when the operation completes
    */
   getResearchReportTags(options?: RequestOptions): Promise<getResearchReportTagsResponse>;
+}
+
+/**
+ * Interface for the Diligence API methods
+ */
+export interface DiligenceAPIInterface {
+  /**
+   * Gets a preview of the available diligence reports
+   * @return The diligence reports
+   */
+  getDiligencePreview(): Promise<getPreviewsResponse>;
+
+  /**
+   * Gets a diligence report by asset ID
+   * @param params The parameters for the diligence report
+   * @return The diligence report
+   */
+  getDiligenceReport(params: getReportByAssetIDParameters): Promise<getReportByAssetIDResponse>;
 }
 
 /**

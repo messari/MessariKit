@@ -52,6 +52,20 @@ export type paths = {
      */
     get: operations["getAssetList"];
   };
+  "/diligence/v1/report/asset/{assetId}": {
+    /**
+     * Get Diligence Report
+     * @description Gets a specific diligence report by asset ID. Requires authentication and appropriate enterprise access.
+     */
+    get: operations["getReportByAssetID"];
+  };
+  "/diligence/v1/reports/preview": {
+    /**
+     * Get Diligence Previews
+     * @description Gets a preview of the available diligence reports
+     */
+    get: operations["getPreviews"];
+  };
   "/intel/v1/assets": {
     /**
      * Get all assets
@@ -239,6 +253,13 @@ export type components = {
       volume24Hours?: number;
       /** Format: double */
       volume24HoursOverstatementMultiple?: number;
+    };
+    AssetReport: components["schemas"]["ReportResponse"] & {
+      /**
+       * @default asset
+       * @enum {string}
+       */
+      lookupType?: "asset";
     };
     AssetSupply: {
       /** Format: double */
@@ -666,6 +687,7 @@ export type components = {
       /** @description History of the event */
       eventHistory: components["schemas"]["EventHistory"][];
     };
+    GetPreviewsResponse: components["schemas"]["ReportResponse"][];
     /** @description List of project recaps */
     GetProjectRecapResponse: components["schemas"]["ProjectRecapResponse"][];
     GroupedEntity: {
@@ -811,6 +833,47 @@ export type components = {
      * @enum {string}
      */
     RecapSlug: "daily" | "weekly" | "monthly";
+    /** @description A diligence report response */
+    ReportResponse: {
+      /**
+       * Format: uuid
+       * @description Unique identifier for the asset
+       */
+      assetId?: string;
+      /** @description Slug identifier for the asset */
+      assetSlug?: string;
+      /**
+       * Format: uuid
+       * @description Unique identifier for the report
+       */
+      id?: string;
+      /**
+       * Format: date-time
+       * @description Timestamp of last revision
+       */
+      lastRevisedAt?: string;
+      /** @description Name of the project */
+      projectName?: string;
+      /** @description Publication status of the report */
+      publishStatus?: string;
+      /** @description Map of report sections */
+      sections?: {
+        [key: string]: components["schemas"]["ReportSection"];
+      };
+      /** @description Sector classification */
+      sector?: string;
+      /** @description Slug identifier for the report */
+      slug?: string;
+      /** @description Asset symbol */
+      symbol?: string | null;
+    };
+    /** @description A section within a diligence report */
+    ReportSection: {
+      /** @description Markdown content of the section */
+      markdown?: string;
+      /** @description Timestamp of last revision */
+      updatedAt?: string;
+    };
     ResearchReport: {
       /** @description Array of asset IDs associated with the research report */
       assetIds: string[];
@@ -969,7 +1032,12 @@ export type components = {
         }[];
     };
   };
-  responses: never;
+  responses: {
+    /** @description Standard error response */
+    ErrorResponse: {
+      content: never;
+    };
+  };
   parameters: {
     /** @description API key for authentication */
     apiKey: string;
@@ -1242,6 +1310,62 @@ export type operations = {
           "application/json": components["schemas"]["APIError"];
         };
       };
+    };
+  };
+  /**
+   * Get Diligence Report
+   * @description Gets a specific diligence report by asset ID. Requires authentication and appropriate enterprise access.
+   */
+  getReportByAssetID: {
+    parameters: {
+      path: {
+        /** @description UUID of the asset to get the report for */
+        assetId: string;
+      };
+    };
+    responses: {
+      /** @description Successfully retrieved diligence report */
+      200: {
+        content: {
+          "application/json": components["schemas"]["AssetReport"];
+        };
+      };
+      400: components["responses"]["ErrorResponse"];
+      403: components["responses"]["ErrorResponse"];
+      404: components["responses"]["ErrorResponse"];
+      500: components["responses"]["ErrorResponse"];
+    };
+  };
+  /**
+   * Get Diligence Previews
+   * @description Gets a preview of the available diligence reports
+   */
+  getPreviews: {
+    parameters: {
+      query?: {
+        /** @description Filter reports by sector */
+        sector?: string;
+        /** @description Filter reports by default inclusion status */
+        isDefaultIncluded?: boolean;
+        /** @description Filter reports by published status */
+        isPublished?: boolean;
+        /** @description Filter reports by purchase status */
+        isPurchased?: boolean;
+        /** @description Sort field (updated_at or created_at) */
+        sort?: "updated_at" | "created_at";
+        /** @description Sort order (asc or desc) */
+        order?: "asc" | "desc";
+      };
+    };
+    responses: {
+      /** @description Successfully retrieved report previews */
+      200: {
+        content: {
+          "application/json": components["schemas"]["GetPreviewsResponse"];
+        };
+      };
+      400: components["responses"]["ErrorResponse"];
+      500: components["responses"]["ErrorResponse"];
     };
   };
   /**

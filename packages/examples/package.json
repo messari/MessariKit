@@ -13,6 +13,7 @@
 		"start:chat": "tsx src/chatCompletion.ts",
 		"start:marketdata": "tsx src/marketData.ts",
 		"start:recaps": "tsx src/recaps.ts",
+		"start:diligence": "tsx src/diligence.ts",
 		"start:research": "tsx src/research.ts"
 	},
 	"dependencies": {

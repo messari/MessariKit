@@ -16,6 +16,8 @@ import {
   getExchangeRecap,
   getExchangeRankingsRecap,
   getAssetList,
+  getPreviews,
+  getReportByAssetID,
   getResearchReports,
   getResearchReportById,
   getResearchReportTags,
@@ -53,6 +55,9 @@ import type {
   getExchangeRankingsRecapResponse,
   getAssetListParameters,
   getAssetListResponse,
+  getPreviewsResponse,
+  getReportByAssetIDResponse,
+  getReportByAssetIDParameters,
   getResearchReportsParameters,
   getResearchReportsResponse,
   getResearchReportByIdParameters,
@@ -74,7 +79,16 @@ import type {
   RequestOptions,
   RequestParameters,
 } from "./types";
-import type { AIInterface, AssetInterface, IntelInterface, MarketsInterface, NewsInterface, RecapsAPIInterface, ResearchInterface } from "./base";
+import type {
+  AIInterface,
+  AssetInterface,
+  DiligenceAPIInterface,
+  IntelInterface,
+  MarketsInterface,
+  NewsInterface,
+  RecapsAPIInterface,
+  ResearchInterface,
+} from "./base";
 import { MessariClientBase } from "./base";
 
 /**
@@ -744,5 +758,20 @@ export class MessariClient extends MessariClientBase {
         path: getResearchReportTags.path(),
         options,
       }),
+  };
+
+  public readonly diligence: DiligenceAPIInterface = {
+    getDiligencePreview: async () => {
+      return this.request<getPreviewsResponse>({
+        method: getPreviews.method,
+        path: getPreviews.path(),
+      });
+    },
+    getDiligenceReport: async (params: getReportByAssetIDParameters) => {
+      return this.request<getReportByAssetIDResponse>({
+        method: getReportByAssetID.method,
+        path: getReportByAssetID.path(params),
+      });
+    },
   };
 }
