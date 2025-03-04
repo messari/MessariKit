@@ -95,3 +95,9 @@ paths:
     $ref: "./services/recaps/openapi.yaml#/paths/~1ai-digest~1api~1v1~1exchange-recap"
   /ai-digest/api/v1/exchange-rankings-recap:
     $ref: "./services/recaps/openapi.yaml#/paths/~1ai-digest~1api~1v1~1exchange-rankings-recap"
+
+  # Fundraising Service Paths
+  /funding/v1/rounds:
+    $ref: "./services/fundraising/openapi.yaml#/paths/~1funding~1v1~1rounds"
+  /funding/v1/rounds/investors:
+    $ref: "./services/fundraising/openapi.yaml#/paths/~1funding~1v1~1rounds~1investors"
