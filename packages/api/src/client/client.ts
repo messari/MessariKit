@@ -16,6 +16,8 @@ import {
   getExchangeRecap,
   getExchangeRankingsRecap,
   getAssetList,
+  getFundingRounds,
+  getFundingRoundsInvestors,
 } from "@messari-kit/types";
 import type {
   createChatCompletionParameters,
@@ -50,6 +52,10 @@ import type {
   getExchangeRankingsRecapResponse,
   getAssetListParameters,
   getAssetListResponse,
+  getFundingRoundsParameters,
+  getFundingRoundsResponse,
+  getFundingRoundsInvestorsParameters,
+  getFundingRoundsInvestorsResponse,
 } from "@messari-kit/types";
 import type { Agent } from "node:http";
 import { pick } from "../utils";
@@ -66,7 +72,7 @@ import type {
   RequestOptions,
   RequestParameters,
 } from "./types";
-import type { AIInterface, AssetInterface, IntelInterface, MarketsInterface, NewsInterface, RecapsAPIInterface } from "./base";
+import type { AIInterface, AssetInterface, FundraisingAPIInterface, IntelInterface, MarketsInterface, NewsInterface, RecapsAPIInterface } from "./base";
 import { MessariClientBase } from "./base";
 
 /**
@@ -712,6 +718,24 @@ export class MessariClient extends MessariClientBase {
       return this.request<getExchangeRankingsRecapResponse>({
         method: getExchangeRankingsRecap.method,
         path: getExchangeRankingsRecap.path(),
+      });
+    },
+  };
+
+  public readonly fundraising: FundraisingAPIInterface = {
+    getFundingRounds: async (params: getFundingRoundsParameters) => {
+      return this.requestWithMetadata<getFundingRoundsResponse, PaginationMetadata>({
+        method: getFundingRounds.method,
+        path: getFundingRounds.path(),
+        queryParams: pick(params, getFundingRounds.queryParams),
+      });
+    },
+
+    getFundingRoundsInvestors: async (params: getFundingRoundsInvestorsParameters) => {
+      return this.requestWithMetadata<getFundingRoundsInvestorsResponse, PaginationMetadata>({
+        method: getFundingRoundsInvestors.method,
+        path: getFundingRoundsInvestors.path(),
+        queryParams: pick(params, getFundingRoundsInvestors.queryParams),
       });
     },
   };

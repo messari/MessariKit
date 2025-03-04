@@ -30,6 +30,11 @@ import type {
   getProjectRecapResponse,
   getAssetListResponse,
   getAssetListParameters,
+  APIResponseWithMetadata,
+  getFundingRoundsParameters,
+  FundingRound,
+  getFundingRoundsInvestorsParameters,
+  Investors,
 } from "@messari-kit/types";
 import { LogLevel, type Logger, makeConsoleLogger, createFilteredLogger, noOpLogger } from "../logging";
 import type { PaginatedResult, RequestOptions, ClientEventMap, ClientEventType, ClientEventHandler } from "./types";
@@ -193,6 +198,23 @@ export interface RecapsAPIInterface {
    * @return The exchange rankings recap
    */
   getExchangeRankingsRecap(): Promise<getExchangeRankingsRecapResponse>;
+}
+
+/**
+ * Interface for the Fundraising API methods
+ */
+export interface FundraisingAPIInterface {
+  /**
+   * Gets a list of all fundraising rounds based on provided filters
+   * @param params Query parameters for filtering funding rounds
+   */
+  getFundingRounds(params?: getFundingRoundsParameters): Promise<APIResponseWithMetadata<FundingRound[]>>;
+
+  /**
+   * Gets a list of all investors for a given fundraising round
+   * @param params Query parameters for filtering investors
+   */
+  getFundingRoundsInvestors(params?: getFundingRoundsInvestorsParameters): Promise<APIResponseWithMetadata<Investors[]>>;
 }
 
 /**
