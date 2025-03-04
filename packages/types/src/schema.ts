@@ -149,6 +149,16 @@ export type Tag = components['schemas']['Tag'];
 
 export type TimeUTC = components['schemas']['TimeUTC'];
 
+export type TokenUnlockAllocation = components['schemas']['TokenUnlockAllocation'];
+
 export type TokenUnlockData = components['schemas']['TokenUnlockData'];
+
+export type TokenUnlockEvent = components['schemas']['TokenUnlockEvent'];
+
+export type TokenUnlockSupportedAsset = components['schemas']['TokenUnlockSupportedAsset'];
+
+export type TokenUnlockUnlocks = components['schemas']['TokenUnlockUnlocks'];
+
+export type TokenUnlockVestingSchedule = components['schemas']['TokenUnlockVestingSchedule'];
 
 export type VideoPodcastResponse = components['schemas']['VideoPodcastResponse'];

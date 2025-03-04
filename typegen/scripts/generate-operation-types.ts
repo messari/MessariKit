@@ -274,7 +274,8 @@ function generateOperationTypes(operationId: string, operation: OpenAPIV3.Operat
     bodyType = `components['schemas']['${bodySchemaName}']`;
   }
 
-  const typeIntersection = [bodyType, queryParams ? `{ ${queryParams} }` : null, pathParams ? `{ ${pathParams} }` : null].filter(Boolean).join("; ");
+  // Combine path and query parameters into a single type
+  const typeIntersection = [bodyType, queryParams ? `{ ${queryParams} }` : null, pathParams ? `{ ${pathParams} }` : null].filter(Boolean).join(" & ");
 
   return `
 export type ${operationId}Response = ${finalResponseType};
