@@ -19,6 +19,8 @@ import {
   getFundingRounds,
   getFundingRoundsInvestors,
   getAcquisitionDeals,
+  getOrganizations,
+  getProjects,
 } from "@messari-kit/types";
 import type {
   createChatCompletionParameters,
@@ -59,6 +61,10 @@ import type {
   getFundingRoundsInvestorsResponse,
   getAcquisitionDealsParameters,
   getAcquisitionDealsResponse,
+  getOrganizationsResponse,
+  getOrganizationsParameters,
+  getProjectsParameters,
+  getProjectsResponse,
 } from "@messari-kit/types";
 import type { Agent } from "node:http";
 import { pick } from "../utils";
@@ -747,6 +753,22 @@ export class MessariClient extends MessariClientBase {
         method: getAcquisitionDeals.method,
         path: getAcquisitionDeals.path(),
         queryParams: pick(params, getAcquisitionDeals.queryParams),
+      });
+    },
+
+    getOrganizations: async (params: getOrganizationsParameters) => {
+      return this.requestWithMetadata<getOrganizationsResponse, PaginationMetadata>({
+        method: getOrganizations.method,
+        path: getOrganizations.path(),
+        queryParams: pick(params, getOrganizations.queryParams),
+      });
+    },
+
+    getProjects: async (params: getProjectsParameters) => {
+      return this.requestWithMetadata<getProjectsResponse, PaginationMetadata>({
+        method: getProjects.method,
+        path: getProjects.path(),
+        queryParams: pick(params, getProjects.queryParams),
       });
     },
   };
