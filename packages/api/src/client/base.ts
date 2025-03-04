@@ -58,7 +58,7 @@ import type {
   APIResponse,
 } from "@messari-kit/types";
 import { LogLevel, type Logger, makeConsoleLogger, createFilteredLogger, noOpLogger } from "../logging";
-import type { PaginatedResult, RequestOptions, ClientEventMap, ClientEventType, ClientEventHandler, PaginationMetadata } from "./types";
+import type { PaginatedResult, RequestOptions, ClientEventMap, ClientEventType, ClientEventHandler } from "./types";
 
 /**
  * Interface for the AI API methods
