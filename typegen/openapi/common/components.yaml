@@ -18,7 +18,22 @@ components:
           type: string
           description: Error message when something goes wrong
           example: "Internal server error, please try again"
-
+    APIResponse:
+      type: object
+      description: Standard response wrapper.
+      required:
+        - data
+      properties:
+        error:
+          type: string
+          description: Error message if request failed
+        data:
+          description: Response payload
+          anyOf:
+            - type: object
+            - type: array
+              items:
+                type: string
     APIResponseWithMetadata:
       type: object
       description: |
