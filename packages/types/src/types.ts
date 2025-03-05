@@ -73,6 +73,20 @@ export type paths = {
      */
     get: operations["getAcquisitionDeals"];
   };
+  "/funding/v1/organizations": {
+    /**
+     * Get Organizations
+     * @description Lookup Organizations given a set of filters
+     */
+    get: operations["getOrganizations"];
+  };
+  "/funding/v1/projects": {
+    /**
+     * Get Projects
+     * @description Lookup Projects given a set of filters
+     */
+    get: operations["getProjects"];
+  };
   "/funding/v1/rounds": {
     /**
      * Get Fundraising Rounds
@@ -884,8 +898,25 @@ export type components = {
       /** Format: double */
       volume?: number;
     };
-    /** @description Organization details (to be defined) */
-    Organization: Record<string, never>;
+    Organization: {
+      /** @description Category of the organization */
+      category?: string;
+      /**
+       * Format: date-time
+       * @description When the organization was founded
+       */
+      foundedAt?: string;
+      /** @description Unique identifier for the organization */
+      id?: string;
+      /** @description Location of the organization */
+      location?: string;
+      /** @description Name of the organization */
+      name?: string;
+      /** @description Sector of the organization */
+      sector?: string;
+      /** @description Tags associated with the organization */
+      tags?: string[];
+    };
     /** @description Pagination metadata for list endpoints */
     PaginationResult: {
       /**
@@ -915,8 +946,25 @@ export type components = {
       contractAddress?: string;
       platform?: string;
     };
-    /** @description Project details (to be defined) */
-    Project: Record<string, never>;
+    Project: {
+      /** @description Category of the project */
+      category?: string;
+      /**
+       * Format: date-time
+       * @description When the project was founded
+       */
+      foundedAt?: string;
+      /** @description Unique identifier for the project */
+      id?: string;
+      /** @description Name of the project */
+      name?: string;
+      /** @description ID of the primary asset associated with the project */
+      primaryAssetId?: string | null;
+      /** @description Sector of the project */
+      sector?: string;
+      /** @description Tags associated with the project */
+      tags?: string[];
+    };
     ProjectRecapResponse: {
       /** @description Unique identifier for the asset */
       asset_id?: string;
@@ -1684,6 +1732,104 @@ export type operations = {
         content: {
           "application/json": components["schemas"]["APIResponseWithMetadata"] & {
             data?: components["schemas"]["AcquisitionDeal"][];
+          };
+        };
+      };
+      /** @description Bad request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+    };
+  };
+  /**
+   * Get Organizations
+   * @description Lookup Organizations given a set of filters
+   */
+  getOrganizations: {
+    parameters: {
+      query?: {
+        /** @description Comma-separated list of organization uuids to filter by */
+        id?: string;
+        /** @description Comma-separated list of categories to filter by */
+        category?: string;
+        /** @description Comma-separated list of sectors to filter by */
+        sector?: string;
+        /** @description Comma-separated list of tags to filter by */
+        tags?: string;
+        /** @description Filter by organizations founded before the specified date */
+        foundedBefore?: string;
+        /** @description Filter by organizations founded after the specified date */
+        foundedAfter?: string;
+        page?: components["parameters"]["page"];
+        limit?: components["parameters"]["limit"];
+      };
+      header: {
+        "x-messari-api-key": components["parameters"]["apiKey"];
+      };
+    };
+    responses: {
+      /** @description Successful response */
+      200: {
+        content: {
+          "application/json": components["schemas"]["APIResponseWithMetadata"] & {
+            data?: components["schemas"]["Organization"][];
+          };
+        };
+      };
+      /** @description Bad request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+    };
+  };
+  /**
+   * Get Projects
+   * @description Lookup Projects given a set of filters
+   */
+  getProjects: {
+    parameters: {
+      query?: {
+        /** @description Comma-separated list of project uuids to filter by */
+        id?: string;
+        /** @description Comma-separated list of categories to filter by */
+        category?: string;
+        /** @description Comma-separated list of sectors to filter by */
+        sector?: string;
+        /** @description Comma-separated list of tags to filter by */
+        tags?: string;
+        /** @description Filter by projects founded before the specified date */
+        foundedBefore?: string;
+        /** @description Filter by projects founded after the specified date */
+        foundedAfter?: string;
+        page?: components["parameters"]["page"];
+        limit?: components["parameters"]["limit"];
+      };
+      header: {
+        "x-messari-api-key": components["parameters"]["apiKey"];
+      };
+    };
+    responses: {
+      /** @description Successful response */
+      200: {
+        content: {
+          "application/json": components["schemas"]["APIResponseWithMetadata"] & {
+            data?: components["schemas"]["Project"][];
           };
         };
       };

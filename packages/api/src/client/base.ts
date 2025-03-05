@@ -44,7 +44,8 @@ import type {
   getFundingRoundsInvestorsParameters,
   Investors,
   getAcquisitionDealsParameters,
-  AcquisitionDeal,
+  Organization,
+  Project,
   getTokenUnlockSupportedAssetsParameters,
   getTokenUnlockSupportedAssetsResponse,
   getTokenUnlockAllocationsParameters,
@@ -55,6 +56,9 @@ import type {
   getTokenUnlocksResponse,
   getTokenUnlockEventsParameters,
   getTokenUnlockEventsResponse,
+  AcquisitionDeal,
+  getOrganizationsParameters,
+  getProjectsParameters,
 } from "@messari-kit/types";
 import { LogLevel, type Logger, makeConsoleLogger, createFilteredLogger, noOpLogger } from "../logging";
 import type { PaginatedResult, RequestOptions, ClientEventMap, ClientEventType, ClientEventHandler } from "./types";
@@ -287,6 +291,18 @@ export interface FundraisingAPIInterface {
    * @param params Query parameters for filtering acquisition deals
    */
   getAcquisitionDeals(params?: getAcquisitionDealsParameters): Promise<APIResponseWithMetadata<AcquisitionDeal[]>>;
+
+  /**
+   * Gets a list of all organizations based on provided filters
+   * @param params Query parameters for filtering organizations
+   */
+  getOrganizations(params?: getOrganizationsParameters): Promise<APIResponseWithMetadata<Organization[]>>;
+
+  /**
+   * Gets a list of all projects based on provided filters
+   * @param params Query parameters for filtering projects
+   */
+  getProjects(params?: getProjectsParameters): Promise<APIResponseWithMetadata<Project[]>>;
 }
 
 /**

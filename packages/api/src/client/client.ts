@@ -29,6 +29,8 @@ import {
   getTokenUnlockSupportedAssets,
   getTokenUnlocks,
   getTokenUnlockVestingSchedule,
+  getOrganizations,
+  getProjects,
 } from "@messari-kit/types";
 import type {
   createChatCompletionParameters,
@@ -87,6 +89,10 @@ import type {
   getTokenUnlocksResponse,
   getTokenUnlockVestingScheduleParameters,
   getTokenUnlockVestingScheduleResponse,
+  getOrganizationsParameters,
+  getOrganizationsResponse,
+  getProjectsParameters,
+  getProjectsResponse,
 } from "@messari-kit/types";
 import type { Agent } from "node:http";
 import { pick } from "../utils";
@@ -825,8 +831,23 @@ export class MessariClient extends MessariClientBase {
         queryParams: pick(params, getAcquisitionDeals.queryParams),
       });
     },
-  };
 
+    getOrganizations: async (params: getOrganizationsParameters) => {
+      return this.requestWithMetadata<getOrganizationsResponse, PaginationMetadata>({
+        method: getOrganizations.method,
+        path: getOrganizations.path(),
+        queryParams: pick(params, getOrganizations.queryParams),
+      });
+    },
+
+    getProjects: async (params: getProjectsParameters) => {
+      return this.requestWithMetadata<getProjectsResponse, PaginationMetadata>({
+        method: getProjects.method,
+        path: getProjects.path(),
+        queryParams: pick(params, getProjects.queryParams),
+      });
+    },
+  };
   public readonly tokenUnlocks: TokenUnlocksInterface = {
     getSupportedAssets: async (params: getTokenUnlockSupportedAssetsParameters = {}, options?: RequestOptions) => {
       return this.request<getTokenUnlockSupportedAssetsResponse>({

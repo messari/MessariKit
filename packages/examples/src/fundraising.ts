@@ -1,6 +1,12 @@
 import { MessariClient } from "@messari-kit/api";
 import { printTable } from "console-table-printer";
-import type { getAcquisitionDealsParameters, getFundingRoundsInvestorsParameters, getFundingRoundsParameters } from "@messari-kit/types";
+import type {
+  getAcquisitionDealsParameters,
+  getFundingRoundsInvestorsParameters,
+  getFundingRoundsParameters,
+  getOrganizationsParameters,
+  getProjectsParameters,
+} from "@messari-kit/types";
 import dotenv from "dotenv";
 
 // Load environment variables from .env file
@@ -108,6 +114,46 @@ async function main() {
     }
   } catch (error) {
     console.error("Error calling getAcquisitionDeals:", error);
+  }
+
+  // Get the organizations
+  try {
+    const orgsParams: getOrganizationsParameters = { page: 1, limit: 10 };
+    const resp = await client.fundraising.getOrganizations(orgsParams);
+    console.log("\n--------------------------------");
+    console.log("Organizations");
+    console.log("--------------------------------");
+    const orgs = resp.data;
+    if (orgs.length > 0) {
+      const rows = orgs.map((o) => ({
+        "Id": o.id,
+        "Name": o.name,
+        "Location": o.location,
+      }));
+      printTable(rows);
+    }
+  } catch (error) {
+    console.error("Error calling getOrganizations:", error);
+  }
+
+  // Get the projects
+  try {
+    const projectsParams: getProjectsParameters = { page: 1, limit: 10 };
+    const resp = await client.fundraising.getProjects(projectsParams);
+    console.log("\n--------------------------------");
+    console.log("Projects");
+    console.log("--------------------------------");
+    const projects = resp.data;
+    if (projects.length > 0) {
+      const rows = projects.map((p) => ({
+        "Id": p.id,
+        "Name": p.name,
+        "Tags": p.tags?.join(", "),
+      }));
+      printTable(rows);
+    }
+  } catch (error) {
+    console.error("Error calling getProjects:", error);
   }
 }
 

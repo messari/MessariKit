@@ -25,6 +25,10 @@ tags:
     description: Fund raising round endpoints
   - name: funding:MergersAndAcquisitions
     description: Mergers and acquisitions endpoints
+  - name: funding:Organizations
+    description: Organization endpoints
+  - name: funding:Projects
+    description: Project endpoints
 
 paths:
   /funding/v1/rounds:
@@ -379,6 +383,162 @@ paths:
               schema:
                 $ref: '../../common/components.yaml#/components/schemas/APIError'
 
+  /funding/v1/organizations:
+    get:
+      operationId: getOrganizations
+      summary: Get Organizations
+      description: Lookup Organizations given a set of filters
+      tags:
+        - funding:Organizations
+      security:
+        - apiKey: []
+      parameters:
+        - $ref: '../../common/parameters.yaml#/components/parameters/apiKey'
+        - name: id
+          in: query
+          description: Comma-separated list of organization uuids to filter by
+          required: false
+          schema:
+            type: string
+        - name: category
+          in: query
+          description: Comma-separated list of categories to filter by
+          required: false
+          schema:
+            type: string
+        - name: sector
+          in: query
+          description: Comma-separated list of sectors to filter by
+          required: false
+          schema:
+            type: string
+        - name: tags
+          in: query
+          description: Comma-separated list of tags to filter by
+          required: false
+          schema:
+            type: string
+        - name: foundedBefore
+          in: query
+          description: Filter by organizations founded before the specified date
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: foundedAfter
+          in: query
+          description: Filter by organizations founded after the specified date
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - $ref: '../../common/parameters.yaml#/components/parameters/page'
+        - $ref: '../../common/parameters.yaml#/components/parameters/limit'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../../common/components.yaml#/components/schemas/APIResponseWithMetadata'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Organization'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+
+  /funding/v1/projects:
+    get:
+      operationId: getProjects
+      summary: Get Projects
+      description: Lookup Projects given a set of filters
+      tags:
+        - funding:Projects
+      security:
+        - apiKey: []
+      parameters:
+        - $ref: '../../common/parameters.yaml#/components/parameters/apiKey'
+        - name: id
+          in: query
+          description: Comma-separated list of project uuids to filter by
+          required: false
+          schema:
+            type: string
+        - name: category
+          in: query
+          description: Comma-separated list of categories to filter by
+          required: false
+          schema:
+            type: string
+        - name: sector
+          in: query
+          description: Comma-separated list of sectors to filter by
+          required: false
+          schema:
+            type: string
+        - name: tags
+          in: query
+          description: Comma-separated list of tags to filter by
+          required: false
+          schema:
+            type: string
+        - name: foundedBefore
+          in: query
+          description: Filter by projects founded before the specified date
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: foundedAfter
+          in: query
+          description: Filter by projects founded after the specified date
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - $ref: '../../common/parameters.yaml#/components/parameters/page'
+        - $ref: '../../common/parameters.yaml#/components/parameters/limit'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../../common/components.yaml#/components/schemas/APIResponseWithMetadata'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Project'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+
 components:
   securitySchemes:
     apiKey:
@@ -501,11 +661,60 @@ components:
 
     Organization:
       type: object
-      description: Organization details (to be defined)
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the organization
+        name:
+          type: string
+          description: Name of the organization
+        location:
+          type: string
+          description: Location of the organization
+        category:
+          type: string
+          description: Category of the organization
+        sector:
+          type: string
+          description: Sector of the organization
+        tags:
+          type: array
+          items:
+            type: string
+          description: Tags associated with the organization
+        foundedAt:
+          type: string
+          format: date-time
+          description: When the organization was founded
 
     Project:
       type: object
-      description: Project details (to be defined)
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the project
+        name:
+          type: string
+          description: Name of the project
+        category:
+          type: string
+          description: Category of the project
+        sector:
+          type: string
+          description: Sector of the project
+        tags:
+          type: array
+          items:
+            type: string
+          description: Tags associated with the project
+        foundedAt:
+          type: string
+          format: date-time
+          description: When the project was founded
+        primaryAssetId:
+          type: string
+          nullable: true
+          description: ID of the primary asset associated with the project
 
     Person:
       type: object
