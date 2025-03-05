@@ -121,3 +121,7 @@ paths:
     $ref: "./services/fundraising/openapi.yaml#/paths/~1funding~1v1~1rounds~1investors"
   /funding/v1/mergers-and-acquisitions:
     $ref: "./services/fundraising/openapi.yaml#/paths/~1funding~1v1~1mergers-and-acquisitions"
+  /funding/v1/organizations:
+    $ref: "./services/fundraising/openapi.yaml#/paths/~1funding~1v1~1organizations"
+  /funding/v1/projects:
+    $ref: "./services/fundraising/openapi.yaml#/paths/~1funding~1v1~1projects"
