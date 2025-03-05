@@ -19,7 +19,7 @@
 		"start:token-unlocks": "tsx src/tokenUnlocks.ts"
 	},
 	"dependencies": {
-		"@messari-kit/api": "workspace:*",
+		"@messari/sdk": "workspace:*",
 		"@messari-kit/types": "workspace:*",
 		"console-table-printer": "^2.12.1",
 		"dotenv": "^16.4.7"

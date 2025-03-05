@@ -1,4 +1,4 @@
-import { MessariClient } from "@messari-kit/api";
+import { MessariClient } from "@messari/sdk";
 import type { getAllEventsParameters, getEventAndHistoryParameters, getAllAssetsParameters, Asset, EventHistory } from "@messari-kit/types";
 import dotenv from "dotenv";
 

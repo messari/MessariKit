@@ -63,7 +63,7 @@ importers:
 
   packages/examples:
     dependencies:
-      '@messari-kit/api':
+      '@messari/sdk':
         specifier: workspace:*
         version: link:../api
       '@messari-kit/types':

@@ -14,7 +14,7 @@ MessariKit is the official TypeScript/JavaScript SDK for interacting with Messar
 
 ```bash
 # Using pnpm
-pnpm add @messari-kit/api
+pnpm add @messari/sdk
 ```
 
 ## Quick Start

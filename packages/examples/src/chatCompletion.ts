@@ -1,5 +1,4 @@
-import { MessariClient } from "@messari-kit/api";
-import type { createChatCompletionParameters } from "@messari-kit/types";
+import { MessariClient } from "@messari/sdk";
 import dotenv from "dotenv";
 
 // Load environment variables from .env file
@@ -22,20 +21,17 @@ const client = new MessariClient({
 
 async function main() {
   try {
-    // Define the chat completion parameters
-    const params: createChatCompletionParameters = {
+    console.log("Sending chat completion request...");
+
+    // Call the createChatCompletion endpoint
+    const response = await client.ai.createChatCompletion({
       messages: [
         {
           role: "user",
           content: "What companies have both paradigm and multicoin on their cap table?",
         },
       ],
-    };
-
-    console.log("Sending chat completion request...");
-
-    // Call the createChatCompletion endpoint
-    const response = await client.ai.createChatCompletion(params);
+    });
 
     console.log("Response received:");
     console.log(JSON.stringify(response, null, 2));
