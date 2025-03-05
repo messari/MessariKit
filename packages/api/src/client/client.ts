@@ -602,22 +602,6 @@ export class MessariClient extends MessariClientBase {
     };
   }
 
-  public readonly asset: AssetInterface = {
-    getAssetList: async (params: getAssetListParameters = {}, options?: RequestOptions) => {
-      const fetchPage = async (p: getAssetListParameters, o?: RequestOptions) => {
-        return this.requestWithMetadata<getAssetListResponse["data"], PaginationMetadata>({
-          method: getAssetList.method,
-          path: getAssetList.path(),
-          queryParams: pick(p, getAssetList.queryParams),
-          options: o,
-        });
-      };
-
-      const response = await fetchPage(params, options);
-      return this.paginate<getAssetListResponse["data"], getAssetListParameters>(params, fetchPage, response, options);
-    },
-  };
-
   public readonly ai: AIInterface = {
     createChatCompletion: (params: createChatCompletionParameters, options?: RequestOptions) =>
       this.request<createChatCompletionResponse>({
@@ -633,6 +617,54 @@ export class MessariClient extends MessariClientBase {
         body: pick(params, extractEntities.bodyParams),
         options,
       }),
+  };
+
+  public readonly markets: MarketsInterface = {
+    getAssetPrice: (params: getAssetMarketdataParameters) =>
+      this.request<getAssetMarketdataResponse>({
+        method: getAssetMarketdata.method,
+        path: getAssetMarketdata.path(params),
+      }),
+
+    getAssetROI: (params: getAssetROIParameters) =>
+      this.request<getAssetROIResponse>({
+        method: getAssetROI.method,
+        path: getAssetROI.path(params),
+      }),
+
+    getAssetATH: (params: getAssetATHParameters) =>
+      this.request<getAssetATHResponse>({
+        method: getAssetATH.method,
+        path: getAssetATH.path(params),
+      }),
+
+    getAllAssetsROI: () =>
+      this.request<getAssetsROIResponse>({
+        method: getAssetsROI.method,
+        path: getAssetsROI.path(),
+      }),
+
+    getAllAssetsATH: () =>
+      this.request<getAssetsATHResponse>({
+        method: getAssetsATH.method,
+        path: getAssetsATH.path(),
+      }),
+  };
+
+  public readonly asset: AssetInterface = {
+    getAssetList: async (params: getAssetListParameters = {}, options?: RequestOptions) => {
+      const fetchPage = async (p: getAssetListParameters, o?: RequestOptions) => {
+        return this.requestWithMetadata<getAssetListResponse["data"], PaginationMetadata>({
+          method: getAssetList.method,
+          path: getAssetList.path(),
+          queryParams: pick(p, getAssetList.queryParams),
+          options: o,
+        });
+      };
+
+      const response = await fetchPage(params, options);
+      return this.paginate<getAssetListResponse["data"], getAssetListParameters>(params, fetchPage, response, options);
+    },
   };
 
   public readonly intel: IntelInterface = {
@@ -668,6 +700,95 @@ export class MessariClient extends MessariClientBase {
 
       const response = await fetchPage(params, options);
       return this.paginate<getAllAssetsResponse["data"], getAllAssetsParameters>(params, fetchPage, response, options);
+    },
+  };
+
+  public readonly fundraising: FundraisingAPIInterface = {
+    getFundingRounds: async (params: getFundingRoundsParameters) => {
+      return this.requestWithMetadata<getFundingRoundsResponse, PaginationMetadata>({
+        method: getFundingRounds.method,
+        path: getFundingRounds.path(),
+        queryParams: pick(params, getFundingRounds.queryParams),
+      });
+    },
+
+    getFundingRoundsInvestors: async (params: getFundingRoundsInvestorsParameters) => {
+      return this.requestWithMetadata<getFundingRoundsInvestorsResponse, PaginationMetadata>({
+        method: getFundingRoundsInvestors.method,
+        path: getFundingRoundsInvestors.path(),
+        queryParams: pick(params, getFundingRoundsInvestors.queryParams),
+      });
+    },
+
+    getAcquisitionDeals: async (params: getAcquisitionDealsParameters) => {
+      return this.requestWithMetadata<getAcquisitionDealsResponse, PaginationMetadata>({
+        method: getAcquisitionDeals.method,
+        path: getAcquisitionDeals.path(),
+        queryParams: pick(params, getAcquisitionDeals.queryParams),
+      });
+    },
+
+    getOrganizations: async (params: getOrganizationsParameters) => {
+      return this.requestWithMetadata<getOrganizationsResponse, PaginationMetadata>({
+        method: getOrganizations.method,
+        path: getOrganizations.path(),
+        queryParams: pick(params, getOrganizations.queryParams),
+      });
+    },
+
+    getProjects: async (params: getProjectsParameters) => {
+      return this.requestWithMetadata<getProjectsResponse, PaginationMetadata>({
+        method: getProjects.method,
+        path: getProjects.path(),
+        queryParams: pick(params, getProjects.queryParams),
+      });
+    },
+  };
+
+  public readonly tokenUnlocks: TokenUnlocksInterface = {
+    getSupportedAssets: async (params: getTokenUnlockSupportedAssetsParameters = {}, options?: RequestOptions) => {
+      return this.request<getTokenUnlockSupportedAssetsResponse>({
+        method: getTokenUnlockSupportedAssets.method,
+        path: getTokenUnlockSupportedAssets.path(),
+        queryParams: pick(params, getTokenUnlockSupportedAssets.queryParams),
+        options,
+      });
+    },
+
+    getAllocations: async (params: getTokenUnlockAllocationsParameters = {}, options?: RequestOptions) => {
+      return this.request<getTokenUnlockAllocationsResponse>({
+        method: getTokenUnlockAllocations.method,
+        path: getTokenUnlockAllocations.path(),
+        queryParams: pick(params, getTokenUnlockAllocations.queryParams),
+        options,
+      });
+    },
+
+    getVestingSchedule: async (params: getTokenUnlockVestingScheduleParameters, options?: RequestOptions) => {
+      return this.request<getTokenUnlockVestingScheduleResponse>({
+        method: getTokenUnlockVestingSchedule.method,
+        path: getTokenUnlockVestingSchedule.path(params),
+        queryParams: pick(params, getTokenUnlockVestingSchedule.queryParams),
+        options,
+      });
+    },
+
+    getUnlocks: async (params: getTokenUnlocksParameters, options?: RequestOptions) => {
+      return this.request<getTokenUnlocksResponse>({
+        method: getTokenUnlocks.method,
+        path: getTokenUnlocks.path(params),
+        queryParams: pick(params, getTokenUnlocks.queryParams),
+        options,
+      });
+    },
+
+    getEvents: async (params: getTokenUnlockEventsParameters, options?: RequestOptions) => {
+      return this.request<getTokenUnlockEventsResponse>({
+        method: getTokenUnlockEvents.method,
+        path: getTokenUnlockEvents.path(params),
+        queryParams: pick(params, getTokenUnlockEvents.queryParams),
+        options,
+      });
     },
   };
 
@@ -715,61 +836,6 @@ export class MessariClient extends MessariClientBase {
     },
   };
 
-  public readonly markets: MarketsInterface = {
-    getAssetPrice: (params: getAssetMarketdataParameters) =>
-      this.request<getAssetMarketdataResponse>({
-        method: getAssetMarketdata.method,
-        path: getAssetMarketdata.path(params),
-      }),
-
-    getAssetROI: (params: getAssetROIParameters) =>
-      this.request<getAssetROIResponse>({
-        method: getAssetROI.method,
-        path: getAssetROI.path(params),
-      }),
-
-    getAssetATH: (params: getAssetATHParameters) =>
-      this.request<getAssetATHResponse>({
-        method: getAssetATH.method,
-        path: getAssetATH.path(params),
-      }),
-
-    getAllAssetsROI: () =>
-      this.request<getAssetsROIResponse>({
-        method: getAssetsROI.method,
-        path: getAssetsROI.path(),
-      }),
-
-    getAllAssetsATH: () =>
-      this.request<getAssetsATHResponse>({
-        method: getAssetsATH.method,
-        path: getAssetsATH.path(),
-      }),
-  };
-
-  public readonly recaps: RecapsAPIInterface = {
-    getProjectRecap: async (params: getProjectRecapParameters) => {
-      return this.request<getProjectRecapResponse>({
-        method: getProjectRecap.method,
-        path: getProjectRecap.path(),
-        queryParams: pick(params, getProjectRecap.queryParams),
-      });
-    },
-    getExchangeRecap: async (params: getExchangeRecapParameters) => {
-      return this.request<getExchangeRecapResponse>({
-        method: getExchangeRecap.method,
-        path: getExchangeRecap.path(),
-        queryParams: pick(params, getExchangeRecap.queryParams),
-      });
-    },
-    getExchangeRankingsRecap: async () => {
-      return this.request<getExchangeRankingsRecapResponse>({
-        method: getExchangeRankingsRecap.method,
-        path: getExchangeRankingsRecap.path(),
-      });
-    },
-  };
-
   public readonly research: ResearchInterface = {
     getResearchReports: (params: getResearchReportsParameters, options?: RequestOptions) =>
       this.request<getResearchReportsResponse>({
@@ -807,91 +873,26 @@ export class MessariClient extends MessariClientBase {
     },
   };
 
-  public readonly fundraising: FundraisingAPIInterface = {
-    getFundingRounds: async (params: getFundingRoundsParameters) => {
-      return this.requestWithMetadata<getFundingRoundsResponse, PaginationMetadata>({
-        method: getFundingRounds.method,
-        path: getFundingRounds.path(),
-        queryParams: pick(params, getFundingRounds.queryParams),
-      });
-    },
-
-    getFundingRoundsInvestors: async (params: getFundingRoundsInvestorsParameters) => {
-      return this.requestWithMetadata<getFundingRoundsInvestorsResponse, PaginationMetadata>({
-        method: getFundingRoundsInvestors.method,
-        path: getFundingRoundsInvestors.path(),
-        queryParams: pick(params, getFundingRoundsInvestors.queryParams),
-      });
-    },
-
-    getAcquisitionDeals: async (params: getAcquisitionDealsParameters) => {
-      return this.requestWithMetadata<getAcquisitionDealsResponse, PaginationMetadata>({
-        method: getAcquisitionDeals.method,
-        path: getAcquisitionDeals.path(),
-        queryParams: pick(params, getAcquisitionDeals.queryParams),
-      });
-    },
-
-    getOrganizations: async (params: getOrganizationsParameters) => {
-      return this.requestWithMetadata<getOrganizationsResponse, PaginationMetadata>({
-        method: getOrganizations.method,
-        path: getOrganizations.path(),
-        queryParams: pick(params, getOrganizations.queryParams),
-      });
-    },
-
-    getProjects: async (params: getProjectsParameters) => {
-      return this.requestWithMetadata<getProjectsResponse, PaginationMetadata>({
-        method: getProjects.method,
-        path: getProjects.path(),
-        queryParams: pick(params, getProjects.queryParams),
-      });
-    },
-  };
-  public readonly tokenUnlocks: TokenUnlocksInterface = {
-    getSupportedAssets: async (params: getTokenUnlockSupportedAssetsParameters = {}, options?: RequestOptions) => {
-      return this.request<getTokenUnlockSupportedAssetsResponse>({
-        method: getTokenUnlockSupportedAssets.method,
-        path: getTokenUnlockSupportedAssets.path(),
-        queryParams: pick(params, getTokenUnlockSupportedAssets.queryParams),
-        options,
-      });
-    },
-
-    getAllocations: async (params: getTokenUnlockAllocationsParameters = {}, options?: RequestOptions) => {
-      return this.request<getTokenUnlockAllocationsResponse>({
-        method: getTokenUnlockAllocations.method,
-        path: getTokenUnlockAllocations.path(),
-        queryParams: pick(params, getTokenUnlockAllocations.queryParams),
-        options,
-      });
-    },
-
-    getVestingSchedule: async (params: getTokenUnlockVestingScheduleParameters, options?: RequestOptions) => {
-      return this.request<getTokenUnlockVestingScheduleResponse>({
-        method: getTokenUnlockVestingSchedule.method,
-        path: getTokenUnlockVestingSchedule.path(params),
-        queryParams: pick(params, getTokenUnlockVestingSchedule.queryParams),
-        options,
-      });
-    },
-
-    getUnlocks: async (params: getTokenUnlocksParameters, options?: RequestOptions) => {
-      return this.request<getTokenUnlocksResponse>({
-        method: getTokenUnlocks.method,
-        path: getTokenUnlocks.path(params),
-        queryParams: pick(params, getTokenUnlocks.queryParams),
-        options,
-      });
-    },
-
-    getEvents: async (params: getTokenUnlockEventsParameters, options?: RequestOptions) => {
-      return this.request<getTokenUnlockEventsResponse>({
-        method: getTokenUnlockEvents.method,
-        path: getTokenUnlockEvents.path(params),
-        queryParams: pick(params, getTokenUnlockEvents.queryParams),
-        options,
-      });
-    },
-  };
+  // public readonly recaps: RecapsAPIInterface = {
+  //   getProjectRecap: async (params: getProjectRecapParameters) => {
+  //     return this.request<getProjectRecapResponse>({
+  //       method: getProjectRecap.method,
+  //       path: getProjectRecap.path(),
+  //       queryParams: pick(params, getProjectRecap.queryParams),
+  //     });
+  //   },
+  //   getExchangeRecap: async (params: getExchangeRecapParameters) => {
+  //     return this.request<getExchangeRecapResponse>({
+  //       method: getExchangeRecap.method,
+  //       path: getExchangeRecap.path(),
+  //       queryParams: pick(params, getExchangeRecap.queryParams),
+  //     });
+  //   },
+  //   getExchangeRankingsRecap: async () => {
+  //     return this.request<getExchangeRankingsRecapResponse>({
+  //       method: getExchangeRankingsRecap.method,
+  //       path: getExchangeRankingsRecap.path(),
+  //     });
+  //   },
+  // };
 }
