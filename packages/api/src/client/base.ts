@@ -45,6 +45,16 @@ import type {
   Investors,
   getAcquisitionDealsParameters,
   AcquisitionDeal,
+  getTokenUnlockSupportedAssetsParameters,
+  getTokenUnlockSupportedAssetsResponse,
+  getTokenUnlockAllocationsParameters,
+  getTokenUnlockAllocationsResponse,
+  getTokenUnlockVestingScheduleParameters,
+  getTokenUnlockVestingScheduleResponse,
+  getTokenUnlocksParameters,
+  getTokenUnlocksResponse,
+  getTokenUnlockEventsParameters,
+  getTokenUnlockEventsResponse,
 } from "@messari-kit/types";
 import { LogLevel, type Logger, makeConsoleLogger, createFilteredLogger, noOpLogger } from "../logging";
 import type { PaginatedResult, RequestOptions, ClientEventMap, ClientEventType, ClientEventHandler } from "./types";
@@ -280,6 +290,17 @@ export interface FundraisingAPIInterface {
 }
 
 /**
+ * Interface for the Token Unlocks API methods
+ */
+export interface TokenUnlocksInterface {
+  getSupportedAssets(params?: getTokenUnlockSupportedAssetsParameters, options?: RequestOptions): Promise<getTokenUnlockSupportedAssetsResponse>;
+  getAllocations(params?: getTokenUnlockAllocationsParameters, options?: RequestOptions): Promise<getTokenUnlockAllocationsResponse>;
+  getVestingSchedule(params: getTokenUnlockVestingScheduleParameters, options?: RequestOptions): Promise<getTokenUnlockVestingScheduleResponse>;
+  getUnlocks(params: getTokenUnlocksParameters, options?: RequestOptions): Promise<getTokenUnlocksResponse>;
+  getEvents(params: getTokenUnlockEventsParameters, options?: RequestOptions): Promise<getTokenUnlockEventsResponse>;
+}
+
+/**
  * Abstract base class for the Messari client
  * Defines the structure and common functionality that all client implementations must provide
  */
@@ -313,6 +334,11 @@ export abstract class MessariClientBase {
    * Interface for Research-related API methods
    */
   public abstract readonly research: ResearchInterface;
+
+  /**
+   * Interface for Token Unlocks-related API methods
+   */
+  public abstract readonly tokenUnlocks: TokenUnlocksInterface;
 
   /**
    * Logger instance for the client
