@@ -421,5 +421,80 @@ export const getProjects = {
   path: () => '/funding/v1/projects'
 } as const;
 
+
+export type getTokenUnlockSupportedAssetsResponse = components['schemas']['TokenUnlockSupportedAsset'][];
+export type getTokenUnlockSupportedAssetsError = components['schemas']['APIError'];
+
+export type getTokenUnlockSupportedAssetsParameters = { assetIDs?: string; category?: string; sectors?: string; tags?: string };
+
+
+export const getTokenUnlockSupportedAssets = {
+  method: 'GET' as const,
+  pathParams: [] as const,
+  queryParams: ['assetIDs', 'category', 'sectors', 'tags'] as const,
+  bodyParams: [] as const,
+  path: () => '/token-unlocks/v1/assets'
+} as const;
+
+
+export type getTokenUnlockAllocationsResponse = components['schemas']['TokenUnlockAllocation'][];
+export type getTokenUnlockAllocationsError = components['schemas']['APIError'];
+
+export type getTokenUnlockAllocationsParameters = { assetIDs?: string };
+
+
+export const getTokenUnlockAllocations = {
+  method: 'GET' as const,
+  pathParams: [] as const,
+  queryParams: ['assetIDs'] as const,
+  bodyParams: [] as const,
+  path: () => '/token-unlocks/v1/allocations'
+} as const;
+
+
+export type getTokenUnlockVestingScheduleResponse = components['schemas']['TokenUnlockVestingSchedule'];
+export type getTokenUnlockVestingScheduleError = components['schemas']['APIError'];
+
+export type getTokenUnlockVestingScheduleParameters = { startTime: string; endTime: string } & { assetId: string };
+
+
+export const getTokenUnlockVestingSchedule = {
+  method: 'GET' as const,
+  pathParams: ['assetId'] as const,
+  queryParams: ['startTime', 'endTime'] as const,
+  bodyParams: [] as const,
+  path: (p: PathParams) => `/token-unlocks/v1/assets/${p.assetId}/vesting-schedule`
+} as const;
+
+
+export type getTokenUnlocksResponse = components['schemas']['TokenUnlockUnlocks'];
+export type getTokenUnlocksError = components['schemas']['APIError'];
+
+export type getTokenUnlocksParameters = { startTime: string; endTime: string; interval: string } & { assetId: string };
+
+
+export const getTokenUnlocks = {
+  method: 'GET' as const,
+  pathParams: ['assetId'] as const,
+  queryParams: ['startTime', 'endTime', 'interval'] as const,
+  bodyParams: [] as const,
+  path: (p: PathParams) => `/token-unlocks/v1/assets/${p.assetId}/unlocks`
+} as const;
+
+
+export type getTokenUnlockEventsResponse = components['schemas']['TokenUnlockEvent'];
+export type getTokenUnlockEventsError = components['schemas']['APIError'];
+
+export type getTokenUnlockEventsParameters = { startTime?: string; endTime?: string } & { assetId: string };
+
+
+export const getTokenUnlockEvents = {
+  method: 'GET' as const,
+  pathParams: ['assetId'] as const,
+  queryParams: ['startTime', 'endTime'] as const,
+  bodyParams: [] as const,
+  path: (p: PathParams) => `/token-unlocks/v1/assets/${p.assetId}/events`
+} as const;
+
 // Re-export schema types
 export * from './schema';

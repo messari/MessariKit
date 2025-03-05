@@ -1,0 +1,597 @@
+openapi: 3.1.0
+info:
+  title: Messari Token Unlocks Service API
+  description: This service provides access to crypto token unlocks.
+  version: 0.0.1
+  contact:
+    name: Messari Engineering
+    url: https://messari.io
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://api.messari.io/token-unlocks
+    description: Production server
+  - url: https://api.staging.messari.io/token-unlocks
+    description: Staging server
+  - url: http://localhost:8080/token-unlocks
+    description: Local development server
+
+tags:
+  - name: Token Unlocks
+    description: Token unlock related endpoints
+
+security:
+  - apiKey: []
+
+paths:
+  /token-unlocks/v1/assets:
+    get:
+      operationId: getTokenUnlockSupportedAssets
+      summary: Get token unlock supported assets
+      description: |
+        Get all token unlock supported assets
+      tags:
+        - Token Unlocks
+      security:
+        - apiKey: []
+      parameters:
+        - name: assetIDs
+          in: query
+          required: false
+          description: Filter by asset IDs (comma-separated)
+          schema:
+            type: string
+        - name: category
+          in: query
+          required: false
+          description: Filter by asset category (comma-separated)
+          schema:
+            type: string
+        - name: sectors
+          in: query
+          required: false
+          description: Filter by asset sectors (comma-separated)
+          schema:
+            type: string
+        - name: tags
+          in: query
+          required: false
+          description: Filter by asset tags (comma-separated)
+          schema:
+            type: string
+      responses:
+        "200":
+          description: A list of token unlock supported assets
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../../common/components.yaml#/components/schemas/APIResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/TokenUnlockSupportedAsset'
+        "4XX":
+          description: Client error response
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+        "500":
+          description: Server error response
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+  /token-unlocks/v1/allocations:
+    get:
+      operationId: getTokenUnlockAllocations
+      summary: Get token unlock allocations
+      description: |
+        Returns allocation information given a set of asset IDs
+      tags:
+        - Token Unlocks
+      security:
+        - apiKey: []
+      parameters:
+        - name: assetIDs
+          in: query
+          required: false
+          description: Filter by asset IDs (comma-separated)
+          schema:
+            type: string
+      responses:
+        "200":
+          description: A list of token unlock allocations
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../../common/components.yaml#/components/schemas/APIResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                            $ref: '#/components/schemas/TokenUnlockAllocation'
+        "4XX":
+          description: Client error response
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+        "500":
+          description: Server error response
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+  /token-unlocks/v1/assets/{assetId}/vesting-schedule:
+    get:
+      operationId: getTokenUnlockVestingSchedule
+      summary: Get token unlock vesting schedule
+      description: |
+        Returns vesting schedule timeseries data for a given asset
+      tags:
+        - Token Unlocks
+      security:
+        - apiKey: []
+      parameters:
+        - name: assetId
+          in: path
+          required: true
+          description: The ID of the asset
+        - name: startTime
+          in: query
+          required: true
+          description: RFC3339 formatted time from which to start fetching vesting schedule data.
+          schema:
+            type: string
+        - name: endTime
+          in: query
+          required: true
+          description: RFC3339 formatted time where to end fetching vesting schedule data.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: A list of token unlock vesting schedule timeseries data
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../../common/components.yaml#/components/schemas/APIResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/TokenUnlockVestingSchedule'
+        "4XX":
+          description: Client error response
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+        "500":
+          description: Server error response
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+  /token-unlocks/v1/assets/{assetId}/unlocks:
+    get:
+      operationId: getTokenUnlocks
+      summary: Get token unlock unlocks
+      description: |
+        Returns interval-based unlock timeseries data for a given asset and interval
+      tags:
+        - Token Unlocks
+      security:
+        - apiKey: []
+      parameters:
+        - name: assetId
+          in: path
+          required: true
+          description: The ID of the asset
+        - name: startTime
+          in: query
+          required: true
+          description: RFC3339 formatted time from which to start fetching vesting schedule data.
+          schema:
+            type: string
+        - name: endTime
+          in: query
+          required: true
+          description: RFC3339 formatted time where to end fetching vesting schedule data.
+          schema:
+            type: string
+        - name: interval
+          in: query
+          required: true
+          description: |
+            Time intervals that that the data is aggregated over. Available values: DAILY, WEEKLY, MONTHLY, QUARTERLY, YEARLY.
+          schema:
+            type: string
+            enum:
+              - DAILY
+              - WEEKLY
+              - MONTHLY
+              - QUARTERLY
+              - YEARLY
+      responses:
+        "200":
+          description: A list of token unlock unlocks
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../../common/components.yaml#/components/schemas/APIResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/TokenUnlockUnlocks'
+        "4XX":
+          description: Client error response
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+        "500":
+          description: Server error response
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+  /token-unlocks/v1/assets/{assetId}/events:
+    get:
+      operationId: getTokenUnlockEvents
+      summary: Get token unlock events
+      description: |
+        Returns unlock events for a given asset ID
+      tags:
+        - Token Unlocks
+      security:
+        - apiKey: []
+      parameters:
+        - name: assetId
+          in: path
+          required: true
+          description: The ID of the asset
+        - name: startTime
+          in: query
+          required: false
+          description: RFC3339 formatted time from which to start fetching unlock events data.
+          schema:
+            type: string
+        - name: endTime
+          in: query
+          required: false
+          description: RFC3339 formatted time where to end fetching unlock events data.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: A list of token unlock events
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../../common/components.yaml#/components/schemas/APIResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/TokenUnlockEvent'
+        "4XX":
+          description: Client error response
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+        "500":
+          description: Server error response
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+
+components:
+  schemas:
+    TokenUnlockSupportedAsset:
+      type: object
+      properties:
+        category:
+          type: string
+        genesisDate:
+          type: string
+        id:
+          type: string
+        name:
+          type: string
+        otherInfo:
+          type: string
+        projectedEndDate:
+          type: string
+        sector:
+          type: string
+        serialId:
+          type: integer
+        slug:
+          type: string
+        symbol:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+    TokenUnlockAllocation:
+      type: object
+      properties:
+        allocationRecipientCount:
+          type: integer
+        allocations:
+          type: array
+          items:
+            type: object
+            properties:
+              allocationRecipient:
+                type: string
+              assumptions:
+                type: string
+              cumulativeUnlockedNative:
+                type: number
+              cumulativeUnlockedUSD:
+                type: number
+              description:
+                type: string
+              percentOfUnlocksCompleted:
+                type: number
+              sources:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    source:
+                      type: string
+                    sourceType:
+                      type: string
+              totalAllocationNative:
+                type: number
+              totalAllocationUSD:
+                type: number
+              unlocksRemainingNative:
+                type: number
+              unlocksRemainingUSD:
+                type: number
+        asset:
+          type: object
+          properties:
+            id:
+              type: string
+            name:
+              type: string
+            slug:
+              type: string
+            symbol:
+              type: string
+        cumulativeUnlockedNative:
+          type: number
+        cumulativeUnlockedUSD:
+          type: number
+        genesisDate:
+          type: string
+        lastUpdatedAt:
+          type: string
+        percentOfUnlocksCompleted:
+          type: number
+        projectedEndDate:
+          type: string
+        totalAllocationNative:
+          type: number
+        totalAllocationUSD:
+          type: number
+        unlocksRemainingNative:
+          type: number
+        unlocksRemainingUSD:
+          type: number
+    TokenUnlockVestingSchedule:
+      type: object
+      properties:
+        allocations:
+          type: array
+          items:
+            type: object
+            properties:
+              allocationRecipient:
+                type: string
+              dailySnapshots:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    cumulativeUnlockedNative:
+                      type: number
+                    cumulativeUnlockedUSD:
+                      type: number
+                    percentOfUnlocksCompleted:
+                      type: number
+                    timestamp:
+                      type: string
+                    unlocksRemainingNative:
+                      type: number
+                    unlocksRemainingUSD:
+                      type: number
+        asset:
+          type: object
+          properties:
+            id:
+              type: string
+            name:
+              type: string
+            slug:
+              type: string
+            symbol:
+              type: string
+        endTime:
+          type: string
+        genesisDate:
+          type: string
+        projectedEndDate:
+          type: string
+        startTime:
+          type: string
+        totalDailySnapshots:
+          type: array
+          items:
+            type: object
+            properties:
+              cumulativeUnlockedNative:
+                type: number
+              cumulativeUnlockedUSD:
+                type: number
+              percentOfUnlocksCompleted:
+                type: number
+              timestamp:
+                type: string
+              unlocksRemainingNative:
+                type: number
+              unlocksRemainingUSD:
+                type: number
+    TokenUnlockUnlocks:
+      type: object
+      properties:
+        allocations:
+          type: array
+          items:
+            type: object
+            properties:
+              allocationRecipient:
+                type: string
+              dailySnapshots:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    timestamp:
+                      type: string
+                    unlockedInPeriodNative:
+                      type: number
+                    unlockedInPeriodUSD:
+                      type: number
+        asset:
+          type: object
+          properties:
+            id:
+              type: string
+            name:
+              type: string
+            slug:
+              type: string
+            symbol:
+              type: string
+        endDate:
+          type: string
+        genesisDate:
+          type: string
+        interval:
+          type: string
+          enum:
+            - DAILY
+        projectedEndDate:
+          type: string
+        startDate:
+          type: string
+        totalSnapshots:
+          type: array
+          items:
+            type: object
+            properties:
+              timestamp:
+                type: string
+              unlockedInPeriodNative:
+                type: number
+              unlockedInPeriodUSD:
+                type: number
+    TokenUnlockEvent:
+      type: object
+      properties:
+        asset:
+          type: object
+          properties:
+            id:
+              type: string
+            name:
+              type: string
+            slug:
+              type: string
+            symbol:
+              type: string
+        unlockEvents:
+          type: array
+          items:
+            type: object
+            properties:
+              cliff:
+                type: object
+                properties:
+                  allocations:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        allocationRecipient:
+                          type: string
+                        amountNative:
+                          type: number
+                        amountUSD:
+                          type: number
+                        percentOfTotalAllocation:
+                          type: number
+                  amountNative:
+                    type: number
+                  amountUSD:
+                    type: number
+                  percentOfTotalAllocation:
+                    type: number
+              dailyLinearRateChange:
+                type: object
+                properties:
+                  allocations:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        allocationRecipient:
+                          type: string
+                        dailyAmountNative:
+                          type: number
+                        dailyAmountUSD:
+                          type: number
+                        nextDailyAmountNative:
+                          type: number
+                        nextDailyAmountUSD:
+                          type: number
+                        nextPercentOfTotalAllocation:
+                          type: number
+                        percentChangeOfRate:
+                          type: number
+                        percentOfTotalAllocation:
+                          type: number
+                  dailyAmountNative:
+                    type: number
+                  dailyAmountUSD:
+                    type: number
+                  nextDailyAmountNative:
+                    type: number
+                  nextDailyAmountUSD:
+                    type: number
+                  nextPercentOfTotalAllocation:
+                    type: number
+                  percentChangeOfRate:
+                    type: number
+                  percentOfTotalAllocation:
+                    type: number
+              timestamp:
+                type: string

@@ -204,6 +204,41 @@ export type paths = {
      */
     get: operations["getResearchReportTags"];
   };
+  "/token-unlocks/v1/allocations": {
+    /**
+     * Get token unlock allocations
+     * @description Returns allocation information given a set of asset IDs
+     */
+    get: operations["getTokenUnlockAllocations"];
+  };
+  "/token-unlocks/v1/assets": {
+    /**
+     * Get token unlock supported assets
+     * @description Get all token unlock supported assets
+     */
+    get: operations["getTokenUnlockSupportedAssets"];
+  };
+  "/token-unlocks/v1/assets/{assetId}/events": {
+    /**
+     * Get token unlock events
+     * @description Returns unlock events for a given asset ID
+     */
+    get: operations["getTokenUnlockEvents"];
+  };
+  "/token-unlocks/v1/assets/{assetId}/unlocks": {
+    /**
+     * Get token unlock unlocks
+     * @description Returns interval-based unlock timeseries data for a given asset and interval
+     */
+    get: operations["getTokenUnlocks"];
+  };
+  "/token-unlocks/v1/assets/{assetId}/vesting-schedule": {
+    /**
+     * Get token unlock vesting schedule
+     * @description Returns vesting schedule timeseries data for a given asset
+     */
+    get: operations["getTokenUnlockVestingSchedule"];
+  };
 };
 
 export type webhooks = Record<string, never>;
@@ -1151,6 +1186,41 @@ export type components = {
      * @description UTC timestamp
      */
     TimeUTC: string;
+    TokenUnlockAllocation: {
+      allocationRecipientCount?: number;
+      allocations?: {
+          allocationRecipient?: string;
+          assumptions?: string;
+          cumulativeUnlockedNative?: number;
+          cumulativeUnlockedUSD?: number;
+          description?: string;
+          percentOfUnlocksCompleted?: number;
+          sources?: {
+              source?: string;
+              sourceType?: string;
+            }[];
+          totalAllocationNative?: number;
+          totalAllocationUSD?: number;
+          unlocksRemainingNative?: number;
+          unlocksRemainingUSD?: number;
+        }[];
+      asset?: {
+        id?: string;
+        name?: string;
+        slug?: string;
+        symbol?: string;
+      };
+      cumulativeUnlockedNative?: number;
+      cumulativeUnlockedUSD?: number;
+      genesisDate?: string;
+      lastUpdatedAt?: string;
+      percentOfUnlocksCompleted?: number;
+      projectedEndDate?: string;
+      totalAllocationNative?: number;
+      totalAllocationUSD?: number;
+      unlocksRemainingNative?: number;
+      unlocksRemainingUSD?: number;
+    };
     /** @description Token unlock information */
     TokenUnlockData: {
       nextCliffUnlockData?: {
@@ -1169,6 +1239,118 @@ export type components = {
         pctUnlocksCompleted?: number;
         totalUnlocked?: number;
       };
+    };
+    TokenUnlockEvent: {
+      asset?: {
+        id?: string;
+        name?: string;
+        slug?: string;
+        symbol?: string;
+      };
+      unlockEvents?: {
+          cliff?: {
+            allocations?: {
+                allocationRecipient?: string;
+                amountNative?: number;
+                amountUSD?: number;
+                percentOfTotalAllocation?: number;
+              }[];
+            amountNative?: number;
+            amountUSD?: number;
+            percentOfTotalAllocation?: number;
+          };
+          dailyLinearRateChange?: {
+            allocations?: {
+                allocationRecipient?: string;
+                dailyAmountNative?: number;
+                dailyAmountUSD?: number;
+                nextDailyAmountNative?: number;
+                nextDailyAmountUSD?: number;
+                nextPercentOfTotalAllocation?: number;
+                percentChangeOfRate?: number;
+                percentOfTotalAllocation?: number;
+              }[];
+            dailyAmountNative?: number;
+            dailyAmountUSD?: number;
+            nextDailyAmountNative?: number;
+            nextDailyAmountUSD?: number;
+            nextPercentOfTotalAllocation?: number;
+            percentChangeOfRate?: number;
+            percentOfTotalAllocation?: number;
+          };
+          timestamp?: string;
+        }[];
+    };
+    TokenUnlockSupportedAsset: {
+      category?: string;
+      genesisDate?: string;
+      id?: string;
+      name?: string;
+      otherInfo?: string;
+      projectedEndDate?: string;
+      sector?: string;
+      serialId?: number;
+      slug?: string;
+      symbol?: string;
+      tags?: string[];
+    };
+    TokenUnlockUnlocks: {
+      allocations?: {
+          allocationRecipient?: string;
+          dailySnapshots?: {
+              timestamp?: string;
+              unlockedInPeriodNative?: number;
+              unlockedInPeriodUSD?: number;
+            }[];
+        }[];
+      asset?: {
+        id?: string;
+        name?: string;
+        slug?: string;
+        symbol?: string;
+      };
+      endDate?: string;
+      genesisDate?: string;
+      /** @enum {string} */
+      interval?: "DAILY";
+      projectedEndDate?: string;
+      startDate?: string;
+      totalSnapshots?: {
+          timestamp?: string;
+          unlockedInPeriodNative?: number;
+          unlockedInPeriodUSD?: number;
+        }[];
+    };
+    TokenUnlockVestingSchedule: {
+      allocations?: {
+          allocationRecipient?: string;
+          dailySnapshots?: {
+              cumulativeUnlockedNative?: number;
+              cumulativeUnlockedUSD?: number;
+              percentOfUnlocksCompleted?: number;
+              timestamp?: string;
+              unlocksRemainingNative?: number;
+              unlocksRemainingUSD?: number;
+            }[];
+        }[];
+      asset?: {
+        id?: string;
+        name?: string;
+        slug?: string;
+        symbol?: string;
+      };
+      endTime?: string;
+      genesisDate?: string;
+      projectedEndDate?: string;
+      startTime?: string;
+      totalDailySnapshots?: {
+          cumulativeUnlockedNative?: number;
+          cumulativeUnlockedUSD?: number;
+          percentOfUnlocksCompleted?: number;
+          timestamp?: string;
+          unlocksRemainingNative?: number;
+          unlocksRemainingUSD?: number;
+        }[];
     };
     /** @description Video and podcast ranking information */
     VideoPodcastResponse: {
@@ -2256,6 +2438,202 @@ export type operations = {
       400: {
         content: {
           "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Server error response */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+    };
+  };
+  /**
+   * Get token unlock allocations
+   * @description Returns allocation information given a set of asset IDs
+   */
+  getTokenUnlockAllocations: {
+    parameters: {
+      query?: {
+        /** @description Filter by asset IDs (comma-separated) */
+        assetIDs?: string;
+      };
+    };
+    responses: {
+      /** @description Client error response */
+      "4XX": {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description A list of token unlock allocations */
+      200: {
+        content: {
+          "application/json": components["schemas"]["APIResponse"] & {
+            data?: components["schemas"]["TokenUnlockAllocation"][];
+          };
+        };
+      };
+      /** @description Server error response */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+    };
+  };
+  /**
+   * Get token unlock supported assets
+   * @description Get all token unlock supported assets
+   */
+  getTokenUnlockSupportedAssets: {
+    parameters: {
+      query?: {
+        /** @description Filter by asset IDs (comma-separated) */
+        assetIDs?: string;
+        /** @description Filter by asset category (comma-separated) */
+        category?: string;
+        /** @description Filter by asset sectors (comma-separated) */
+        sectors?: string;
+        /** @description Filter by asset tags (comma-separated) */
+        tags?: string;
+      };
+    };
+    responses: {
+      /** @description Client error response */
+      "4XX": {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description A list of token unlock supported assets */
+      200: {
+        content: {
+          "application/json": components["schemas"]["APIResponse"] & {
+            data?: components["schemas"]["TokenUnlockSupportedAsset"][];
+          };
+        };
+      };
+      /** @description Server error response */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+    };
+  };
+  /**
+   * Get token unlock events
+   * @description Returns unlock events for a given asset ID
+   */
+  getTokenUnlockEvents: {
+    parameters: {
+      query?: {
+        /** @description RFC3339 formatted time from which to start fetching unlock events data. */
+        startTime?: string;
+        /** @description RFC3339 formatted time where to end fetching unlock events data. */
+        endTime?: string;
+      };
+      path: {
+        /** @description The ID of the asset */
+        assetId: string;
+      };
+    };
+    responses: {
+      /** @description Client error response */
+      "4XX": {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description A list of token unlock events */
+      200: {
+        content: {
+          "application/json": components["schemas"]["APIResponse"] & {
+            data?: components["schemas"]["TokenUnlockEvent"];
+          };
+        };
+      };
+      /** @description Server error response */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+    };
+  };
+  /**
+   * Get token unlock unlocks
+   * @description Returns interval-based unlock timeseries data for a given asset and interval
+   */
+  getTokenUnlocks: {
+    parameters: {
+      query: {
+        /** @description RFC3339 formatted time from which to start fetching vesting schedule data. */
+        startTime: string;
+        /** @description RFC3339 formatted time where to end fetching vesting schedule data. */
+        endTime: string;
+        /** @description Time intervals that that the data is aggregated over. Available values: DAILY, WEEKLY, MONTHLY, QUARTERLY, YEARLY. */
+        interval: "DAILY" | "WEEKLY" | "MONTHLY" | "QUARTERLY" | "YEARLY";
+      };
+      path: {
+        /** @description The ID of the asset */
+        assetId: string;
+      };
+    };
+    responses: {
+      /** @description Client error response */
+      "4XX": {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description A list of token unlock unlocks */
+      200: {
+        content: {
+          "application/json": components["schemas"]["APIResponse"] & {
+            data?: components["schemas"]["TokenUnlockUnlocks"];
+          };
+        };
+      };
+      /** @description Server error response */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+    };
+  };
+  /**
+   * Get token unlock vesting schedule
+   * @description Returns vesting schedule timeseries data for a given asset
+   */
+  getTokenUnlockVestingSchedule: {
+    parameters: {
+      query: {
+        /** @description RFC3339 formatted time from which to start fetching vesting schedule data. */
+        startTime: string;
+        /** @description RFC3339 formatted time where to end fetching vesting schedule data. */
+        endTime: string;
+      };
+      path: {
+        /** @description The ID of the asset */
+        assetId: string;
+      };
+    };
+    responses: {
+      /** @description Client error response */
+      "4XX": {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description A list of token unlock vesting schedule timeseries data */
+      200: {
+        content: {
+          "application/json": components["schemas"]["APIResponse"] & {
+            data?: components["schemas"]["TokenUnlockVestingSchedule"];
+          };
         };
       };
       /** @description Server error response */

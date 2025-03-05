@@ -8,14 +8,15 @@
 		"clean": "rimraf dist",
 		"start": "tsx src/index.ts",
 		"start:asset": "tsx src/asset.ts",
-		"start:intel": "tsx src/intelEvents.ts",
-		"start:news": "tsx src/newsFeed.ts",
 		"start:chat": "tsx src/chatCompletion.ts",
-		"start:marketdata": "tsx src/marketData.ts",
-		"start:recaps": "tsx src/recaps.ts",
 		"start:diligence": "tsx src/diligence.ts",
+		"start:fundraising": "tsx src/fundraising.ts",
+		"start:intel": "tsx src/intelEvents.ts",
+		"start:marketdata": "tsx src/marketData.ts",
+		"start:news": "tsx src/newsFeed.ts",
+		"start:recaps": "tsx src/recaps.ts",
 		"start:research": "tsx src/research.ts",
-		"start:fundraising": "tsx src/fundraising.ts"
+		"start:token-unlocks": "tsx src/tokenUnlocks.ts"
 	},
 	"dependencies": {
 		"@messari-kit/api": "workspace:*",

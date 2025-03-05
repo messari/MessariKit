@@ -125,3 +125,16 @@ paths:
     $ref: "./services/fundraising/openapi.yaml#/paths/~1funding~1v1~1organizations"
   /funding/v1/projects:
     $ref: "./services/fundraising/openapi.yaml#/paths/~1funding~1v1~1projects"
+  
+  # Token Unlocks Service Paths
+  /token-unlocks/v1/assets:
+    $ref: "./services/token-unlocks/openapi.yaml#/paths/~1token-unlocks~1v1~1assets"
+  /token-unlocks/v1/allocations:
+    $ref: "./services/token-unlocks/openapi.yaml#/paths/~1token-unlocks~1v1~1allocations"
+  /token-unlocks/v1/assets/{assetId}/vesting-schedule:
+    $ref: "./services/token-unlocks/openapi.yaml#/paths/~1token-unlocks~1v1~1assets~1{assetId}~1vesting-schedule"
+  /token-unlocks/v1/assets/{assetId}/unlocks:
+    $ref: "./services/token-unlocks/openapi.yaml#/paths/~1token-unlocks~1v1~1assets~1{assetId}~1unlocks"
+  /token-unlocks/v1/assets/{assetId}/events:
+    $ref: "./services/token-unlocks/openapi.yaml#/paths/~1token-unlocks~1v1~1assets~1{assetId}~1events"
+    

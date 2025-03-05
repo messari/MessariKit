@@ -24,6 +24,11 @@ import {
   getFundingRounds,
   getFundingRoundsInvestors,
   getAcquisitionDeals,
+  getTokenUnlockAllocations,
+  getTokenUnlockEvents,
+  getTokenUnlockSupportedAssets,
+  getTokenUnlocks,
+  getTokenUnlockVestingSchedule,
   getOrganizations,
   getProjects,
 } from "@messari-kit/types";
@@ -74,8 +79,18 @@ import type {
   getFundingRoundsInvestorsResponse,
   getAcquisitionDealsParameters,
   getAcquisitionDealsResponse,
-  getOrganizationsResponse,
+  getTokenUnlockAllocationsParameters,
+  getTokenUnlockAllocationsResponse,
+  getTokenUnlockEventsParameters,
+  getTokenUnlockEventsResponse,
+  getTokenUnlockSupportedAssetsParameters,
+  getTokenUnlockSupportedAssetsResponse,
+  getTokenUnlocksParameters,
+  getTokenUnlocksResponse,
+  getTokenUnlockVestingScheduleParameters,
+  getTokenUnlockVestingScheduleResponse,
   getOrganizationsParameters,
+  getOrganizationsResponse,
   getProjectsParameters,
   getProjectsResponse,
 } from "@messari-kit/types";
@@ -104,6 +119,7 @@ import type {
   NewsInterface,
   RecapsAPIInterface,
   ResearchInterface,
+  TokenUnlocksInterface,
 } from "./base";
 import { MessariClientBase } from "./base";
 
@@ -829,6 +845,52 @@ export class MessariClient extends MessariClientBase {
         method: getProjects.method,
         path: getProjects.path(),
         queryParams: pick(params, getProjects.queryParams),
+      });
+    },
+  };
+  public readonly tokenUnlocks: TokenUnlocksInterface = {
+    getSupportedAssets: async (params: getTokenUnlockSupportedAssetsParameters = {}, options?: RequestOptions) => {
+      return this.request<getTokenUnlockSupportedAssetsResponse>({
+        method: getTokenUnlockSupportedAssets.method,
+        path: getTokenUnlockSupportedAssets.path(),
+        queryParams: pick(params, getTokenUnlockSupportedAssets.queryParams),
+        options,
+      });
+    },
+
+    getAllocations: async (params: getTokenUnlockAllocationsParameters = {}, options?: RequestOptions) => {
+      return this.request<getTokenUnlockAllocationsResponse>({
+        method: getTokenUnlockAllocations.method,
+        path: getTokenUnlockAllocations.path(),
+        queryParams: pick(params, getTokenUnlockAllocations.queryParams),
+        options,
+      });
+    },
+
+    getVestingSchedule: async (params: getTokenUnlockVestingScheduleParameters, options?: RequestOptions) => {
+      return this.request<getTokenUnlockVestingScheduleResponse>({
+        method: getTokenUnlockVestingSchedule.method,
+        path: getTokenUnlockVestingSchedule.path(params),
+        queryParams: pick(params, getTokenUnlockVestingSchedule.queryParams),
+        options,
+      });
+    },
+
+    getUnlocks: async (params: getTokenUnlocksParameters, options?: RequestOptions) => {
+      return this.request<getTokenUnlocksResponse>({
+        method: getTokenUnlocks.method,
+        path: getTokenUnlocks.path(params),
+        queryParams: pick(params, getTokenUnlocks.queryParams),
+        options,
+      });
+    },
+
+    getEvents: async (params: getTokenUnlockEventsParameters, options?: RequestOptions) => {
+      return this.request<getTokenUnlockEventsResponse>({
+        method: getTokenUnlockEvents.method,
+        path: getTokenUnlockEvents.path(params),
+        queryParams: pick(params, getTokenUnlockEvents.queryParams),
+        options,
       });
     },
   };
