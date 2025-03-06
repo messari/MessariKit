@@ -43,27 +43,27 @@ async function main() {
     console.error("Error calling createChatCompletion:", error);
   }
 
-  // try {
-  //   console.log("\n--------------------------------");
-  //   console.log("AI Entity Extraction");
-  //   console.log("--------------------------------");
-  //   console.log("Sending request...");
-  //   console.log(`"Ethereum founder Vitalik Buterin announced..."`);
+  try {
+    console.log("\n--------------------------------");
+    console.log("AI Entity Extraction");
+    console.log("--------------------------------");
+    console.log("Sending request...");
+    console.log(`"Ethereum founder Vitalik Buterin announced..."`);
 
-  //   const resp = await client.ai.extractEntities({
-  //     content: "Ethereum founder Vitalik Buterin announced...",
-  //     entityTypes: ["person", "project"],
-  //   });
+    const resp = await client.ai.extractEntities({
+      content: "Ethereum founder Vitalik Buterin announced...",
+      entityTypes: ["person", "project"],
+    });
 
-  //   console.log("Response received:");
-  //   for (const entity of resp.extractedEntities) {
-  //     if (entity.selectedEntity) {
-  //       console.log(JSON.stringify(resp.extractedEntities, null, 2));
-  //     }
-  //   }
-  // } catch (error) {
-  //   console.error("Error calling extractEntities:", error);
-  // }
+    console.log("Response received:");
+    for (const entity of resp.extractedEntities) {
+      if (entity.selectedEntity) {
+        console.log(JSON.stringify(resp.extractedEntities, null, 2));
+      }
+    }
+  } catch (error) {
+    console.error("Error calling extractEntities:", error);
+  }
 }
 
 main().catch(console.error);
