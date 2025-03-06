@@ -8,7 +8,7 @@
 		"clean": "rimraf dist",
 		"start": "tsx src/index.ts",
 		"start:asset": "tsx src/asset.ts",
-		"start:chat": "tsx src/chatCompletion.ts",
+		"start:ai": "tsx src/ai.ts",
 		"start:diligence": "tsx src/diligence.ts",
 		"start:fundraising": "tsx src/fundraising.ts",
 		"start:intel": "tsx src/intelEvents.ts",
