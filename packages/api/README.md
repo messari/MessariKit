@@ -1,6 +1,6 @@
 # Messari SDK
 
-Messari Typescript SDK is a convenient way to interact with Messari's APIs. It provides a type-safe, intuitive interface for accessing Messari's suite of crypto data and AI services.
+Messari SDK is a convenient way to interact with Messari's APIs. It provides a type-safe, intuitive interface for accessing Messari's suite of crypto data and AI services.
 
 ## Features
 
@@ -23,6 +23,11 @@ pnpm add @messari/sdk
 |--------------|---------------|----------------|-------------|
 | AI | Chat Completion | `/ai/v1/chat/completions` | ✅ |
 | AI | Entity Extraction | `/ai/v1/classification/extraction` | ✅ 
+
+## Authorization
+
+To use the SDK, you'll need a Messari API key. You can get one by logging into [messari.io](https://messari.io/)
+ and visiting the [Account Page](https://messari.io/account).
 
 ## Example Usage - AI Service
 
