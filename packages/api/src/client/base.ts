@@ -59,7 +59,7 @@ import type {
   AcquisitionDeal,
   getOrganizationsParameters,
   getProjectsParameters,
-} from "@messari-kit/types";
+} from "@messari/sdk-types";
 import { LogLevel, type Logger, makeConsoleLogger, createFilteredLogger, noOpLogger } from "../logging";
 import type { PaginatedResult, RequestOptions, ClientEventMap, ClientEventType, ClientEventHandler } from "./types";
 

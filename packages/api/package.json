@@ -24,7 +24,7 @@
 		"dev": "tsx"
 	},
 	"dependencies": {
-		"@messari-kit/types": "workspace:*"
+		"@messari/sdk-types": "workspace:*"
 	},
 	"devDependencies": {
 		"@types/node": "^22.13.5",

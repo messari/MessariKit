@@ -1,6 +1,6 @@
 import type { Agent } from "node:http";
 import type { LogLevel, Logger } from "../logging";
-import type { APIResponseWithMetadata } from "@messari-kit/types";
+import type { APIResponseWithMetadata } from "@messari/sdk-types";
 
 /**
  * Options for configuring the MessariClient

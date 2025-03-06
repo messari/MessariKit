@@ -31,7 +31,7 @@ import {
   getTokenUnlockVestingSchedule,
   getOrganizations,
   getProjects,
-} from "@messari-kit/types";
+} from "@messari/sdk-types";
 import type {
   createChatCompletionParameters,
   createChatCompletionResponse,
@@ -93,7 +93,7 @@ import type {
   getOrganizationsResponse,
   getProjectsParameters,
   getProjectsResponse,
-} from "@messari-kit/types";
+} from "@messari/sdk-types";
 import type { Agent } from "node:http";
 import { pick } from "../utils";
 import { LogLevel, type Logger, makeConsoleLogger, createFilteredLogger, noOpLogger } from "../logging";

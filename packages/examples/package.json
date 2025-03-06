@@ -20,7 +20,7 @@
 	},
 	"dependencies": {
 		"@messari/sdk": "workspace:*",
-		"@messari-kit/types": "workspace:*",
+		"@messari/sdk-types": "workspace:*",
 		"console-table-printer": "^2.12.1",
 		"dotenv": "^16.4.7"
 	},
