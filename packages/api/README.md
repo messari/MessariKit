@@ -60,15 +60,15 @@ console.log(assistantMessage);
 
 
 // Extract entities from text
-const entities = await client.ai.extractEntities({
-  content: "Ethereum founder Vitalik Buterin announced...",
-  entityTypes: ["person", "project"],
+const entitiesResp = await client.ai.extractEntities({
+    content: "Ethereum founder Vitalik Buterin announced...",
+    entityTypes: ["person", "project"],
 });
 
-for (const entity of resp.extractedEntities) {
-  if (entity.selectedEntity) {
-    console.log(JSON.stringify(resp.extractedEntities, null, 2));
-  }
+for (const entity of entitiesResp.extractedEntities) {
+    if (entity.selectedEntity) {
+        console.log(JSON.stringify(entity.selectedEntity, null, 2));
+    }
 }
 // {
 //   "name": "Ethereum",
