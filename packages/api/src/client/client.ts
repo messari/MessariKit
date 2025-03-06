@@ -619,6 +619,9 @@ export class MessariClient extends MessariClientBase {
       }),
   };
 
+  /**
+   * @deprecated Markets is Work-in-Progress and not production ready
+   */
   public readonly markets: MarketsInterface = {
     getAssetPrice: (params: getAssetMarketdataParameters) =>
       this.request<getAssetMarketdataResponse>({
@@ -651,6 +654,9 @@ export class MessariClient extends MessariClientBase {
       }),
   };
 
+  /**
+   * @deprecated Asset is Work-in-Progress and not production ready
+   */
   public readonly asset: AssetInterface = {
     getAssetList: async (params: getAssetListParameters = {}, options?: RequestOptions) => {
       const fetchPage = async (p: getAssetListParameters, o?: RequestOptions) => {
@@ -667,6 +673,9 @@ export class MessariClient extends MessariClientBase {
     },
   };
 
+  /**
+   * @deprecated Intel is Work-in-Progress and not production ready
+   */
   public readonly intel: IntelInterface = {
     getAllEvents: async (params: getAllEventsParameters = {}, options?: RequestOptions) => {
       const fetchPage = async (p: getAllEventsParameters, o?: RequestOptions) => {
@@ -703,6 +712,9 @@ export class MessariClient extends MessariClientBase {
     },
   };
 
+  /**
+   * @deprecated Fundraising is Work-in-Progress and not production ready
+   */
   public readonly fundraising: FundraisingAPIInterface = {
     getFundingRounds: async (params: getFundingRoundsParameters) => {
       return this.requestWithMetadata<getFundingRoundsResponse, PaginationMetadata>({
@@ -745,6 +757,9 @@ export class MessariClient extends MessariClientBase {
     },
   };
 
+  /**
+   * @deprecated TokenUnlocks is Work-in-Progress and not production ready
+   */
   public readonly tokenUnlocks: TokenUnlocksInterface = {
     getSupportedAssets: async (params: getTokenUnlockSupportedAssetsParameters = {}, options?: RequestOptions) => {
       return this.request<getTokenUnlockSupportedAssetsResponse>({
@@ -792,6 +807,9 @@ export class MessariClient extends MessariClientBase {
     },
   };
 
+  /**
+   * @deprecated News is Work-in-Progress and not production ready
+   */
   public readonly news: NewsInterface = {
     getNewsFeedPaginated: async (params: getNewsFeedParameters, options?: RequestOptions) => {
       const fetchPage = async (p: getNewsFeedParameters, o?: RequestOptions) => {
@@ -836,6 +854,9 @@ export class MessariClient extends MessariClientBase {
     },
   };
 
+  /**
+   * @deprecated Research is Work-in-Progress and not production ready
+   */
   public readonly research: ResearchInterface = {
     getResearchReports: (params: getResearchReportsParameters, options?: RequestOptions) =>
       this.request<getResearchReportsResponse>({
@@ -858,6 +879,9 @@ export class MessariClient extends MessariClientBase {
       }),
   };
 
+  /**
+   * @deprecated Diligence is Work-in-Progress and not production ready
+   */
   public readonly diligence: DiligenceAPIInterface = {
     getDiligencePreview: async () => {
       return this.request<getPreviewsResponse>({
@@ -873,6 +897,7 @@ export class MessariClient extends MessariClientBase {
     },
   };
 
+  // Recaps is commented out as we don't want to expose it yet
   // public readonly recaps: RecapsAPIInterface = {
   //   getProjectRecap: async (params: getProjectRecapParameters) => {
   //     return this.request<getProjectRecapResponse>({
