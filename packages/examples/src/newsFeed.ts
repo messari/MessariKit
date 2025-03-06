@@ -1,5 +1,5 @@
 import { MessariClient } from "@messari/sdk";
-import type { getNewsFeedParameters, getNewsFeedAssetsParameters, getNewsSourcesParameters, NewsAsset, Document, Source } from "@messari/sdk/dist/types";
+import type { getNewsFeedParameters, getNewsFeedAssetsParameters, getNewsSourcesParameters, NewsAsset, Document, Source } from "@messari/sdk";
 import dotenv from "dotenv";
 
 // Load environment variables from .env file

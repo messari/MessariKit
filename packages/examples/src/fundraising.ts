@@ -6,7 +6,7 @@ import type {
   getFundingRoundsParameters,
   getOrganizationsParameters,
   getProjectsParameters,
-} from "@messari/sdk/dist/types";
+} from "@messari/sdk";
 import dotenv from "dotenv";
 
 // Load environment variables from .env file
