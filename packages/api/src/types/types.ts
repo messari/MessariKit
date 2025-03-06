@@ -829,7 +829,7 @@ export type components = {
       /** @description The name extracted from the content */
       extractedName?: string;
       /** @description The selected/best matching entity if available */
-      selectedEntity?: components["schemas"]["Entity"];
+      selectedEntity?: components["schemas"]["SelectedEntity"];
       /** @description List of similar entities found */
       similarEntities?: components["schemas"]["Entity"][];
     };
@@ -1152,6 +1152,17 @@ export type components = {
       percentChangeQuarterToDate?: number;
       /** Format: double */
       percentChangeYearToDate?: number;
+    };
+    SelectedEntity: {
+      confidenceScore?: string;
+      /** @description Details of the entity */
+      details?: {
+          id?: string;
+          type?: string;
+        }[];
+      /** @description Name of the entity */
+      name?: string;
+      relevanceScore?: string;
     };
     Source: {
       /**

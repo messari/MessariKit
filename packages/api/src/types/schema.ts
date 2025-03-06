@@ -137,6 +137,8 @@ export type ResearchResponse = components['schemas']['ResearchResponse'];
 
 export type Resource = components['schemas']['Resource'];
 
+export type SelectedEntity = components['schemas']['SelectedEntity'];
+
 export type Source = components['schemas']['Source'];
 
 export type SourceList = components['schemas']['SourceList'];

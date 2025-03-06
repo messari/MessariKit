@@ -237,6 +237,27 @@ components:
           maximum: 1
           description: Confidence score of the entity match
 
+    SelectedEntity:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the entity
+        details:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              type:
+                type: string
+          description: Details of the entity
+        confidenceScore:
+          type: string
+        relevanceScore:
+          type: string
+          
     GroupedEntity:
       type: object
       properties:
@@ -249,7 +270,7 @@ components:
             $ref: '#/components/schemas/Entity'
           description: List of similar entities found
         selectedEntity:
-          $ref: '#/components/schemas/Entity'
+          $ref: '#/components/schemas/SelectedEntity'
           description: The selected/best matching entity if available
 
     ExtractResponse:
