@@ -58,7 +58,7 @@ async function main() {
     console.log("Response received:");
     for (const entity of resp.extractedEntities) {
       if (entity.selectedEntity) {
-        console.log(JSON.stringify(resp.extractedEntities, null, 2));
+        console.log(JSON.stringify(entity.selectedEntity, null, 2));
       }
     }
   } catch (error) {
