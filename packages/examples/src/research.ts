@@ -1,5 +1,5 @@
-import { MessariClient } from "../../api/dist";
-import type { Author, Tag } from "../../api/dist/types";
+import { MessariClient } from "@messari/sdk";
+import type { Author, Tag } from "@messari/sdk/dist/types";
 import { Table } from "console-table-printer";
 import dotenv from "dotenv";
 

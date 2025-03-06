@@ -6,7 +6,7 @@
  * and multiple assets at once.
  */
 
-import { MessariClient } from "../../api/dist";
+import { MessariClient } from "@messari/sdk";
 import { printTable } from "console-table-printer";
 import * as dotenv from "dotenv";
 
