@@ -23,9 +23,7 @@
 		"test:watch": "vitest",
 		"dev": "tsx"
 	},
-	"dependencies": {
-		"@messari/sdk-types": "workspace:*"
-	},
+	"dependencies": {},
 	"devDependencies": {
 		"@types/node": "^22.13.5",
 		"rimraf": "^5.0.10",

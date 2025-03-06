@@ -1,5 +1,5 @@
-import { MessariClient } from "@messari/sdk";
-import type { getAllEventsParameters, getEventAndHistoryParameters, getAllAssetsParameters, Asset, EventHistory } from "@messari/sdk-types";
+import { MessariClient } from "../../api/dist";
+import type { getAllEventsParameters, getEventAndHistoryParameters, getAllAssetsParameters, Asset, EventHistory } from "../../api/dist/types";
 import dotenv from "dotenv";
 
 // Load environment variables from .env file

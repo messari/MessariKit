@@ -1,4 +1,4 @@
-import { MessariClient } from "@messari/sdk";
+import { MessariClient } from "../../api/dist";
 import dotenv from "dotenv";
 
 // Load environment variables from .env file

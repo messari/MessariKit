@@ -1,4 +1,4 @@
-import { MessariClient, LogLevel } from "@messari/sdk";
+import { MessariClient, LogLevel } from "../../api/dist";
 import { Table } from "console-table-printer";
 import dotenv from "dotenv";
 
