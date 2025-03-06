@@ -43,10 +43,6 @@ importers:
         version: 3.0.7(@types/node@20.17.19)(tsx@4.19.3)
 
   packages/api:
-    dependencies:
-      '@messari-kit/types':
-        specifier: workspace:*
-        version: link:../types
     devDependencies:
       '@types/node':
         specifier: ^22.13.5
@@ -63,30 +59,15 @@ importers:
 
   packages/examples:
     dependencies:
-      '@messari-kit/api':
+      '@messari/sdk':
         specifier: workspace:*
         version: link:../api
-      '@messari-kit/types':
-        specifier: workspace:*
-        version: link:../types
       console-table-printer:
         specifier: ^2.12.1
         version: 2.12.1
       dotenv:
         specifier: ^16.4.7
         version: 16.4.7
-    devDependencies:
-      rimraf:
-        specifier: ^5.0.5
-        version: 5.0.10
-      tsx:
-        specifier: ^4.7.1
-        version: 4.19.3
-      typescript:
-        specifier: ^5.3.3
-        version: 5.7.3
-
-  packages/types:
     devDependencies:
       rimraf:
         specifier: ^5.0.5

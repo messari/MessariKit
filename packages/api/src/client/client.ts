@@ -31,7 +31,7 @@ import {
   getTokenUnlockVestingSchedule,
   getOrganizations,
   getProjects,
-} from "@messari-kit/types";
+} from "../types";
 import type {
   createChatCompletionParameters,
   createChatCompletionResponse,
@@ -93,7 +93,7 @@ import type {
   getOrganizationsResponse,
   getProjectsParameters,
   getProjectsResponse,
-} from "@messari-kit/types";
+} from "../types";
 import type { Agent } from "node:http";
 import { pick } from "../utils";
 import { LogLevel, type Logger, makeConsoleLogger, createFilteredLogger, noOpLogger } from "../logging";
@@ -602,22 +602,6 @@ export class MessariClient extends MessariClientBase {
     };
   }
 
-  public readonly asset: AssetInterface = {
-    getAssetList: async (params: getAssetListParameters = {}, options?: RequestOptions) => {
-      const fetchPage = async (p: getAssetListParameters, o?: RequestOptions) => {
-        return this.requestWithMetadata<getAssetListResponse["data"], PaginationMetadata>({
-          method: getAssetList.method,
-          path: getAssetList.path(),
-          queryParams: pick(p, getAssetList.queryParams),
-          options: o,
-        });
-      };
-
-      const response = await fetchPage(params, options);
-      return this.paginate<getAssetListResponse["data"], getAssetListParameters>(params, fetchPage, response, options);
-    },
-  };
-
   public readonly ai: AIInterface = {
     createChatCompletion: (params: createChatCompletionParameters, options?: RequestOptions) =>
       this.request<createChatCompletionResponse>({
@@ -635,6 +619,63 @@ export class MessariClient extends MessariClientBase {
       }),
   };
 
+  /**
+   * @deprecated Markets is Work-in-Progress and not production ready
+   */
+  public readonly markets: MarketsInterface = {
+    getAssetPrice: (params: getAssetMarketdataParameters) =>
+      this.request<getAssetMarketdataResponse>({
+        method: getAssetMarketdata.method,
+        path: getAssetMarketdata.path(params),
+      }),
+
+    getAssetROI: (params: getAssetROIParameters) =>
+      this.request<getAssetROIResponse>({
+        method: getAssetROI.method,
+        path: getAssetROI.path(params),
+      }),
+
+    getAssetATH: (params: getAssetATHParameters) =>
+      this.request<getAssetATHResponse>({
+        method: getAssetATH.method,
+        path: getAssetATH.path(params),
+      }),
+
+    getAllAssetsROI: () =>
+      this.request<getAssetsROIResponse>({
+        method: getAssetsROI.method,
+        path: getAssetsROI.path(),
+      }),
+
+    getAllAssetsATH: () =>
+      this.request<getAssetsATHResponse>({
+        method: getAssetsATH.method,
+        path: getAssetsATH.path(),
+      }),
+  };
+
+  /**
+   * @deprecated Asset is Work-in-Progress and not production ready
+   */
+  public readonly asset: AssetInterface = {
+    getAssetList: async (params: getAssetListParameters = {}, options?: RequestOptions) => {
+      const fetchPage = async (p: getAssetListParameters, o?: RequestOptions) => {
+        return this.requestWithMetadata<getAssetListResponse["data"], PaginationMetadata>({
+          method: getAssetList.method,
+          path: getAssetList.path(),
+          queryParams: pick(p, getAssetList.queryParams),
+          options: o,
+        });
+      };
+
+      const response = await fetchPage(params, options);
+      return this.paginate<getAssetListResponse["data"], getAssetListParameters>(params, fetchPage, response, options);
+    },
+  };
+
+  /**
+   * @deprecated Intel is Work-in-Progress and not production ready
+   */
   public readonly intel: IntelInterface = {
     getAllEvents: async (params: getAllEventsParameters = {}, options?: RequestOptions) => {
       const fetchPage = async (p: getAllEventsParameters, o?: RequestOptions) => {
@@ -671,142 +712,9 @@ export class MessariClient extends MessariClientBase {
     },
   };
 
-  public readonly news: NewsInterface = {
-    getNewsFeedPaginated: async (params: getNewsFeedParameters, options?: RequestOptions) => {
-      const fetchPage = async (p: getNewsFeedParameters, o?: RequestOptions) => {
-        return this.requestWithMetadata<getNewsFeedResponse["data"], PaginationMetadata>({
-          method: getNewsFeed.method,
-          path: getNewsFeed.path(),
-          queryParams: pick(p, getNewsFeed.queryParams),
-          options: o,
-        });
-      };
-
-      const initialResponse = await fetchPage(params, options);
-      return this.paginate<getNewsFeedResponse["data"], getNewsFeedParameters>(params, fetchPage, initialResponse, options);
-    },
-
-    getNewsFeedAssetsPaginated: async (params: getNewsFeedAssetsParameters, options?: RequestOptions) => {
-      const fetchPage = async (p: getNewsFeedAssetsParameters, o?: RequestOptions) => {
-        return this.requestWithMetadata<getNewsFeedAssetsResponse["data"], PaginationMetadata>({
-          method: getNewsFeedAssets.method,
-          path: getNewsFeedAssets.path(),
-          queryParams: pick(p, getNewsFeedAssets.queryParams),
-          options: o,
-        });
-      };
-
-      const initialResponse = await fetchPage(params, options);
-      return this.paginate<getNewsFeedAssetsResponse["data"], getNewsFeedAssetsParameters>(params, fetchPage, initialResponse, options);
-    },
-
-    getNewsSourcesPaginated: async (params: getNewsSourcesParameters, options?: RequestOptions) => {
-      const fetchPage = async (p: getNewsSourcesParameters, o?: RequestOptions) => {
-        return this.requestWithMetadata<getNewsSourcesResponse["data"], PaginationMetadata>({
-          method: getNewsSources.method,
-          path: getNewsSources.path(),
-          queryParams: pick(p, getNewsSources.queryParams),
-          options: o,
-        });
-      };
-
-      const initialResponse = await fetchPage(params, options);
-      return this.paginate<getNewsSourcesResponse["data"], getNewsSourcesParameters>(params, fetchPage, initialResponse, options);
-    },
-  };
-
-  public readonly markets: MarketsInterface = {
-    getAssetPrice: (params: getAssetMarketdataParameters) =>
-      this.request<getAssetMarketdataResponse>({
-        method: getAssetMarketdata.method,
-        path: getAssetMarketdata.path(params),
-      }),
-
-    getAssetROI: (params: getAssetROIParameters) =>
-      this.request<getAssetROIResponse>({
-        method: getAssetROI.method,
-        path: getAssetROI.path(params),
-      }),
-
-    getAssetATH: (params: getAssetATHParameters) =>
-      this.request<getAssetATHResponse>({
-        method: getAssetATH.method,
-        path: getAssetATH.path(params),
-      }),
-
-    getAllAssetsROI: () =>
-      this.request<getAssetsROIResponse>({
-        method: getAssetsROI.method,
-        path: getAssetsROI.path(),
-      }),
-
-    getAllAssetsATH: () =>
-      this.request<getAssetsATHResponse>({
-        method: getAssetsATH.method,
-        path: getAssetsATH.path(),
-      }),
-  };
-
-  public readonly recaps: RecapsAPIInterface = {
-    getProjectRecap: async (params: getProjectRecapParameters) => {
-      return this.request<getProjectRecapResponse>({
-        method: getProjectRecap.method,
-        path: getProjectRecap.path(),
-        queryParams: pick(params, getProjectRecap.queryParams),
-      });
-    },
-    getExchangeRecap: async (params: getExchangeRecapParameters) => {
-      return this.request<getExchangeRecapResponse>({
-        method: getExchangeRecap.method,
-        path: getExchangeRecap.path(),
-        queryParams: pick(params, getExchangeRecap.queryParams),
-      });
-    },
-    getExchangeRankingsRecap: async () => {
-      return this.request<getExchangeRankingsRecapResponse>({
-        method: getExchangeRankingsRecap.method,
-        path: getExchangeRankingsRecap.path(),
-      });
-    },
-  };
-
-  public readonly research: ResearchInterface = {
-    getResearchReports: (params: getResearchReportsParameters, options?: RequestOptions) =>
-      this.request<getResearchReportsResponse>({
-        method: getResearchReports.method,
-        path: getResearchReports.path(),
-        queryParams: pick(params, getResearchReports.queryParams),
-        options,
-      }),
-    getResearchReportById: (params: getResearchReportByIdParameters, options?: RequestOptions) =>
-      this.request<getResearchReportByIdResponse>({
-        method: getResearchReportById.method,
-        path: getResearchReportById.path(params),
-        options,
-      }),
-    getResearchReportTags: (options?: RequestOptions) =>
-      this.request<getResearchReportTagsResponse>({
-        method: getResearchReportTags.method,
-        path: getResearchReportTags.path(),
-        options,
-      }),
-  };
-
-  public readonly diligence: DiligenceAPIInterface = {
-    getDiligencePreview: async () => {
-      return this.request<getPreviewsResponse>({
-        method: getPreviews.method,
-        path: getPreviews.path(),
-      });
-    },
-    getDiligenceReport: async (params: getReportByAssetIDParameters) => {
-      return this.request<getReportByAssetIDResponse>({
-        method: getReportByAssetID.method,
-        path: getReportByAssetID.path(params),
-      });
-    },
-  };
-
+  /**
+   * @deprecated Fundraising is Work-in-Progress and not production ready
+   */
   public readonly fundraising: FundraisingAPIInterface = {
     getFundingRounds: async (params: getFundingRoundsParameters) => {
       return this.requestWithMetadata<getFundingRoundsResponse, PaginationMetadata>({
@@ -848,6 +756,10 @@ export class MessariClient extends MessariClientBase {
       });
     },
   };
+
+  /**
+   * @deprecated TokenUnlocks is Work-in-Progress and not production ready
+   */
   public readonly tokenUnlocks: TokenUnlocksInterface = {
     getSupportedAssets: async (params: getTokenUnlockSupportedAssetsParameters = {}, options?: RequestOptions) => {
       return this.request<getTokenUnlockSupportedAssetsResponse>({
@@ -894,4 +806,118 @@ export class MessariClient extends MessariClientBase {
       });
     },
   };
+
+  /**
+   * @deprecated News is Work-in-Progress and not production ready
+   */
+  public readonly news: NewsInterface = {
+    getNewsFeedPaginated: async (params: getNewsFeedParameters, options?: RequestOptions) => {
+      const fetchPage = async (p: getNewsFeedParameters, o?: RequestOptions) => {
+        return this.requestWithMetadata<getNewsFeedResponse["data"], PaginationMetadata>({
+          method: getNewsFeed.method,
+          path: getNewsFeed.path(),
+          queryParams: pick(p, getNewsFeed.queryParams),
+          options: o,
+        });
+      };
+
+      const initialResponse = await fetchPage(params, options);
+      return this.paginate<getNewsFeedResponse["data"], getNewsFeedParameters>(params, fetchPage, initialResponse, options);
+    },
+
+    getNewsFeedAssetsPaginated: async (params: getNewsFeedAssetsParameters, options?: RequestOptions) => {
+      const fetchPage = async (p: getNewsFeedAssetsParameters, o?: RequestOptions) => {
+        return this.requestWithMetadata<getNewsFeedAssetsResponse["data"], PaginationMetadata>({
+          method: getNewsFeedAssets.method,
+          path: getNewsFeedAssets.path(),
+          queryParams: pick(p, getNewsFeedAssets.queryParams),
+          options: o,
+        });
+      };
+
+      const initialResponse = await fetchPage(params, options);
+      return this.paginate<getNewsFeedAssetsResponse["data"], getNewsFeedAssetsParameters>(params, fetchPage, initialResponse, options);
+    },
+
+    getNewsSourcesPaginated: async (params: getNewsSourcesParameters, options?: RequestOptions) => {
+      const fetchPage = async (p: getNewsSourcesParameters, o?: RequestOptions) => {
+        return this.requestWithMetadata<getNewsSourcesResponse["data"], PaginationMetadata>({
+          method: getNewsSources.method,
+          path: getNewsSources.path(),
+          queryParams: pick(p, getNewsSources.queryParams),
+          options: o,
+        });
+      };
+
+      const initialResponse = await fetchPage(params, options);
+      return this.paginate<getNewsSourcesResponse["data"], getNewsSourcesParameters>(params, fetchPage, initialResponse, options);
+    },
+  };
+
+  /**
+   * @deprecated Research is Work-in-Progress and not production ready
+   */
+  public readonly research: ResearchInterface = {
+    getResearchReports: (params: getResearchReportsParameters, options?: RequestOptions) =>
+      this.request<getResearchReportsResponse>({
+        method: getResearchReports.method,
+        path: getResearchReports.path(),
+        queryParams: pick(params, getResearchReports.queryParams),
+        options,
+      }),
+    getResearchReportById: (params: getResearchReportByIdParameters, options?: RequestOptions) =>
+      this.request<getResearchReportByIdResponse>({
+        method: getResearchReportById.method,
+        path: getResearchReportById.path(params),
+        options,
+      }),
+    getResearchReportTags: (options?: RequestOptions) =>
+      this.request<getResearchReportTagsResponse>({
+        method: getResearchReportTags.method,
+        path: getResearchReportTags.path(),
+        options,
+      }),
+  };
+
+  /**
+   * @deprecated Diligence is Work-in-Progress and not production ready
+   */
+  public readonly diligence: DiligenceAPIInterface = {
+    getDiligencePreview: async () => {
+      return this.request<getPreviewsResponse>({
+        method: getPreviews.method,
+        path: getPreviews.path(),
+      });
+    },
+    getDiligenceReport: async (params: getReportByAssetIDParameters) => {
+      return this.request<getReportByAssetIDResponse>({
+        method: getReportByAssetID.method,
+        path: getReportByAssetID.path(params),
+      });
+    },
+  };
+
+  // Recaps is commented out as we don't want to expose it yet
+  // public readonly recaps: RecapsAPIInterface = {
+  //   getProjectRecap: async (params: getProjectRecapParameters) => {
+  //     return this.request<getProjectRecapResponse>({
+  //       method: getProjectRecap.method,
+  //       path: getProjectRecap.path(),
+  //       queryParams: pick(params, getProjectRecap.queryParams),
+  //     });
+  //   },
+  //   getExchangeRecap: async (params: getExchangeRecapParameters) => {
+  //     return this.request<getExchangeRecapResponse>({
+  //       method: getExchangeRecap.method,
+  //       path: getExchangeRecap.path(),
+  //       queryParams: pick(params, getExchangeRecap.queryParams),
+  //     });
+  //   },
+  //   getExchangeRankingsRecap: async () => {
+  //     return this.request<getExchangeRankingsRecapResponse>({
+  //       method: getExchangeRankingsRecap.method,
+  //       path: getExchangeRankingsRecap.path(),
+  //     });
+  //   },
+  // };
 }

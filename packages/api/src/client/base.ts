@@ -59,7 +59,7 @@ import type {
   AcquisitionDeal,
   getOrganizationsParameters,
   getProjectsParameters,
-} from "@messari-kit/types";
+} from "../types";
 import { LogLevel, type Logger, makeConsoleLogger, createFilteredLogger, noOpLogger } from "../logging";
 import type { PaginatedResult, RequestOptions, ClientEventMap, ClientEventType, ClientEventHandler } from "./types";
 
@@ -327,9 +327,29 @@ export abstract class MessariClientBase {
   public abstract readonly ai: AIInterface;
 
   /**
+   * Interface for Markets-related API methods
+   */
+  public abstract readonly markets: MarketsInterface;
+
+  /**
+   * Interface for Asset-related API methods
+   */
+  public abstract readonly asset: AssetInterface;
+
+  /**
    * Interface for Intel-related API methods
    */
   public abstract readonly intel: IntelInterface;
+
+  /**
+   * Interface for Fundraising-related API methods
+   */
+  public abstract readonly fundraising: FundraisingAPIInterface;
+
+  /**
+   * Interface for Token Unlocks-related API methods
+   */
+  public abstract readonly tokenUnlocks: TokenUnlocksInterface;
 
   /**
    * Interface for News-related API methods
@@ -337,24 +357,19 @@ export abstract class MessariClientBase {
   public abstract readonly news: NewsInterface;
 
   /**
-   * Interface for Markets-related API methods
-   */
-  public abstract readonly markets: MarketsInterface;
-
-  /**
-   * Interface for Recaps-related API methods
-   */
-  public abstract readonly recaps: RecapsAPIInterface;
-
-  /**
    * Interface for Research-related API methods
    */
   public abstract readonly research: ResearchInterface;
 
   /**
-   * Interface for Token Unlocks-related API methods
+   * Interface for Diligence-related API methods
    */
-  public abstract readonly tokenUnlocks: TokenUnlocksInterface;
+  public abstract readonly diligence: DiligenceAPIInterface;
+
+  /**
+   * Interface for Recaps-related API methods
+   */
+  // public abstract readonly recaps: RecapsAPIInterface;
 
   /**
    * Logger instance for the client

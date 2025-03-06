@@ -1,6 +1,10 @@
 {
-	"name": "@messari-kit/api",
-	"version": "0.0.1",
+	"name": "@messari/sdk",
+	"version": "0.0.2",
+	"private": false,
+	"description": "Messari SDK provides a type-safe, intuitive interface for accessing Messari's suite of crypto data and AI APIs.",
+	"author": "Messari Engineering",
+	"keywords": ["messari", "crypto", "ai", "agent", "bitcoin", "ethereum"],
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"exports": {
@@ -23,13 +27,12 @@
 		"test:watch": "vitest",
 		"dev": "tsx"
 	},
-	"dependencies": {
-		"@messari-kit/types": "workspace:*"
-	},
+	"dependencies": {},
 	"devDependencies": {
 		"@types/node": "^22.13.5",
 		"rimraf": "^5.0.10",
 		"tsx": "^4.19.3",
 		"typescript": "^5.7.3"
-	}
+	},
+	"license": "MIT"
 }
