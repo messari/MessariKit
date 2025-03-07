@@ -31,6 +31,12 @@ import {
   getTokenUnlockVestingSchedule,
   getOrganizations,
   getProjects,
+  getInfluencers,
+  getInfluencer,
+  getInfluencerMindshareTimeSeries,
+  getAssets,
+  getAsset,
+  getAssetMindshareTimeSeries,
 } from "../types";
 import type {
   createChatCompletionParameters,
@@ -93,6 +99,16 @@ import type {
   getOrganizationsResponse,
   getProjectsParameters,
   getProjectsResponse,
+  getInfluencersResponse,
+  getInfluencerParameters,
+  getInfluencerResponse,
+  getInfluencerMindshareTimeSeriesResponse,
+  getInfluencerMindshareTimeSeriesParameters,
+  getAssetMindshareTimeSeriesResponse,
+  getAssetParameters,
+  getAssetMindshareTimeSeriesParameters,
+  getAssetsResponse,
+  getAssetResponse,
 } from "../types";
 import type { Agent } from "node:http";
 import { pick } from "../utils";
@@ -120,6 +136,7 @@ import type {
   RecapsAPIInterface,
   ResearchInterface,
   TokenUnlocksInterface,
+  SignalAPIInterface,
 } from "./base";
 import { MessariClientBase } from "./base";
 
@@ -893,6 +910,48 @@ export class MessariClient extends MessariClientBase {
       return this.request<getReportByAssetIDResponse>({
         method: getReportByAssetID.method,
         path: getReportByAssetID.path(params),
+      });
+    },
+  };
+
+  public readonly signal: SignalAPIInterface = {
+    getInfluencers: async () => {
+      return this.request<getInfluencersResponse>({
+        method: getInfluencers.method,
+        path: getInfluencers.path(),
+      });
+    },
+    getInfluencer: async (params: getInfluencerParameters) => {
+      return this.request<getInfluencerResponse>({
+        method: getInfluencer.method,
+        path: getInfluencer.path(params),
+      });
+    },
+    getInfluencerMindshareTimeSeries: async (params: getInfluencerMindshareTimeSeriesParameters) => {
+      return this.request<getInfluencerMindshareTimeSeriesResponse>({
+        method: getInfluencerMindshareTimeSeries.method,
+        path: getInfluencerMindshareTimeSeries.path(params),
+      });
+    },
+    getAssets: async (options?: RequestOptions) => {
+      return this.request<getAssetsResponse>({
+        method: getAssets.method,
+        path: getAssets.path(),
+        options,
+      });
+    },
+    getAsset: async (params: getAssetParameters, options?: RequestOptions) => {
+      return this.request<getAssetResponse>({
+        method: getAsset.method,
+        path: getAsset.path(params),
+        options,
+      });
+    },
+    getAssetMindshareTimeSeries: async (params: getAssetMindshareTimeSeriesParameters, options?: RequestOptions) => {
+      return this.request<getAssetMindshareTimeSeriesResponse>({
+        method: getAssetMindshareTimeSeries.method,
+        path: getAssetMindshareTimeSeries.path(params),
+        options,
       });
     },
   };

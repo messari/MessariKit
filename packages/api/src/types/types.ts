@@ -204,6 +204,48 @@ export type paths = {
      */
     get: operations["getResearchReportTags"];
   };
+  "/signal/v0/assets": {
+    /**
+     * Get Assets
+     * @description Get a list of crypto assets.
+     */
+    get: operations["getAssets"];
+  };
+  "/signal/v0/assets/{assetId}": {
+    /**
+     * Get Asset
+     * @description Get a specific crypto asset by ID.
+     */
+    get: operations["getAsset"];
+  };
+  "/signal/v0/assets/{assetId}/time-series/mindshare/{granularity}": {
+    /**
+     * Get asset mindshare time series
+     * @description Get the mindshare time series for a specific crypto asset.
+     */
+    get: operations["getAssetMindshareTimeSeries"];
+  };
+  "/signal/v0/influencers": {
+    /**
+     * Get Influencers
+     * @description Get a list of crypto influencers.
+     */
+    get: operations["getInfluencers"];
+  };
+  "/signal/v0/influencers/{influencerId}": {
+    /**
+     * Get individual influencer
+     * @description Get a specific crypto influencer by ID.
+     */
+    get: operations["getInfluencer"];
+  };
+  "/signal/v0/influencers/{influencerId}/time-series/mindshare/{granularity}": {
+    /**
+     * Get influencer mindshare time series
+     * @description Get the mindshare time series for a specific crypto influencer.
+     */
+    get: operations["getInfluencerMindshareTimeSeries"];
+  };
   "/token-unlocks/v1/allocations": {
     /**
      * Get token unlock allocations
@@ -833,6 +875,50 @@ export type components = {
       /** @description List of similar entities found */
       similarEntities?: components["schemas"]["Entity"][];
     };
+    Influencer: {
+      /** @description Bio or description of the influencer */
+      description?: string;
+      /** @description Unique identifier for the influencer */
+      id?: string;
+      /** @description Location of the influencer */
+      location?: string;
+      mindshare?: {
+        /**
+         * Format: double
+         * @description Latest mindshare score
+         */
+        latestScore?: number;
+        /**
+         * Format: double
+         * @description 24-hour mindshare score change
+         */
+        scoreChange1d?: number;
+        /**
+         * Format: double
+         * @description 7-day mindshare score change
+         */
+        scoreChange7d?: number;
+        /**
+         * Format: double
+         * @description 30-day mindshare score change
+         */
+        scoreChange30d?: number;
+      };
+      /** @description Display name of the influencer */
+      name?: string;
+      /** @description URL to the influencer's profile image */
+      profileImageUrl?: string;
+      socialMetrics?: {
+        /** @description Number of followers */
+        followersCount?: number;
+        /** @description Number of accounts being followed */
+        followingCount?: number;
+        /** @description Total number of tweets */
+        tweetCount?: number;
+      };
+      /** @description Username of the influencer */
+      username?: string;
+    };
     /** @description Intel information response */
     IntelResponse: {
       metadata?: {
@@ -945,6 +1031,15 @@ export type components = {
     PlatformContract: {
       contractAddress?: string;
       platform?: string;
+    };
+    Point: {
+      [key: string]: number;
+    };
+    PointSchema: {
+      description?: string;
+      isTimestamp?: boolean;
+      name?: string;
+      slug?: string;
     };
     Project: {
       /** @description Category of the project */
@@ -1164,6 +1259,50 @@ export type components = {
       name?: string;
       relevanceScore?: string;
     };
+    SignalAsset: {
+      /** @description Unique identifier for the asset */
+      id?: string;
+      mindshare?: {
+        /**
+         * Format: double
+         * @description Latest mindshare score
+         */
+        latestScore?: number;
+        /** @description Mindshare rank of the asset */
+        rank?: number;
+        /**
+         * Format: double
+         * @description 24-hour mindshare score change
+         */
+        scoreChange1d?: number;
+        /**
+         * Format: double
+         * @description 7-day mindshare score change
+         */
+        scoreChange7d?: number;
+        /**
+         * Format: double
+         * @description 30-day mindshare score change
+         */
+        scoreChange30d?: number;
+      };
+      /** @description Name of the asset */
+      name?: string;
+      /** @description Slug identifier of the asset */
+      slug?: string;
+      /** @description Symbol of the asset */
+      symbol?: string;
+    };
+    SnapshotListingMetadata: {
+      /** @description Current page number */
+      page?: number;
+      /** @description Number of items per page */
+      pageSize?: number;
+      /** @description Total number of pages */
+      totalPages?: number;
+      /** @description Total number of items */
+      totalRows?: number;
+    };
     Source: {
       /**
        * Format: uuid
@@ -1191,6 +1330,14 @@ export type components = {
       id: string;
       /** @description Name of the tag */
       name: string;
+    };
+    TimeseriesData: {
+      points?: components["schemas"]["Point"][];
+    };
+    TimeseriesMetadata: {
+      /** @enum {string} */
+      granularity?: "1d" | "1h";
+      pointSchemas?: components["schemas"]["PointSchema"][];
     };
     /**
      * Format: date-time
@@ -2442,6 +2589,246 @@ export type operations = {
         content: {
           "application/json": components["schemas"]["APIResponse"] & {
             data: string[];
+          };
+        };
+      };
+      /** @description Client error response */
+      400: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Server error response */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+    };
+  };
+  /**
+   * Get Assets
+   * @description Get a list of crypto assets.
+   */
+  getAssets: {
+    parameters: {
+      query?: {
+        /** @description Page number for pagination */
+        page?: number;
+        /** @description Number of items per page (max 2000) */
+        pageSize?: number;
+      };
+    };
+    responses: {
+      /** @description Successful response */
+      200: {
+        content: {
+          "application/json": components["schemas"]["APIResponseWithMetadata"] & {
+            data?: components["schemas"]["SignalAsset"][];
+            metadata?: components["schemas"]["SnapshotListingMetadata"];
+          };
+        };
+      };
+      /** @description Client error response */
+      400: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Server error response */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+    };
+  };
+  /**
+   * Get Asset
+   * @description Get a specific crypto asset by ID.
+   */
+  getAsset: {
+    parameters: {
+      path: {
+        /** @description Asset ID (either a slug or UUID) */
+        assetId: string;
+      };
+    };
+    responses: {
+      /** @description Successful response */
+      200: {
+        content: {
+          "application/json": components["schemas"]["APIResponse"] & {
+            data?: components["schemas"]["SignalAsset"];
+          };
+        };
+      };
+      /** @description Client error response */
+      400: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Asset not found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Server error response */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+    };
+  };
+  /**
+   * Get asset mindshare time series
+   * @description Get the mindshare time series for a specific crypto asset.
+   */
+  getAssetMindshareTimeSeries: {
+    parameters: {
+      query?: {
+        /** @description Time range start */
+        start?: string;
+        /** @description Time range end */
+        end?: string;
+      };
+      path: {
+        /** @description Asset ID (either a slug or UUID) */
+        assetId: string;
+        /** @description Time series granularity */
+        granularity: "1d" | "1h";
+      };
+    };
+    responses: {
+      /** @description Successful response */
+      200: {
+        content: {
+          "application/json": components["schemas"]["APIResponseWithMetadata"] & {
+            data?: components["schemas"]["TimeseriesData"];
+            metadata?: components["schemas"]["TimeseriesMetadata"];
+          };
+        };
+      };
+      /** @description Client error response */
+      400: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Asset not found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Server error response */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+    };
+  };
+  /**
+   * Get Influencers
+   * @description Get a list of crypto influencers.
+   */
+  getInfluencers: {
+    parameters: {
+      query?: {
+        /** @description Page number for pagination */
+        page?: number;
+        /** @description Number of items per page (max 200) */
+        pageSize?: number;
+      };
+    };
+    responses: {
+      /** @description Successful response */
+      200: {
+        content: {
+          "application/json": components["schemas"]["APIResponseWithMetadata"] & {
+            data?: components["schemas"]["Influencer"][];
+            metadata?: components["schemas"]["SnapshotListingMetadata"];
+          };
+        };
+      };
+      /** @description Client error response */
+      400: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Server error response */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+    };
+  };
+  /**
+   * Get individual influencer
+   * @description Get a specific crypto influencer by ID.
+   */
+  getInfluencer: {
+    parameters: {
+      path: {
+        /** @description Influencer ID (either a numeric X User ID or a username like '@handle') */
+        influencerId: string;
+      };
+    };
+    responses: {
+      /** @description Successful response */
+      200: {
+        content: {
+          "application/json": components["schemas"]["APIResponse"] & {
+            data?: components["schemas"]["Influencer"];
+          };
+        };
+      };
+      /** @description Client error response */
+      400: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Server error response */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+    };
+  };
+  /**
+   * Get influencer mindshare time series
+   * @description Get the mindshare time series for a specific crypto influencer.
+   */
+  getInfluencerMindshareTimeSeries: {
+    parameters: {
+      query?: {
+        /** @description Time range start */
+        start?: string;
+        /** @description Time range end */
+        end?: string;
+        /** @description Time series granularity */
+        granularity?: "1d" | "1h";
+      };
+      path: {
+        /** @description Influencer ID (either a numeric X User ID or a username like '@handle') */
+        influencerId: string;
+      };
+    };
+    responses: {
+      /** @description Successful response */
+      200: {
+        content: {
+          "application/json": components["schemas"]["APIResponseWithMetadata"] & {
+            data?: components["schemas"]["TimeseriesData"];
+            metadata?: components["schemas"]["TimeseriesMetadata"];
           };
         };
       };

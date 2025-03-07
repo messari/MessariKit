@@ -97,6 +97,8 @@ export type GetProjectRecapResponse = components['schemas']['GetProjectRecapResp
 
 export type GroupedEntity = components['schemas']['GroupedEntity'];
 
+export type Influencer = components['schemas']['Influencer'];
+
 export type IntelResponse = components['schemas']['IntelResponse'];
 
 export type Investors = components['schemas']['Investors'];
@@ -116,6 +118,10 @@ export type PaginationResult = components['schemas']['PaginationResult'];
 export type Person = components['schemas']['Person'];
 
 export type PlatformContract = components['schemas']['PlatformContract'];
+
+export type Point = components['schemas']['Point'];
+
+export type PointSchema = components['schemas']['PointSchema'];
 
 export type Project = components['schemas']['Project'];
 
@@ -139,6 +145,10 @@ export type Resource = components['schemas']['Resource'];
 
 export type SelectedEntity = components['schemas']['SelectedEntity'];
 
+export type SignalAsset = components['schemas']['SignalAsset'];
+
+export type SnapshotListingMetadata = components['schemas']['SnapshotListingMetadata'];
+
 export type Source = components['schemas']['Source'];
 
 export type SourceList = components['schemas']['SourceList'];
@@ -150,6 +160,10 @@ export type SummaryResponse = components['schemas']['SummaryResponse'];
 export type Tag = components['schemas']['Tag'];
 
 export type TimeUTC = components['schemas']['TimeUTC'];
+
+export type TimeseriesData = components['schemas']['TimeseriesData'];
+
+export type TimeseriesMetadata = components['schemas']['TimeseriesMetadata'];
 
 export type TokenUnlockAllocation = components['schemas']['TokenUnlockAllocation'];
 
