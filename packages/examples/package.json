@@ -16,7 +16,8 @@
 		"start:news": "tsx src/newsFeed.ts",
 		"start:recaps": "tsx src/recaps.ts",
 		"start:research": "tsx src/research.ts",
-		"start:token-unlocks": "tsx src/tokenUnlocks.ts"
+		"start:token-unlocks": "tsx src/tokenUnlocks.ts",
+		"start:signal": "tsx src/signal.ts"
 	},
 	"dependencies": {
 		"@messari/sdk": "workspace:*",

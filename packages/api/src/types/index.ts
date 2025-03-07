@@ -496,5 +496,95 @@ export const getTokenUnlockEvents = {
   path: (p: PathParams) => `/token-unlocks/v1/assets/${p.assetId}/events`
 } as const;
 
+
+export type getInfluencersResponse = components['schemas']['Influencer'][];
+export type getInfluencersError = components['schemas']['APIError'];
+
+export type getInfluencersParameters = { page?: number; pageSize?: number };
+
+
+export const getInfluencers = {
+  method: 'GET' as const,
+  pathParams: [] as const,
+  queryParams: ['page', 'pageSize'] as const,
+  bodyParams: [] as const,
+  path: () => '/signal/v0/influencers'
+} as const;
+
+
+export type getInfluencerResponse = components['schemas']['Influencer'];
+export type getInfluencerError = components['schemas']['APIError'];
+
+export type getInfluencerParameters = { influencerId: string };
+
+
+export const getInfluencer = {
+  method: 'GET' as const,
+  pathParams: ['influencerId'] as const,
+  queryParams: [] as const,
+  bodyParams: [] as const,
+  path: (p: PathParams) => `/signal/v0/influencers/${p.influencerId}`
+} as const;
+
+
+export type getInfluencerMindshareTimeSeriesResponse = components['schemas']['TimeseriesData'];
+export type getInfluencerMindshareTimeSeriesError = components['schemas']['APIError'];
+
+export type getInfluencerMindshareTimeSeriesParameters = { start?: string; end?: string; granularity?: string } & { influencerId: string };
+
+
+export const getInfluencerMindshareTimeSeries = {
+  method: 'GET' as const,
+  pathParams: ['influencerId'] as const,
+  queryParams: ['start', 'end', 'granularity'] as const,
+  bodyParams: [] as const,
+  path: (p: PathParams) => `/signal/v0/influencers/${p.influencerId}/time-series/mindshare/${p.granularity}`
+} as const;
+
+
+export type getAssetsResponse = components['schemas']['SignalAsset'][];
+export type getAssetsError = components['schemas']['APIError'];
+
+export type getAssetsParameters = { page?: number; pageSize?: number };
+
+
+export const getAssets = {
+  method: 'GET' as const,
+  pathParams: [] as const,
+  queryParams: ['page', 'pageSize'] as const,
+  bodyParams: [] as const,
+  path: () => '/signal/v0/assets'
+} as const;
+
+
+export type getAssetResponse = components['schemas']['SignalAsset'];
+export type getAssetError = components['schemas']['APIError'];
+
+export type getAssetParameters = { assetId: string };
+
+
+export const getAsset = {
+  method: 'GET' as const,
+  pathParams: ['assetId'] as const,
+  queryParams: [] as const,
+  bodyParams: [] as const,
+  path: (p: PathParams) => `/signal/v0/assets/${p.assetId}`
+} as const;
+
+
+export type getAssetMindshareTimeSeriesResponse = components['schemas']['TimeseriesData'];
+export type getAssetMindshareTimeSeriesError = components['schemas']['APIError'];
+
+export type getAssetMindshareTimeSeriesParameters = { start?: string; end?: string } & { assetId: string; granularity: string };
+
+
+export const getAssetMindshareTimeSeries = {
+  method: 'GET' as const,
+  pathParams: ['assetId', 'granularity'] as const,
+  queryParams: ['start', 'end'] as const,
+  bodyParams: [] as const,
+  path: (p: PathParams) => `/signal/v0/assets/${p.assetId}/time-series/mindshare/${p.granularity}`
+} as const;
+
 // Re-export schema types
 export * from './schema';

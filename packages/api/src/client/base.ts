@@ -59,6 +59,16 @@ import type {
   AcquisitionDeal,
   getOrganizationsParameters,
   getProjectsParameters,
+  getInfluencersResponse,
+  getInfluencerResponse,
+  getInfluencerMindshareTimeSeriesParameters,
+  getInfluencerMindshareTimeSeriesResponse,
+  getInfluencerParameters,
+  getAssetMindshareTimeSeriesParameters,
+  getAssetResponse,
+  getAssetParameters,
+  getAssetsResponse,
+  getAssetMindshareTimeSeriesResponse,
 } from "../types";
 import { LogLevel, type Logger, makeConsoleLogger, createFilteredLogger, noOpLogger } from "../logging";
 import type { PaginatedResult, RequestOptions, ClientEventMap, ClientEventType, ClientEventHandler } from "./types";
@@ -317,6 +327,19 @@ export interface TokenUnlocksInterface {
 }
 
 /**
+ * Interface for the Signal API methods
+ */
+export interface SignalAPIInterface {
+  getInfluencers(): Promise<getInfluencersResponse>;
+  getInfluencer(params: getInfluencerParameters): Promise<getInfluencerResponse>;
+  getInfluencerMindshareTimeSeries(params: getInfluencerMindshareTimeSeriesParameters): Promise<getInfluencerMindshareTimeSeriesResponse>;
+
+  getAssets(): Promise<getAssetsResponse>;
+  getAsset(params: getAssetParameters): Promise<getAssetResponse>;
+  getAssetMindshareTimeSeries(params: getAssetMindshareTimeSeriesParameters): Promise<getAssetMindshareTimeSeriesResponse>;
+}
+
+/**
  * Abstract base class for the Messari client
  * Defines the structure and common functionality that all client implementations must provide
  */
@@ -370,6 +393,11 @@ export abstract class MessariClientBase {
    * Interface for Recaps-related API methods
    */
   // public abstract readonly recaps: RecapsAPIInterface;
+
+  /**
+   * Interface for Signal-related API methods
+   */
+  public abstract readonly signal: SignalAPIInterface;
 
   /**
    * Logger instance for the client
