@@ -138,3 +138,16 @@ paths:
   /token-unlocks/v1/assets/{assetId}/events:
     $ref: "./services/token-unlocks/openapi.yaml#/paths/~1token-unlocks~1v1~1assets~1{assetId}~1events"
     
+  # Signal Service Paths
+  /signal/v0/influencers:
+    $ref: "./services/signal/openapi.yaml#/paths/~1signal~1v0~1influencers"
+  /signal/v0/influencers/{influencerId}:
+    $ref: "./services/signal/openapi.yaml#/paths/~1signal~1v0~1influencers~1{influencerId}"
+  /signal/v0/influencers/{influencerId}/time-series/mindshare/{granularity}:
+    $ref: "./services/signal/openapi.yaml#/paths/~1signal~1v0~1influencers~1{influencerId}~1time-series~1mindshare~1{granularity}"
+  /signal/v0/assets:
+    $ref: "./services/signal/openapi.yaml#/paths/~1signal~1v0~1assets"
+  /signal/v0/assets/{assetId}:
+    $ref: "./services/signal/openapi.yaml#/paths/~1signal~1v0~1assets~1{assetId}"
+  /signal/v0/assets/{assetId}/time-series/mindshare/{granularity}:
+    $ref: "./services/signal/openapi.yaml#/paths/~1signal~1v0~1assets~1{assetId}~1time-series~1mindshare~1{granularity}"

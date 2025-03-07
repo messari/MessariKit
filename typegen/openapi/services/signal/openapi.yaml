@@ -1,0 +1,512 @@
+openapi: 3.1.0
+info:
+  title: Messari Signal API
+  description: |
+    API for Signal services tracking crypto influencers and assets and their mindshare over time.
+  version: 0.0.1
+  contact:
+    name: Messari Engineering
+    url: https://messari.io
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://api.messari.io/signal
+    description: Production server
+  - url: https://api.staging.messari.io/signal
+    description: Staging server
+  - url: http://localhost:8080/signal
+    description: Local development server
+
+tags:
+  - name: signal:Influencers
+    description: Crypto influencers endpoints
+  - name: signal:Assets
+    description: Crypto assets endpoints
+
+paths:
+  /signal/v0/influencers:
+    get:
+      operationId: getInfluencers
+      summary: Get Influencers
+      description: |
+        Get a list of crypto influencers.
+      tags:
+        - signal:Influencers
+      security:
+        - apiKey: []
+      parameters:
+        - name: page
+          in: query
+          description: Page number for pagination
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - name: pageSize
+          in: query
+          description: Number of items per page (max 200)
+          required: false
+          schema:
+            type: integer
+            default: 200
+            maximum: 200
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../../common/components.yaml#/components/schemas/APIResponseWithMetadata'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Influencer'
+                      metadata:
+                        $ref: '#/components/schemas/SnapshotListingMetadata'
+        '400':
+          description: Client error response
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+        '500':
+          description: Server error response
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+
+  /signal/v0/influencers/{influencerId}:
+    get:
+      operationId: getInfluencer
+      summary: Get individual influencer
+      description: |
+        Get a specific crypto influencer by ID.
+      tags:
+        - signal:Influencers
+      security:
+        - apiKey: []
+      parameters:
+        - name: influencerId
+          in: path
+          description: Influencer ID (either a numeric X User ID or a username like '@handle')
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../../common/components.yaml#/components/schemas/APIResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Influencer'
+        '400':
+          description: Client error response
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+        '500':
+          description: Server error response
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+
+  /signal/v0/influencers/{influencerId}/time-series/mindshare/{granularity}:
+    get:
+      operationId: getInfluencerMindshareTimeSeries
+      summary: Get influencer mindshare time series
+      description: |
+        Get the mindshare time series for a specific crypto influencer.
+      tags:
+        - signal:Influencers
+      security:
+        - apiKey: []
+      parameters:
+        - name: influencerId
+          in: path
+          description: Influencer ID (either a numeric X User ID or a username like '@handle')
+          required: true
+          schema:
+            type: string
+        - name: start
+          in: query
+          description: Time range start
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: end
+          in: query
+          description: Time range end
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: granularity
+          in: query
+          description: Time series granularity
+          required: false
+          schema:
+            type: string
+            enum: [1d, 1h]
+            default: 1d
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../../common/components.yaml#/components/schemas/APIResponseWithMetadata'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/TimeseriesData'
+                      metadata:
+                        $ref: '#/components/schemas/TimeseriesMetadata'
+        '400':
+          description: Client error response
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+        '500':
+          description: Server error response
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+
+  /signal/v0/assets:
+    get:
+      operationId: getAssets
+      summary: Get Assets
+      description: |
+        Get a list of crypto assets.
+      tags:
+        - signal:Assets
+      security:
+        - apiKey: []
+      parameters:
+        - name: page
+          in: query
+          description: Page number for pagination
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - name: pageSize
+          in: query
+          description: Number of items per page (max 2000)
+          required: false
+          schema:
+            type: integer
+            default: 2000
+            maximum: 2000
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../../common/components.yaml#/components/schemas/APIResponseWithMetadata'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/SignalAsset'
+                      metadata:
+                        $ref: '#/components/schemas/SnapshotListingMetadata'
+        '400':
+          description: Client error response
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+        '500':
+          description: Server error response
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+
+  /signal/v0/assets/{assetId}:
+    get:
+      operationId: getAsset
+      summary: Get Asset
+      description: |
+        Get a specific crypto asset by ID.
+      tags:
+        - signal:Assets
+      security:
+        - apiKey: []
+      parameters:
+        - name: assetId
+          in: path
+          description: Asset ID (either a slug or UUID)
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../../common/components.yaml#/components/schemas/APIResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/SignalAsset'
+        '400':
+          description: Client error response
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+        '404':
+          description: Asset not found
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+        '500':
+          description: Server error response
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+
+  /signal/v0/assets/{assetId}/time-series/mindshare/{granularity}:
+    get:
+      operationId: getAssetMindshareTimeSeries
+      summary: Get asset mindshare time series
+      description: |
+        Get the mindshare time series for a specific crypto asset.
+      tags:
+        - signal:Assets
+      security:
+        - apiKey: []
+      parameters:
+        - name: assetId
+          in: path
+          description: Asset ID (either a slug or UUID)
+          required: true
+          schema:
+            type: string
+        - name: granularity
+          in: path
+          description: Time series granularity
+          required: true
+          schema:
+            type: string
+            enum: [1d, 1h]
+        - name: start
+          in: query
+          description: Time range start
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: end
+          in: query
+          description: Time range end
+          required: false
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../../common/components.yaml#/components/schemas/APIResponseWithMetadata'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/TimeseriesData'
+                      metadata:
+                        $ref: '#/components/schemas/TimeseriesMetadata'
+        '400':
+          description: Client error response
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+        '404':
+          description: Asset not found
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+        '500':
+          description: Server error response
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+
+components:
+  schemas:
+    Influencer:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the influencer
+        name:
+          type: string
+          description: Display name of the influencer
+        username:
+          type: string
+          description: Username of the influencer
+        description:
+          type: string
+          description: Bio or description of the influencer
+        location:
+          type: string
+          description: Location of the influencer
+        profileImageUrl:
+          type: string
+          description: URL to the influencer's profile image
+        mindshare:
+          type: object
+          properties:
+            latestScore:
+              type: number
+              format: double
+              description: Latest mindshare score
+            scoreChange1d:
+              type: number
+              format: double
+              description: 24-hour mindshare score change
+            scoreChange7d:
+              type: number
+              format: double
+              description: 7-day mindshare score change
+            scoreChange30d:
+              type: number
+              format: double
+              description: 30-day mindshare score change
+        socialMetrics:
+          type: object
+          properties:
+            followersCount:
+              type: integer
+              description: Number of followers
+            followingCount:
+              type: integer
+              description: Number of accounts being followed
+            tweetCount:
+              type: integer
+              description: Total number of tweets
+
+    TimeseriesData:
+      type: object
+      properties:
+        points:
+          type: array
+          items:
+            $ref: '#/components/schemas/Point'
+
+    Point:
+      type: object
+      additionalProperties:
+        type: number
+
+    TimeseriesMetadata:
+      type: object
+      properties:
+        pointSchemas:
+          type: array
+          items:
+            $ref: '#/components/schemas/PointSchema'
+        granularity:
+          type: string
+          enum: [1d, 1h]
+
+    PointSchema:
+      type: object
+      properties:
+        name:
+          type: string
+        slug:
+          type: string
+        description:
+          type: string
+        isTimestamp:
+          type: boolean
+
+    SnapshotListingMetadata:
+      type: object
+      properties:
+        pageSize:
+          type: integer
+          description: Number of items per page
+        page:
+          type: integer
+          description: Current page number
+        totalRows:
+          type: integer
+          description: Total number of items
+        totalPages:
+          type: integer
+          description: Total number of pages
+
+    SignalAsset:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the asset
+        name:
+          type: string
+          description: Name of the asset
+        symbol:
+          type: string
+          description: Symbol of the asset
+        slug:
+          type: string
+          description: Slug identifier of the asset
+        mindshare:
+          type: object
+          properties:
+            rank:
+              type: integer
+              description: Mindshare rank of the asset
+            latestScore:
+              type: number
+              format: double
+              description: Latest mindshare score
+            scoreChange1d:
+              type: number
+              format: double
+              description: 24-hour mindshare score change
+            scoreChange7d:
+              type: number
+              format: double
+              description: 7-day mindshare score change
+            scoreChange30d:
+              type: number
+              format: double
+              description: 30-day mindshare score change
+
+security:
+  - ApiKeyAuth: [] 
