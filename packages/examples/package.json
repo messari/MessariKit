@@ -1,5 +1,5 @@
 {
-	"name": "@messari-kit/examples",
+	"name": "@messari/sdk-examples",
 	"version": "0.0.1",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -8,7 +8,7 @@
 		"clean": "rimraf dist",
 		"start": "tsx src/index.ts",
 		"start:asset": "tsx src/asset.ts",
-		"start:chat": "tsx src/chatCompletion.ts",
+		"start:ai": "tsx src/ai.ts",
 		"start:diligence": "tsx src/diligence.ts",
 		"start:fundraising": "tsx src/fundraising.ts",
 		"start:intel": "tsx src/intelEvents.ts",
@@ -19,8 +19,7 @@
 		"start:token-unlocks": "tsx src/tokenUnlocks.ts"
 	},
 	"dependencies": {
-		"@messari-kit/api": "workspace:*",
-		"@messari-kit/types": "workspace:*",
+		"@messari/sdk": "workspace:*",
 		"console-table-printer": "^2.12.1",
 		"dotenv": "^16.4.7"
 	},

@@ -14,13 +14,13 @@
 # See the README.md in the typegen directory for more information.
 
 # Ensure the output directory exists
-mkdir -p packages/types/src
+mkdir -p packages/api/src/types
 
 # Generate types from the combined spec
 if [ -f "typegen/openapi/dist/combined.yaml" ]; then
     echo "Generating types from combined OpenAPI spec..."
     openapi-typescript "typegen/openapi/dist/combined.yaml" \
-        --output "packages/types/src/types.ts" \
+        --output "packages/api/src/types/types.ts" \
         --export-type \
         --root-types \
         --root-types-no-schema-prefix \

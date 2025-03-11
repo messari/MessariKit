@@ -1,4 +1,4 @@
-import { MessariClient } from "@messari-kit/api";
+import { MessariClient } from "@messari/sdk";
 import { printTable } from "console-table-printer";
 import type {
   getAcquisitionDealsParameters,
@@ -6,7 +6,7 @@ import type {
   getFundingRoundsParameters,
   getOrganizationsParameters,
   getProjectsParameters,
-} from "@messari-kit/types";
+} from "@messari/sdk";
 import dotenv from "dotenv";
 
 // Load environment variables from .env file

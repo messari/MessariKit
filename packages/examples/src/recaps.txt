@@ -1,6 +1,5 @@
-import { MessariClient } from "@messari-kit/api";
+import { MessariClient } from "@messari/sdk";
 import { printTable } from "console-table-printer";
-import type { getExchangeRecapParameters, getProjectRecapParameters } from "@messari-kit/types";
 import dotenv from "dotenv";
 
 // Load environment variables from .env file
@@ -27,7 +26,7 @@ async function main() {
   // Get the project recap for Bitcoin
   try {
     const bitcoinProjectId = "9793eae6-f374-46b4-8764-c2d224429791";
-    const params: getProjectRecapParameters = { project_id: bitcoinProjectId };
+    const params = { project_id: bitcoinProjectId };
     const recaps = await client.recaps.getProjectRecap(params);
 
     console.log("\n--------------------------------");
@@ -93,7 +92,7 @@ async function main() {
   // // Get Individual Exchange Recap
   try {
     const binanceExchangeId = "d8b0ea44-1963-451e-ac37-aead4ba3b4c7";
-    const params: getExchangeRecapParameters = {
+    const params = {
       exchange_id: binanceExchangeId,
     };
     const exchangeRecap = await client.recaps.getExchangeRecap(params);

@@ -2,49 +2,6 @@
 
 MessariKit is the official TypeScript/JavaScript SDK for interacting with Messari's APIs. It provides a type-safe, intuitive interface for accessing Messari's suite of crypto data and AI services.
 
-## Features
-
-- 🔒 **Type-safe**: Full TypeScript support with automatically generated types from OpenAPI specs
-- 🚀 **Modern**: Built with modern TypeScript features and best practices
-- 📚 **Well-documented**: Comprehensive documentation and examples
-- 🔄 **Auto-generated**: API types and operations are automatically generated from OpenAPI specifications
-- 🛠 **Developer-friendly**: Intuitive API design with built-in error handling
-
-## Installation
-
-```bash
-# Using pnpm
-pnpm add @messari-kit/api
-```
-
-## Quick Start
-
-```typescript
-import { MessariClient } from 'messari-kit';
-
-// Initialize the client
-const client = new MessariClient({
-  apiKey: 'your-api-key'
-});
-
-// Use the AI service
-const response = await client.ai.createChatCompletion({
-  body: {
-    messages: [
-      { role: 'user', content: 'What is the latest news about Bitcoin?' }
-    ]
-  }
-});
-
-// Extract entities from text
-const entities = await client.ai.extractEntities({
-  body: {
-    content: 'Ethereum founder Vitalik Buterin announced...',
-    entityTypes: ['person', 'project']
-  }
-});
-```
-
 ## API Services
 
 | Service Name | Endpoint Name | Endpoint Route | Implemented |
@@ -52,22 +9,22 @@ const entities = await client.ai.extractEntities({
 | AI | Chat Completion | `/ai/v1/chat/completions` | ✅ |
 | AI | Entity Extraction | `/ai/v1/classification/extraction` | ✅ |
 | |
-| Asset | Asset List | `/asset/v1/assets` | ✅ |
+| Asset | Asset List | `/asset/v1/assets` | 🚧 |
 | Asset | Asset By ID | `/asset/v1/assets/{assetId}` | ❌ |
 | |
-| Intel | Events | `/intel/v1/events` | ✅ |
-| Intel | Events By ID | `/intel/v1/events/{eventId}` | ✅ |
-| Intel | Intel Assets | `/intel/v1/assets` | ✅ |
+| Intel | Events | `/intel/v1/events` | 🚧 |
+| Intel | Events By ID | `/intel/v1/events/{eventId}` | 🚧 |
+| Intel | Intel Assets | `/intel/v1/assets` | 🚧 |
 | |
-| News | News Assets | `/news/v1/news/assets` | ✅ |
-| News | News Feed | `/news/v1/news/feed` | ✅ |
-| News | News Sources | `/news/v1/news/sources` | ✅ |
+| News | News Assets | `/news/v1/news/assets` | 🚧 |
+| News | News Feed | `/news/v1/news/feed` | 🚧 |
+| News | News Sources | `/news/v1/news/sources` | 🚧 |
 | |
-| Marketdata | Marketdata by AssetID | `/marketdata/v1/assets/{assetId}/price` | ✅ |
-| Marketdata | ROI | `/marketdata/v1/assets/roi` | ✅ |
-| Marketdata | ROI by AssetID | `/marketdata/v1/assets/{assetId}/roi` | ✅ |
-| Marketdata | ATH | `/marketdata/v1/assets/ath` | ✅ |
-| Marketdata | ATH by Asset | `/marketdata/v1/assets/{assetId}/ath` | ✅ |
+| Marketdata | Marketdata by AssetID | `/marketdata/v1/assets/{assetId}/price` | 🚧 |
+| Marketdata | ROI | `/marketdata/v1/assets/roi` | 🚧 |
+| Marketdata | ROI by AssetID | `/marketdata/v1/assets/{assetId}/roi` | 🚧 |
+| Marketdata | ATH | `/marketdata/v1/assets/ath` | 🚧 |
+| Marketdata | ATH by Asset | `/marketdata/v1/assets/{assetId}/ath` | 🚧 |
 | Marketdata | Timeseries by AssetID | `/marketdata/v1/assets/{assetId}/price/time-series` | ❌ |
 | Marketdata | Markets | `/marketdata/v1/markets` | ❌ |
 | Marketdata | Markets by MarketID | `/marketdata/v1/markets/{id}` | ❌ |
@@ -76,22 +33,22 @@ const entities = await client.ai.extractEntities({
 | Marketdata | Exchanges | `/marketdata/v1/exchanges` | ❌ |
 | Marketdata | Volume Timeseries by ExchangeID | `/marketdata/v1/exchanges/{exchangeId}/volume/time-series` | ❌ |
 | |
-| AI Digest | Project Recap By ID | `/ai-digest/api/v1/recap` | ✅ |
-| AI Digest | Exchange Recaps Overview | `/ai-digest/api/v1/exchange-rankings-recap` | ✅ |
-| AI Digest | Exchange Recap By ID | `/ai-digest/api/v1/exchange-recap` | ✅ |
+| AI Digest | Project Recap By ID | `/ai-digest/api/v1/recap` | ❌ |
+| AI Digest | Exchange Recaps Overview | `/ai-digest/api/v1/exchange-rankings-recap` | ❌ |
+| AI Digest | Exchange Recap By ID | `/ai-digest/api/v1/exchange-recap` | ❌ |
 | |
-| Research | Reports | `/research/v1/reports` | ✅ |
-| Research | Report By ID | `/research/v1/reports/{id}` | ✅ |
-| Research | Report Tags | `/research/v1/reports/tags` | ✅ |
+| Research | Reports | `/research/v1/reports` | 🚧 |
+| Research | Report By ID | `/research/v1/reports/{id}` | 🚧 |
+| Research | Report Tags | `/research/v1/reports/tags` | 🚧 |
 | |
-| Diligence | Report Preview | `/diligence/v1/reports/preview` | ✅ |
-| Diligence | Report By Asset ID | `/diligence/v1/report/asset/{assetId}` | ✅ |
+| Diligence | Report Preview | `/diligence/v1/reports/preview` | 🚧 |
+| Diligence | Report By Asset ID | `/diligence/v1/report/asset/{assetId}` | 🚧 |
 | |
-| Fundraising | Funding Rounds | `/funding/v1/rounds` | ✅ |
-| Fundraising | Funding Rounds Investors | `/funding/v1/rounds/investors` | ✅ |
-| Fundraising | Mergers and Acquisitions | `/funding/v1/mergers-and-acquisitions` | ✅ |
-| Fundraising | Organizations | `/funding/v1/organizations` | ✅ |
-| Fundraising | Projects | `/funding/v1/projects` | ✅ |
+| Fundraising | Funding Rounds | `/funding/v1/rounds` | 🚧 |
+| Fundraising | Funding Rounds Investors | `/funding/v1/rounds/investors` | 🚧 |
+| Fundraising | Mergers and Acquisitions | `/funding/v1/mergers-and-acquisitions` | 🚧 |
+| Fundraising | Organizations | `/funding/v1/organizations` | 🚧 |
+| Fundraising | Projects | `/funding/v1/projects` | 🚧 |
 
 
 

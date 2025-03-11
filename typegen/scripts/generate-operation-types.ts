@@ -386,7 +386,7 @@ import type { components } from './types';
  * Main function to generate operation types
  */
 function main(): void {
-  const typesDir = path.resolve(__dirname, "../../packages/types/src");
+  const typesDir = path.resolve(__dirname, "../../packages/api/src/types");
   const combinedSpecPath = path.resolve(__dirname, "../openapi/dist/combined.yaml");
 
   // Check if the combined spec exists
