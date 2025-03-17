@@ -115,6 +115,7 @@ import type {
   getAssetTimeseriesResponse,
   getAssetTimeseriesWithGranularityParameters,
   getAssetTimeseriesWithGranularityResponse,
+  TimeseriesMetadata,
 } from "../types";
 import type { Agent } from "node:http";
 import { pick } from "../utils";
@@ -899,7 +900,10 @@ export class MessariClient extends MessariClientBase {
       params: getAssetTimeseriesParameters,
       options?: RequestOptions
     ) => {
-      return this.requestWithMetadata<getAssetTimeseriesResponse, any>({
+      return this.requestWithMetadata<
+        getAssetTimeseriesResponse,
+        TimeseriesMetadata
+      >({
         method: getAssetTimeseries.method,
         path: getAssetTimeseries.path(params),
         queryParams: pick(params, getAssetTimeseries.queryParams),
@@ -913,7 +917,7 @@ export class MessariClient extends MessariClientBase {
     ) => {
       return this.requestWithMetadata<
         getAssetTimeseriesWithGranularityResponse,
-        any
+        TimeseriesMetadata
       >({
         method: getAssetTimeseriesWithGranularity.method,
         path: getAssetTimeseriesWithGranularity.path(params),

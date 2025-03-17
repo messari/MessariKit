@@ -255,7 +255,7 @@ async function getAssetDetailsBySlug(slugs: string[]) {
         `Description: ${asset.description?.substring(0, 200) || "N/A"}...`
       );
 
-      console.log(`\nLinks:`);
+      console.log("\nLinks:");
       if (asset.links && asset.links.length > 0) {
         for (const link of asset.links.slice(0, 3)) {
           console.log(`- ${link.name || link.type || "Link"}: ${link.url}`);
@@ -264,7 +264,7 @@ async function getAssetDetailsBySlug(slugs: string[]) {
         console.log("No links available");
       }
 
-      console.log(`\nMarket Data:`);
+      console.log("\nMarket Data:");
       if (asset.marketData) {
         console.log(
           `Price: $${
@@ -291,7 +291,7 @@ async function getAssetDetailsBySlug(slugs: string[]) {
         console.log("No market data available");
       }
 
-      console.log(`\nAll-Time High:`);
+      console.log("\nAll-Time High:");
       if (asset.allTimeHigh) {
         const dateValue =
           asset.allTimeHigh.allTimeHighDate || asset.allTimeHigh.date;
@@ -317,7 +317,7 @@ async function getAssetDetailsBySlug(slugs: string[]) {
         console.log("No ATH data available");
       }
 
-      console.log(`\nROI Data:`);
+      console.log("\nROI Data:");
       if (asset.returnOnInvestment) {
         console.log(
           `24h Change: ${
@@ -352,7 +352,7 @@ async function getAssetDetailsBySlug(slugs: string[]) {
       }
 
       if (response.length > 1) {
-        console.log("\n" + "-".repeat(50));
+        console.log(`\n${"-".repeat(50)}`);
       }
     }
 
@@ -380,7 +380,7 @@ async function getTimeseriesCatalog() {
       console.log(
         `Available metrics: ${dataset.metrics
           .slice(0, 3)
-          .map((m: any) => m.name)
+          .map((m: { name: string }) => m.name)
           .join(", ")}${dataset.metrics.length > 3 ? "..." : ""}`
       );
     }
@@ -498,9 +498,9 @@ async function getAssetTimeseriesData(
 
     // Print metadata information
     console.log("\nMetadata:");
-    console.log(`Granularity: ${response.metadata.granularity}`);
+    console.log(`Granularity: ${response.metadata?.granularity}`);
     console.log(
-      `Metrics: ${response.metadata.pointSchemas
+      `Metrics: ${response.metadata?.pointSchemas
         ?.map((item: { name: string }) => item.name)
         .join(", ")}`
     );
@@ -559,9 +559,9 @@ async function getAssetTimeseriesWithSpecificGranularity(
 
     // Print metadata information
     console.log("\nMetadata:");
-    console.log(`Granularity: ${response.metadata.granularity}`);
+    console.log(`Granularity: ${response.metadata?.granularity}`);
     console.log(
-      `Metrics: ${response.metadata.pointSchemas
+      `Metrics: ${response.metadata?.pointSchemas
         ?.map((item: { name: string }) => item.name)
         .join(", ")}`
     );
@@ -599,18 +599,18 @@ async function main() {
   const assetsResponse = await getAllAssetsBasic();
   console.log(`Retrieved ${assetsResponse.data.length} assets.`);
   console.log("First 5 assets:");
-  assetsResponse.data.slice(0, 5).forEach((asset: any) => {
+  for (const asset of assetsResponse.data.slice(0, 5)) {
     console.log(`${asset.name} (${asset.symbol})`);
-  });
+  }
 
   console.log("\n====== 2. Get Assets By Symbol Example ======");
   const assetsBySymbolResponse = await getAssetsBySymbol(["BTC"]);
   console.log(
     `Retrieved ${assetsBySymbolResponse.data.length} assets by symbol.`
   );
-  assetsBySymbolResponse.data.slice(0, 5).forEach((asset: any) => {
+  for (const asset of assetsBySymbolResponse.data.slice(0, 5)) {
     console.log(`${asset.name} (${asset.symbol})`);
-  });
+  }
 
   console.log("\n====== 3. Get Assets By Category Example ======");
   const assetsByCategoryResponse = await getAssetsByCategory("Networks", 1, 3);
@@ -618,9 +618,9 @@ async function main() {
     `Retrieved ${assetsByCategoryResponse.data.length} assets by category.`
   );
 
-  assetsByCategoryResponse.data.slice(0, 5).forEach((asset: any) => {
+  for (const asset of assetsByCategoryResponse.data.slice(0, 5)) {
     console.log(`${asset.name} (${asset.symbol})`);
-  });
+  }
 
   console.log("\n====== 4. Get Assets With Multiple Filters Example ======");
   const assetsWithFiltersResponse = await getAssetsWithMultipleFilters(
@@ -632,9 +632,9 @@ async function main() {
       `Retrieved ${assetsWithFiltersResponse.data.length} assets with multiple filters.`
     );
     console.log("First 3 filtered assets:");
-    assetsWithFiltersResponse.data.slice(0, 3).forEach((asset: any) => {
+    for (const asset of assetsWithFiltersResponse.data.slice(0, 3)) {
       console.log(`${asset.name} (${asset.symbol})`);
-    });
+    }
   } else {
     console.log("No data returned for assets with multiple filters.");
   }
@@ -645,9 +645,9 @@ async function main() {
     `Retrieved ${assetsV2WithCoverageResponse.data.length} assets with coverage.`
   );
   console.log("First 3 assets with coverage:");
-  assetsV2WithCoverageResponse.data.slice(0, 3).forEach((asset) => {
+  for (const asset of assetsV2WithCoverageResponse.data.slice(0, 3)) {
     console.log(`${asset.name} (${asset.symbol})`);
-  });
+  }
 
   console.log("\n====== 6. Get Asset Details By Slug Example ======");
   const assetDetailsResponse = await getAssetDetailsBySlug(["bitcoin"]);
@@ -660,9 +660,11 @@ async function main() {
     console.log(`Description: ${asset.description.substring(0, 150)}...`);
 
     console.log("Links:");
-    asset.links?.slice(0, 3).forEach((link: any) => {
-      console.log(`- ${link.name}: ${link.url}`);
-    });
+    if (asset.links) {
+      for (const link of asset.links.slice(0, 3)) {
+        console.log(`- ${link.name}: ${link.url}`);
+      }
+    }
 
     console.log("\nMarket Data:");
     console.log(
@@ -726,20 +728,29 @@ async function main() {
   );
   console.log("First 5 datasets in catalog:");
 
-  catalogResponse.datasets.slice(0, 5).forEach((dataset: any) => {
+  for (const dataset of catalogResponse.datasets.slice(0, 5)) {
     const metricName = dataset.metrics[0]?.name || "N/A";
     console.log(
       `${dataset.slug}: ${metricName} and ${
         dataset.metrics.length - 1
       } more metrics`
     );
-  });
+  }
 
   console.log("\n====== 8. Get Assets ATH Info Example ======");
   const athInfoResponse = await getAssetsATHInfo();
   console.log(`Retrieved ATH info for ${athInfoResponse.data.length} assets.`);
   console.log("First 3 assets ATH info:");
-  athInfoResponse.data.slice(0, 3).forEach((asset: any) => {
+
+  // Use more specific type for asset
+  type AssetATH = {
+    name: string;
+    symbol: string;
+    all_time_high: number;
+    all_time_high_date: string;
+  };
+
+  for (const asset of athInfoResponse.data.slice(0, 3) as AssetATH[]) {
     console.log(
       `${asset.name} (${
         asset.symbol
@@ -747,19 +758,28 @@ async function main() {
         asset.all_time_high_date
       ).toLocaleDateString()}`
     );
-  });
+  }
 
   console.log("\n====== 9. Get Assets ROI Info Example ======");
   const roiInfoResponse = await getAssetsROIInfo();
   console.log(`Retrieved ROI info for ${roiInfoResponse.data.length} assets.`);
   console.log("First 3 assets ROI info:");
-  roiInfoResponse.data.slice(0, 3).forEach((asset: any) => {
+
+  // Use more specific type for asset
+  type AssetROI = {
+    name: string;
+    symbol: string;
+    price_change_24h: number;
+    price_change_7d: number;
+  };
+
+  for (const asset of roiInfoResponse.data.slice(0, 3) as AssetROI[]) {
     console.log(
       `${asset.name} (${asset.symbol}) - 24h: ${asset.price_change_24h.toFixed(
         2
       )}%, 7d: ${asset.price_change_7d.toFixed(2)}%`
     );
-  });
+  }
 
   console.log("\n====== 10. Asset Timeseries Data Example ======");
   const timeseriesResponse = await getAssetTimeseriesData("bitcoin", "price");
@@ -769,12 +789,12 @@ async function main() {
         timeseriesResponse.data?.points?.length || 0
       } timeseries data points for bitcoin`
     );
-    console.log(`Dataset: price`);
+    console.log("Dataset: price");
 
     console.log("\nMetadata:");
     console.log(`Granularity: ${timeseriesResponse.metadata?.granularity}`);
     console.log(
-      `Metrics: ${timeseriesResponse.metadata?.schema
+      `Metrics: ${timeseriesResponse.metadata?.pointSchemas
         ?.map((item: { name: string }) => item.name)
         .join(", ")}`
     );
@@ -829,14 +849,14 @@ async function main() {
         timeseriesWithGranularityResponse.data?.points?.length || 0
       } timeseries data points for bitcoin`
     );
-    console.log(`Dataset: price, Granularity: 1d`);
+    console.log("Dataset: price, Granularity: 1d");
 
     console.log("\nMetadata:");
     console.log(
       `Granularity: ${timeseriesWithGranularityResponse.metadata?.granularity}`
     );
     console.log(
-      `Metrics: ${timeseriesWithGranularityResponse.metadata?.schema
+      `Metrics: ${timeseriesWithGranularityResponse.metadata?.pointSchemas
         ?.map((item: { name: string }) => item.name)
         .join(", ")}`
     );

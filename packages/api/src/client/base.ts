@@ -72,6 +72,7 @@ import type {
   getAssetTimeseriesResponse,
   getAssetTimeseriesWithGranularityParameters,
   getAssetTimeseriesWithGranularityResponse,
+  TimeseriesMetadata,
 } from "../types";
 import {
   LogLevel,
@@ -200,7 +201,9 @@ export interface AssetInterface {
   getAssetTimeseries(
     params: getAssetTimeseriesParameters,
     options?: RequestOptions
-  ): Promise<APIResponseWithMetadata<getAssetTimeseriesResponse, any>>;
+  ): Promise<
+    APIResponseWithMetadata<getAssetTimeseriesResponse, TimeseriesMetadata>
+  >;
 
   /**
    * Gets timeseries data for a specific asset and dataset with specific time granularity
@@ -212,7 +215,10 @@ export interface AssetInterface {
     params: getAssetTimeseriesWithGranularityParameters,
     options?: RequestOptions
   ): Promise<
-    APIResponseWithMetadata<getAssetTimeseriesWithGranularityResponse, any>
+    APIResponseWithMetadata<
+      getAssetTimeseriesWithGranularityResponse,
+      TimeseriesMetadata
+    >
   >;
 }
 
