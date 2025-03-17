@@ -498,11 +498,15 @@ async function getAssetTimeseriesData(
 
     // Print metadata information
     console.log("\nMetadata:");
-    console.log(`Granularity: ${response.metadata?.granularity}`);
     console.log(
-      `Metrics: ${response.metadata?.pointSchemas
-        ?.map((item: { name: string }) => item.name)
-        .join(", ")}`
+      `Granularity: ${response.metadata?.granularity || "undefined"}`
+    );
+
+    const metricsString = response.metadata?.pointSchemas
+      ?.map((item: { name: string }) => item.name)
+      .join(", ");
+    console.log(
+      `Metrics: ${metricsString || "No metrics information available"}`
     );
 
     // Print a sample of data points
@@ -559,11 +563,15 @@ async function getAssetTimeseriesWithSpecificGranularity(
 
     // Print metadata information
     console.log("\nMetadata:");
-    console.log(`Granularity: ${response.metadata?.granularity}`);
     console.log(
-      `Metrics: ${response.metadata?.pointSchemas
-        ?.map((item: { name: string }) => item.name)
-        .join(", ")}`
+      `Granularity: ${response.metadata?.granularity || "undefined"}`
+    );
+
+    const metricsString = response.metadata?.pointSchemas
+      ?.map((item: { name: string }) => item.name)
+      .join(", ");
+    console.log(
+      `Metrics: ${metricsString || "No metrics information available"}`
     );
 
     // Print a sample of data points
@@ -792,11 +800,15 @@ async function main() {
     console.log("Dataset: price");
 
     console.log("\nMetadata:");
-    console.log(`Granularity: ${timeseriesResponse.metadata?.granularity}`);
     console.log(
-      `Metrics: ${timeseriesResponse.metadata?.pointSchemas
-        ?.map((item: { name: string }) => item.name)
-        .join(", ")}`
+      `Granularity: ${timeseriesResponse.metadata?.granularity || "undefined"}`
+    );
+
+    const metricsString = timeseriesResponse.metadata?.pointSchemas
+      ?.map((item: { name: string }) => item.name)
+      .join(", ");
+    console.log(
+      `Metrics: ${metricsString || "No metrics information available"}`
     );
 
     if (
@@ -853,12 +865,17 @@ async function main() {
 
     console.log("\nMetadata:");
     console.log(
-      `Granularity: ${timeseriesWithGranularityResponse.metadata?.granularity}`
+      `Granularity: ${
+        timeseriesWithGranularityResponse.metadata?.granularity || "undefined"
+      }`
     );
-    console.log(
-      `Metrics: ${timeseriesWithGranularityResponse.metadata?.pointSchemas
+
+    const metricsString =
+      timeseriesWithGranularityResponse.metadata?.pointSchemas
         ?.map((item: { name: string }) => item.name)
-        .join(", ")}`
+        .join(", ");
+    console.log(
+      `Metrics: ${metricsString || "No metrics information available"}`
     );
 
     if (
