@@ -62,6 +62,111 @@ export const getAssetList = {
 } as const;
 
 
+export type getAssetsV2Response = APIResponseWithMetadata<components['schemas']['V2AssetListItem'][], components['schemas']['PaginationResult']>;
+export type getAssetsV2Error = components['schemas']['APIError'];
+
+export type getAssetsV2Parameters = { page?: number; limit?: number; category?: string; sector?: string; tags?: string[]; search?: string; has_diligence?: boolean; has_intel?: boolean; has_market_data?: boolean; has_news?: boolean; has_proposals?: boolean; has_research?: boolean; has_token_unlocks?: boolean; has_fundraising?: boolean };
+
+
+export const getAssetsV2 = {
+  method: 'GET' as const,
+  pathParams: [] as const,
+  queryParams: ['page', 'limit', 'category', 'sector', 'tags', 'search', 'has_diligence', 'has_intel', 'has_market_data', 'has_news', 'has_proposals', 'has_research', 'has_token_unlocks', 'has_fundraising'] as const,
+  bodyParams: [] as const,
+  path: () => '/metrics/v2/assets'
+} as const;
+
+
+export type getAssetDetailsResponse = components['schemas']['V2Asset'][];
+export type getAssetDetailsError = components['schemas']['APIError'];
+
+export type getAssetDetailsParameters = { ids?: string; slugs?: string };
+
+
+export const getAssetDetails = {
+  method: 'GET' as const,
+  pathParams: [] as const,
+  queryParams: ['ids', 'slugs'] as const,
+  bodyParams: [] as const,
+  path: () => '/metrics/v2/assets/details'
+} as const;
+
+
+export type getAssetsTimeseriesCatalogResponse = components['schemas']['TimeseriesCatalog'];
+export type getAssetsTimeseriesCatalogError = components['schemas']['APIError'];
+
+export type getAssetsTimeseriesCatalogParameters = null;
+
+
+export const getAssetsTimeseriesCatalog = {
+  method: 'GET' as const,
+  pathParams: [] as const,
+  queryParams: [] as const,
+  bodyParams: [] as const,
+  path: () => '/metrics/v2/assets/metrics'
+} as const;
+
+
+export type getAssetTimeseriesResponse = components['schemas']['TimeseriesData'];
+export type getAssetTimeseriesError = components['schemas']['APIError'];
+
+export type getAssetTimeseriesParameters = { start?: string; end?: string } & { entityIdentifier: string; datasetSlug: string };
+
+
+export const getAssetTimeseries = {
+  method: 'GET' as const,
+  pathParams: ['entityIdentifier', 'datasetSlug'] as const,
+  queryParams: ['start', 'end'] as const,
+  bodyParams: [] as const,
+  path: (p: PathParams) => `/metrics/v2/assets/${p.entityIdentifier}/metrics/${p.datasetSlug}/time-series`
+} as const;
+
+
+export type getAssetTimeseriesWithGranularityResponse = components['schemas']['TimeseriesData'];
+export type getAssetTimeseriesWithGranularityError = components['schemas']['APIError'];
+
+export type getAssetTimeseriesWithGranularityParameters = { start?: string; end?: string } & { entityIdentifier: string; datasetSlug: string; granularity: string };
+
+
+export const getAssetTimeseriesWithGranularity = {
+  method: 'GET' as const,
+  pathParams: ['entityIdentifier', 'datasetSlug', 'granularity'] as const,
+  queryParams: ['start', 'end'] as const,
+  bodyParams: [] as const,
+  path: (p: PathParams) => `/metrics/v2/assets/${p.entityIdentifier}/metrics/${p.datasetSlug}/time-series/${p.granularity}`
+} as const;
+
+
+export type getAssetsV2ATHResponse = APIResponseWithMetadata<components['schemas']['V2AssetAthItem'][], components['schemas']['PaginationResult']>;
+export type getAssetsV2ATHError = components['schemas']['APIError'];
+
+export type getAssetsV2ATHParameters = { page?: number; limit?: number; category?: string; sector?: string; tags?: string[]; search?: string };
+
+
+export const getAssetsV2ATH = {
+  method: 'GET' as const,
+  pathParams: [] as const,
+  queryParams: ['page', 'limit', 'category', 'sector', 'tags', 'search'] as const,
+  bodyParams: [] as const,
+  path: () => '/metrics/v2/assets/ath'
+} as const;
+
+
+export type getAssetsV2ROIResponse = APIResponseWithMetadata<components['schemas']['V2AssetRoiItem'][], components['schemas']['PaginationResult']>;
+export type getAssetsV2ROIError = components['schemas']['APIError'];
+
+export type getAssetsV2ROIParameters = { page?: number; limit?: number; category?: string; sector?: string; tags?: string[]; search?: string };
+
+
+export const getAssetsV2ROI = {
+  method: 'GET' as const,
+  pathParams: [] as const,
+  queryParams: ['page', 'limit', 'category', 'sector', 'tags', 'search'] as const,
+  bodyParams: [] as const,
+  path: () => '/metrics/v2/assets/roi'
+} as const;
+
+
 export type getAllEventsResponse = APIResponseWithMetadata<components['schemas']['Event'][], components['schemas']['PaginationResult']>;
 export type getAllEventsError = components['schemas']['APIError'];
 

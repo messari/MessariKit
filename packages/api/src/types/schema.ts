@@ -31,6 +31,10 @@ export type AssetReport = components['schemas']['AssetReport'];
 
 export type AssetSupply = components['schemas']['AssetSupply'];
 
+export type AssetV2Link = components['schemas']['AssetV2Link'];
+
+export type AssetV2MarketData = components['schemas']['AssetV2MarketData'];
+
 export type AssetWithATHData = components['schemas']['AssetWithATHData'];
 
 export type AssetWithROIData = components['schemas']['AssetWithROIData'];
@@ -151,6 +155,18 @@ export type Tag = components['schemas']['Tag'];
 
 export type TimeUTC = components['schemas']['TimeUTC'];
 
+export type TimeseriesCatalog = components['schemas']['TimeseriesCatalog'];
+
+export type TimeseriesData = components['schemas']['TimeseriesData'];
+
+export type TimeseriesDataset = components['schemas']['TimeseriesDataset'];
+
+export type TimeseriesInterval = components['schemas']['TimeseriesInterval'];
+
+export type TimeseriesMetadata = components['schemas']['TimeseriesMetadata'];
+
+export type TimeseriesPointSchema = components['schemas']['TimeseriesPointSchema'];
+
 export type TokenUnlockAllocation = components['schemas']['TokenUnlockAllocation'];
 
 export type TokenUnlockData = components['schemas']['TokenUnlockData'];
@@ -162,5 +178,19 @@ export type TokenUnlockSupportedAsset = components['schemas']['TokenUnlockSuppor
 export type TokenUnlockUnlocks = components['schemas']['TokenUnlockUnlocks'];
 
 export type TokenUnlockVestingSchedule = components['schemas']['TokenUnlockVestingSchedule'];
+
+export type V2Asset = components['schemas']['V2Asset'];
+
+export type V2AssetATH = components['schemas']['V2AssetATH'];
+
+export type V2AssetAthItem = components['schemas']['V2AssetAthItem'];
+
+export type V2AssetEntity = components['schemas']['V2AssetEntity'];
+
+export type V2AssetListItem = components['schemas']['V2AssetListItem'];
+
+export type V2AssetROI = components['schemas']['V2AssetROI'];
+
+export type V2AssetRoiItem = components['schemas']['V2AssetRoiItem'];
 
 export type VideoPodcastResponse = components['schemas']['VideoPodcastResponse'];

@@ -159,6 +159,58 @@ export type paths = {
      */
     get: operations["getAssetsROI"];
   };
+  "/metrics/v2/assets": {
+    /**
+     * Get Asset List (V2)
+     * @description Get a list of assets with extended information and coverage details.
+     */
+    get: operations["getAssetsV2"];
+  };
+  "/metrics/v2/assets/{entityIdentifier}/metrics/{datasetSlug}/time-series": {
+    /**
+     * Get Asset Timeseries Data
+     * @description Get timeseries data for a specific asset and dataset.
+     * This endpoint is only available for enterprise users.
+     */
+    get: operations["getAssetTimeseries"];
+  };
+  "/metrics/v2/assets/{entityIdentifier}/metrics/{datasetSlug}/time-series/{granularity}": {
+    /**
+     * Get Asset Timeseries Data with Specific Granularity
+     * @description Get timeseries data for a specific asset and dataset with a specific time granularity.
+     * This endpoint is only available for enterprise users.
+     */
+    get: operations["getAssetTimeseriesWithGranularity"];
+  };
+  "/metrics/v2/assets/ath": {
+    /**
+     * Get Assets All-Time High Information
+     * @description Get all-time high information for assets, with various filtering options.
+     */
+    get: operations["getAssetsV2ATH"];
+  };
+  "/metrics/v2/assets/details": {
+    /**
+     * Get Asset Details
+     * @description Get detailed information for specific assets by IDs or slugs.
+     */
+    get: operations["getAssetDetails"];
+  };
+  "/metrics/v2/assets/metrics": {
+    /**
+     * Get Assets Timeseries Catalog
+     * @description Get a catalog of available timeseries datasets and metrics for assets.
+     * This endpoint is only available for enterprise users.
+     */
+    get: operations["getAssetsTimeseriesCatalog"];
+  };
+  "/metrics/v2/assets/roi": {
+    /**
+     * Get Assets Return on Investment Information
+     * @description Get return on investment information for assets, with various filtering options.
+     */
+    get: operations["getAssetsV2ROI"];
+  };
   "/news/v1/news/assets": {
     /**
      * Get assets mentioned in news
@@ -367,6 +419,91 @@ export type components = {
       max?: number;
       /** Format: double */
       total?: number;
+    };
+    AssetV2Link: {
+      /** @description Name of the link */
+      name?: string;
+      /** @description Type of the link */
+      type: string;
+      /** @description URL of the link */
+      url: string;
+    };
+    AssetV2MarketData: {
+      marketcap?: {
+        /** Format: float */
+        circulatingUsd?: number;
+        /** Format: float */
+        dominance?: number;
+        /** Format: float */
+        fullyDilutedUsd?: number;
+      };
+      /**
+       * Format: float
+       * @description Market capitalization of the asset
+       */
+      marketCap?: number;
+      ohlcv1HourUsd?: {
+        /** Format: float */
+        close?: number;
+        /** Format: float */
+        high?: number;
+        /** Format: float */
+        low?: number;
+        /** Format: float */
+        open?: number;
+        /** Format: float */
+        volume?: number;
+      };
+      ohlcv24HourUsd?: {
+        /** Format: float */
+        close?: number;
+        /** Format: float */
+        high?: number;
+        /** Format: float */
+        low?: number;
+        /** Format: float */
+        open?: number;
+        /** Format: float */
+        volume?: number;
+      };
+      /**
+       * Format: float
+       * @description Current price of the asset
+       */
+      price?: number;
+      /**
+       * Format: float
+       * @description Current price of the asset in BTC
+       */
+      priceBtc?: number;
+      /**
+       * Format: float
+       * @description Current price of the asset in ETH
+       */
+      priceEth?: number;
+      /**
+       * Format: float
+       * @description Current price of the asset in USD
+       */
+      priceUsd?: number;
+      supply?: {
+        /** Format: float */
+        circulating?: number;
+        /** Format: float */
+        max?: number;
+        /** Format: float */
+        total?: number;
+      };
+      /**
+       * Format: float
+       * @description 24-hour trading volume of the asset
+       */
+      volume24h?: number;
+      /**
+       * Format: float
+       * @description 24-hour trading volume of the asset
+       */
+      volume24Hour?: number;
     };
     AssetWithATHData: {
       allTimeHighData?: {
@@ -1192,6 +1329,43 @@ export type components = {
       /** @description Name of the tag */
       name: string;
     };
+    TimeseriesCatalog: {
+      /** @description Available timeseries datasets */
+      datasets: components["schemas"]["TimeseriesDataset"][];
+    };
+    TimeseriesData: {
+      /** @description Array of timeseries data points */
+      points: number[][];
+    };
+    TimeseriesDataset: {
+      /** @description Available time granularities for the dataset */
+      granularities: components["schemas"]["TimeseriesInterval"][];
+      /** @description Metrics available in the dataset */
+      metrics: components["schemas"]["TimeseriesPointSchema"][];
+      /** @description Unique slug identifier for the dataset */
+      slug: string;
+    };
+    /**
+     * @description Time interval granularity for data points
+     * @enum {string}
+     */
+    TimeseriesInterval: "1m" | "5m" | "15m" | "30m" | "1h" | "6h" | "1d" | "1w" | "30d" | "1q" | "1y";
+    TimeseriesMetadata: {
+      /** @description Time granularity of the data points */
+      granularity: components["schemas"]["TimeseriesInterval"];
+      /** @description Schemas for the points in the timeseries */
+      pointSchemas: components["schemas"]["TimeseriesPointSchema"][];
+    };
+    TimeseriesPointSchema: {
+      /** @description Description of the metric */
+      description: string;
+      /** @description Whether this point is a timestamp */
+      is_timestamp: boolean;
+      /** @description Name of the metric */
+      name: string;
+      /** @description Slug of the metric */
+      slug: string;
+    };
     /**
      * Format: date-time
      * @description UTC timestamp
@@ -1362,6 +1536,258 @@ export type components = {
           unlocksRemainingNative?: number;
           unlocksRemainingUSD?: number;
         }[];
+    };
+    V2Asset: components["schemas"]["V2AssetEntity"] & {
+      /** @description All-time high data for the asset */
+      allTimeHigh: components["schemas"]["V2AssetATH"];
+      /** @description Category of the asset */
+      category: string;
+      /** @description Description of the asset */
+      description: string;
+      /** @description Links related to the asset */
+      links: components["schemas"]["AssetV2Link"][];
+      /** @description Market data for the asset */
+      marketData: components["schemas"]["AssetV2MarketData"];
+      /** @description Slugs of networks related to the asset */
+      networkSlugs: string[];
+      /** @description Slugs of protocols related to the asset */
+      protocolSlugs: string[];
+      /** @description Rank of the asset (optional) */
+      rank?: number;
+      /** @description Return on investment data for the asset */
+      returnOnInvestment: components["schemas"]["V2AssetROI"];
+      /** @description Sector of the asset */
+      sector: string;
+      /** @description Tags associated with the asset */
+      tags: string[];
+    };
+    V2AssetATH: {
+      /**
+       * Format: float
+       * @description All-time high price
+       */
+      allTimeHigh?: number;
+      /**
+       * Format: date-time
+       * @description Date of the all-time high
+       */
+      allTimeHighDate?: string;
+      /**
+       * Format: date-time
+       * @description Date of the all-time high
+       */
+      date?: string;
+      /**
+       * Format: float
+       * @description Percent down from all-time high
+       */
+      percentDown?: number;
+      /**
+       * Format: float
+       * @description Percent down from all-time high
+       */
+      percentDownFromAllTimeHigh?: number;
+      /**
+       * Format: float
+       * @description Percent up to all-time high
+       */
+      percentUp?: number;
+      /**
+       * Format: float
+       * @description Price at the all-time high
+       */
+      price?: number;
+    };
+    V2AssetAthItem: {
+      /**
+       * Format: float
+       * @description Price at the all-time high
+       */
+      all_time_high: number;
+      /**
+       * Format: date-time
+       * @description Date of the all-time high
+       */
+      all_time_high_date: string;
+      /** @description Category of the asset */
+      category: string;
+      /** @description Unique identifier for the asset */
+      id: string;
+      /** @description Name of the asset */
+      name: string;
+      /**
+       * Format: float
+       * @description Percent down from all-time high
+       */
+      percent_down_from_ath: number;
+      /**
+       * Format: float
+       * @description Percent up to all-time high
+       */
+      percent_up_to_ath: number;
+      /** @description Sector of the asset */
+      sector: string;
+      /** @description Slug of the asset */
+      slug: string;
+      /** @description Symbol of the asset */
+      symbol: string;
+      /** @description Tags associated with the asset */
+      tags: string[];
+      /**
+       * Format: float
+       * @description Time since all-time high in seconds
+       */
+      time_since_all_time_high_seconds: number;
+    };
+    V2AssetEntity: {
+      /** @description Unique identifier for the asset */
+      id: string;
+      /** @description Name of the asset */
+      name: string;
+      /** @description Slug of the asset */
+      slug: string;
+      /** @description Symbol of the asset */
+      symbol: string;
+    };
+    V2AssetListItem: {
+      /** @description Category of the asset */
+      category: string;
+      /** @description Whether the asset has diligence coverage */
+      has_diligence: boolean;
+      /** @description Whether the asset has fundraising coverage */
+      has_fundraising: boolean;
+      /** @description Whether the asset has intel coverage */
+      has_intel: boolean;
+      /** @description Whether the asset has market data coverage */
+      has_market_data: boolean;
+      /** @description Whether the asset has news coverage */
+      has_news: boolean;
+      /** @description Whether the asset has proposals coverage */
+      has_proposals: boolean;
+      /** @description Whether the asset has research coverage */
+      has_research: boolean;
+      /** @description Whether the asset has token unlocks coverage */
+      has_token_unlocks: boolean;
+      /** @description Unique identifier for the asset */
+      id: string;
+      /** @description Name of the asset */
+      name: string;
+      /**
+       * Format: float
+       * @description Rank of the asset
+       */
+      rank: number;
+      /** @description Sector of the asset */
+      sector: string;
+      /** @description Slug of the asset */
+      slug: string;
+      /** @description Symbol of the asset */
+      symbol: string;
+      /** @description Tags associated with the asset */
+      tags: string[];
+    };
+    V2AssetROI: {
+      /**
+       * Format: float
+       * @description Return on investment over the last year
+       */
+      last1y?: number;
+      /**
+       * Format: float
+       * @description Return on investment over the last 7 days
+       */
+      last7d?: number;
+      /**
+       * Format: float
+       * @description Return on investment over the last 24 hours
+       */
+      last24h?: number;
+      /**
+       * Format: float
+       * @description Return on investment over the last 30 days
+       */
+      last30d?: number;
+      /**
+       * Format: float
+       * @description Return on investment over the last 90 days
+       */
+      last90d?: number;
+      /**
+       * Format: float
+       * @description Price change over the last year
+       */
+      priceChange1y?: number;
+      /**
+       * Format: float
+       * @description Price change over the last 3 years
+       */
+      priceChange3y?: number;
+      /**
+       * Format: float
+       * @description Price change over the last 5 years
+       */
+      priceChange5y?: number;
+      /**
+       * Format: float
+       * @description Price change over the last 7 days
+       */
+      priceChange7d?: number;
+      /**
+       * Format: float
+       * @description Price change over the last 24 hours
+       */
+      priceChange24h?: number;
+      /**
+       * Format: float
+       * @description Price change over the last 30 days
+       */
+      priceChange30d?: number;
+    };
+    V2AssetRoiItem: {
+      /** @description Category of the asset */
+      category: string;
+      /** @description Unique identifier for the asset */
+      id: string;
+      /** @description Name of the asset */
+      name: string;
+      /**
+       * Format: float
+       * @description Price change over the last year
+       */
+      price_change_1y: number;
+      /**
+       * Format: float
+       * @description Price change over the last 3 years
+       */
+      price_change_3y: number;
+      /**
+       * Format: float
+       * @description Price change over the last 5 years
+       */
+      price_change_5y: number;
+      /**
+       * Format: float
+       * @description Price change over the last 7 days
+       */
+      price_change_7d: number;
+      /**
+       * Format: float
+       * @description Price change over the last 24 hours
+       */
+      price_change_24h: number;
+      /**
+       * Format: float
+       * @description Price change over the last 30 days
+       */
+      price_change_30d: number;
+      /** @description Sector of the asset */
+      sector: string;
+      /** @description Slug of the asset */
+      slug: string;
+      /** @description Symbol of the asset */
+      symbol: string;
+      /** @description Tags associated with the asset */
+      tags: string[];
     };
     /** @description Video and podcast ranking information */
     VideoPodcastResponse: {
@@ -2226,6 +2652,347 @@ export type operations = {
       200: {
         content: {
           "application/json": components["schemas"]["AssetWithROIData"][];
+        };
+      };
+      /** @description Server error response */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+    };
+  };
+  /**
+   * Get Asset List (V2)
+   * @description Get a list of assets with extended information and coverage details.
+   */
+  getAssetsV2: {
+    parameters: {
+      query?: {
+        page?: components["parameters"]["page"];
+        limit?: components["parameters"]["limit"];
+        /** @description Filter by asset category */
+        category?: string;
+        /** @description Filter by asset sector */
+        sector?: string;
+        /** @description Filter by asset tags (comma-separated) */
+        tags?: string[];
+        /** @description Search query for assets */
+        search?: string;
+        /** @description Filter assets by diligence coverage */
+        has_diligence?: boolean;
+        /** @description Filter assets by intel coverage */
+        has_intel?: boolean;
+        /** @description Filter assets by market data coverage */
+        has_market_data?: boolean;
+        /** @description Filter assets by news coverage */
+        has_news?: boolean;
+        /** @description Filter assets by proposals coverage */
+        has_proposals?: boolean;
+        /** @description Filter assets by research coverage */
+        has_research?: boolean;
+        /** @description Filter assets by token unlocks coverage */
+        has_token_unlocks?: boolean;
+        /** @description Filter assets by fundraising coverage */
+        has_fundraising?: boolean;
+      };
+      header: {
+        "x-messari-api-key": components["parameters"]["apiKey"];
+      };
+    };
+    responses: {
+      /** @description Successful response */
+      200: {
+        content: {
+          "application/json": components["schemas"]["APIResponseWithMetadata"] & {
+            data?: components["schemas"]["V2AssetListItem"][];
+            metadata?: components["schemas"]["PaginationResult"];
+          };
+        };
+      };
+      /** @description Client error response */
+      400: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Server error response */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+    };
+  };
+  /**
+   * Get Asset Timeseries Data
+   * @description Get timeseries data for a specific asset and dataset.
+   * This endpoint is only available for enterprise users.
+   */
+  getAssetTimeseries: {
+    parameters: {
+      query?: {
+        /** @description Start time for the data range (ISO 8601 format) */
+        start?: string;
+        /** @description End time for the data range (ISO 8601 format) */
+        end?: string;
+      };
+      header: {
+        "x-messari-api-key": components["parameters"]["apiKey"];
+      };
+      path: {
+        /** @description Asset identifier (ID or slug) */
+        entityIdentifier: string;
+        /** @description Slug of the dataset to retrieve data for */
+        datasetSlug: string;
+      };
+    };
+    responses: {
+      /** @description Successful response */
+      200: {
+        content: {
+          "application/json": components["schemas"]["APIResponseWithMetadata"] & {
+            data?: components["schemas"]["TimeseriesData"];
+            metadata?: components["schemas"]["TimeseriesMetadata"];
+          };
+        };
+      };
+      /** @description Client error response */
+      400: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Forbidden - Enterprise access required */
+      403: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Server error response */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+    };
+  };
+  /**
+   * Get Asset Timeseries Data with Specific Granularity
+   * @description Get timeseries data for a specific asset and dataset with a specific time granularity.
+   * This endpoint is only available for enterprise users.
+   */
+  getAssetTimeseriesWithGranularity: {
+    parameters: {
+      query?: {
+        /** @description Start time for the data range (ISO 8601 format) */
+        start?: string;
+        /** @description End time for the data range (ISO 8601 format) */
+        end?: string;
+      };
+      header: {
+        "x-messari-api-key": components["parameters"]["apiKey"];
+      };
+      path: {
+        /** @description Asset identifier (ID or slug) */
+        entityIdentifier: string;
+        /** @description Slug of the dataset to retrieve data for */
+        datasetSlug: string;
+        /** @description Time granularity for the data points */
+        granularity: components["schemas"]["TimeseriesInterval"];
+      };
+    };
+    responses: {
+      /** @description Successful response */
+      200: {
+        content: {
+          "application/json": components["schemas"]["APIResponseWithMetadata"] & {
+            data?: components["schemas"]["TimeseriesData"];
+            metadata?: components["schemas"]["TimeseriesMetadata"];
+          };
+        };
+      };
+      /** @description Client error response */
+      400: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Forbidden - Enterprise access required */
+      403: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Server error response */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+    };
+  };
+  /**
+   * Get Assets All-Time High Information
+   * @description Get all-time high information for assets, with various filtering options.
+   */
+  getAssetsV2ATH: {
+    parameters: {
+      query?: {
+        page?: components["parameters"]["page"];
+        limit?: components["parameters"]["limit"];
+        /** @description Filter by asset category */
+        category?: string;
+        /** @description Filter by asset sector */
+        sector?: string;
+        /** @description Filter by asset tags (comma-separated) */
+        tags?: string[];
+        /** @description Search query for assets */
+        search?: string;
+      };
+      header: {
+        "x-messari-api-key": components["parameters"]["apiKey"];
+      };
+    };
+    responses: {
+      /** @description Successful response */
+      200: {
+        content: {
+          "application/json": components["schemas"]["APIResponseWithMetadata"] & {
+            data?: components["schemas"]["V2AssetAthItem"][];
+            metadata?: components["schemas"]["PaginationResult"];
+          };
+        };
+      };
+      /** @description Client error response */
+      400: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Server error response */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+    };
+  };
+  /**
+   * Get Asset Details
+   * @description Get detailed information for specific assets by IDs or slugs.
+   */
+  getAssetDetails: {
+    parameters: {
+      query?: {
+        /** @description Comma-separated list of asset IDs */
+        ids?: string;
+        /** @description Comma-separated list of asset slugs */
+        slugs?: string;
+      };
+      header: {
+        "x-messari-api-key": components["parameters"]["apiKey"];
+      };
+    };
+    responses: {
+      /** @description Successful response */
+      200: {
+        content: {
+          "application/json": components["schemas"]["APIResponse"] & {
+            data?: components["schemas"]["V2Asset"][];
+          };
+        };
+      };
+      /** @description Client error response */
+      400: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Server error response */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+    };
+  };
+  /**
+   * Get Assets Timeseries Catalog
+   * @description Get a catalog of available timeseries datasets and metrics for assets.
+   * This endpoint is only available for enterprise users.
+   */
+  getAssetsTimeseriesCatalog: {
+    parameters: {
+      header: {
+        "x-messari-api-key": components["parameters"]["apiKey"];
+      };
+    };
+    responses: {
+      /** @description Successful response */
+      200: {
+        content: {
+          "application/json": components["schemas"]["APIResponse"] & {
+            data?: components["schemas"]["TimeseriesCatalog"];
+          };
+        };
+      };
+      /** @description Client error response */
+      400: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Forbidden - Enterprise access required */
+      403: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Server error response */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+    };
+  };
+  /**
+   * Get Assets Return on Investment Information
+   * @description Get return on investment information for assets, with various filtering options.
+   */
+  getAssetsV2ROI: {
+    parameters: {
+      query?: {
+        page?: components["parameters"]["page"];
+        limit?: components["parameters"]["limit"];
+        /** @description Filter by asset category */
+        category?: string;
+        /** @description Filter by asset sector */
+        sector?: string;
+        /** @description Filter by asset tags (comma-separated) */
+        tags?: string[];
+        /** @description Search query for assets */
+        search?: string;
+      };
+      header: {
+        "x-messari-api-key": components["parameters"]["apiKey"];
+      };
+    };
+    responses: {
+      /** @description Successful response */
+      200: {
+        content: {
+          "application/json": components["schemas"]["APIResponseWithMetadata"] & {
+            data?: components["schemas"]["V2AssetRoiItem"][];
+            metadata?: components["schemas"]["PaginationResult"];
+          };
+        };
+      };
+      /** @description Client error response */
+      400: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
         };
       };
       /** @description Server error response */
