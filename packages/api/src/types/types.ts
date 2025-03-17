@@ -1335,7 +1335,7 @@ export type components = {
     };
     TimeseriesData: {
       /** @description Array of timeseries data points */
-      points: number[][];
+      points?: number[][];
     };
     TimeseriesDataset: {
       /** @description Available time granularities for the dataset */

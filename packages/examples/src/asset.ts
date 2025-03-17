@@ -88,7 +88,7 @@ async function getAssetsBySymbol(symbols: string[]) {
       } assets matching symbols: ${symbols.join(", ")}`
     );
     const t = newAssetTable();
-    for (const asset of response.data) {
+    for (const asset of response.data.slice(0, 10)) {
       t.addRow({
         Rank: asset.rank,
         Name: asset.name,
@@ -124,7 +124,7 @@ async function getAssetsByCategory(category: string, page = 1, limit = 20) {
       `Retrieved ${response.data.length} assets with category=${category}`
     );
     const t = newAssetTable();
-    for (const asset of response.data) {
+    for (const asset of response.data.slice(0, 10)) {
       t.addRow({
         Rank: asset.rank,
         Name: asset.name,
@@ -167,7 +167,7 @@ async function getAssetsWithMultipleFilters(sector: string, tags: string[]) {
       } assets with sector=${sector} and tags=[${tags.join(", ")}]`
     );
     const t = newAssetTable();
-    for (const asset of response.data) {
+    for (const asset of response.data.slice(0, 10)) {
       t.addRow({
         Rank: asset.rank,
         Name: asset.name,
@@ -215,7 +215,7 @@ async function getAssetsV2WithCoverage() {
       ],
     });
 
-    for (const asset of response.data) {
+    for (const asset of response.data.slice(0, 10)) {
       t.addRow({
         Name: asset.name,
         Symbol: asset.symbol,
@@ -246,11 +246,6 @@ async function getAssetDetailsBySlug(slugs: string[]) {
     });
 
     console.log(`Retrieved detailed information for ${response.length} assets`);
-
-    // Print the complete raw response for debugging
-    console.log("=== RAW RESPONSE ===");
-    console.log(JSON.stringify(response, null, 2));
-    console.log("=== END RAW RESPONSE ===");
 
     for (const asset of response) {
       console.log(`\n${asset.name} (${asset.symbol})`);
@@ -419,7 +414,7 @@ async function getAssetsATHInfo() {
       ],
     });
 
-    for (const asset of response.data) {
+    for (const asset of response.data.slice(0, 10)) {
       t.addRow({
         Name: asset.name,
         Symbol: asset.symbol,
@@ -460,7 +455,7 @@ async function getAssetsROIInfo() {
       ],
     });
 
-    for (const asset of response.data) {
+    for (const asset of response.data.slice(0, 10)) {
       t.addRow({
         Name: asset.name,
         Symbol: asset.symbol,
@@ -493,7 +488,7 @@ async function getAssetTimeseriesData(
     });
 
     // Access the points array from the properly typed response
-    const points = response.data.points || [];
+    const points = response.data?.points || [];
     const dataLength = points.length;
 
     console.log(
@@ -506,7 +501,7 @@ async function getAssetTimeseriesData(
     console.log(`Granularity: ${response.metadata.granularity}`);
     console.log(
       `Metrics: ${response.metadata.pointSchemas
-        .map((schema: any) => schema.name)
+        ?.map((item: { name: string }) => item.name)
         .join(", ")}`
     );
 
@@ -514,8 +509,8 @@ async function getAssetTimeseriesData(
     console.log("\nSample data points:");
 
     if (points.length > 0) {
-      // Display only the first 5 points for brevity
-      for (const point of points.slice(0, 5)) {
+      // Display only the first 2 points for brevity
+      for (const point of points.slice(0, 2)) {
         console.log(
           `Timestamp: ${new Date(point[0] * 1000).toLocaleDateString()}`
         );
@@ -526,7 +521,7 @@ async function getAssetTimeseriesData(
         console.log(`Volume: $${point[5].toLocaleString()}`);
         console.log("---");
       }
-      console.log(`... and ${points.length - 5} more points.`);
+      console.log(`... and ${points.length - 2} more points.`);
     } else {
       console.log("No points available in the response data.");
     }
@@ -554,7 +549,7 @@ async function getAssetTimeseriesWithSpecificGranularity(
     });
 
     // Access the points array from the properly typed response
-    const points = response.data.points || [];
+    const points = response.data?.points || [];
     const dataLength = points.length;
 
     console.log(
@@ -567,7 +562,7 @@ async function getAssetTimeseriesWithSpecificGranularity(
     console.log(`Granularity: ${response.metadata.granularity}`);
     console.log(
       `Metrics: ${response.metadata.pointSchemas
-        .map((schema: any) => schema.name)
+        ?.map((item: { name: string }) => item.name)
         .join(", ")}`
     );
 
@@ -575,8 +570,8 @@ async function getAssetTimeseriesWithSpecificGranularity(
     console.log("\nSample data points:");
 
     if (points.length > 0) {
-      // Display only the first 5 points for brevity
-      for (const point of points.slice(0, 5)) {
+      // Display only the first 2 points for brevity
+      for (const point of points.slice(0, 2)) {
         console.log(
           `Timestamp: ${new Date(point[0] * 1000).toLocaleDateString()}`
         );
@@ -587,7 +582,7 @@ async function getAssetTimeseriesWithSpecificGranularity(
         console.log(`Volume: $${point[5].toLocaleString()}`);
         console.log("---");
       }
-      console.log(`... and ${points.length - 5} more points.`);
+      console.log(`... and ${points.length - 2} more points.`);
     } else {
       console.log("No points available in the response data.");
     }
@@ -600,30 +595,300 @@ async function getAssetTimeseriesWithSpecificGranularity(
 }
 
 async function main() {
-  // Only run V2 examples to test the new endpoints
+  console.log("\n====== 1. Get All Assets Basic Example ======");
+  const assetsResponse = await getAllAssetsBasic();
+  console.log(`Retrieved ${assetsResponse.data.length} assets.`);
+  console.log("First 5 assets:");
+  assetsResponse.data.slice(0, 5).forEach((asset: any) => {
+    console.log(`${asset.name} (${asset.symbol})`);
+  });
 
-  // 5. Get V2 Assets with coverage information
-  // await getAssetsV2WithCoverage();
+  console.log("\n====== 2. Get Assets By Symbol Example ======");
+  const assetsBySymbolResponse = await getAssetsBySymbol(["BTC"]);
+  console.log(
+    `Retrieved ${assetsBySymbolResponse.data.length} assets by symbol.`
+  );
+  assetsBySymbolResponse.data.slice(0, 5).forEach((asset: any) => {
+    console.log(`${asset.name} (${asset.symbol})`);
+  });
 
-  // 6. Get detailed information for Bitcoin and Ethereum
-  await getAssetDetailsBySlug(["bitcoin", "ethereum"]);
+  console.log("\n====== 3. Get Assets By Category Example ======");
+  const assetsByCategoryResponse = await getAssetsByCategory("Networks", 1, 3);
+  console.log(
+    `Retrieved ${assetsByCategoryResponse.data.length} assets by category.`
+  );
 
-  // 7. Get timeseries catalog
-  // await getTimeseriesCatalog();
+  assetsByCategoryResponse.data.slice(0, 5).forEach((asset: any) => {
+    console.log(`${asset.name} (${asset.symbol})`);
+  });
 
-  // 8. Get ATH information for assets
-  // await getAssetsATHInfo();
+  console.log("\n====== 4. Get Assets With Multiple Filters Example ======");
+  const assetsWithFiltersResponse = await getAssetsWithMultipleFilters(
+    "Smart Contract Platform",
+    ["EVM"]
+  );
+  if (assetsWithFiltersResponse) {
+    console.log(
+      `Retrieved ${assetsWithFiltersResponse.data.length} assets with multiple filters.`
+    );
+    console.log("First 3 filtered assets:");
+    assetsWithFiltersResponse.data.slice(0, 3).forEach((asset: any) => {
+      console.log(`${asset.name} (${asset.symbol})`);
+    });
+  } else {
+    console.log("No data returned for assets with multiple filters.");
+  }
 
-  // 9. Get ROI information for assets
-  // await getAssetsROIInfo();
+  console.log("\n====== 5. Get Assets V2 With Coverage Example ======");
+  const assetsV2WithCoverageResponse = await getAssetsV2WithCoverage();
+  console.log(
+    `Retrieved ${assetsV2WithCoverageResponse.data.length} assets with coverage.`
+  );
+  console.log("First 3 assets with coverage:");
+  assetsV2WithCoverageResponse.data.slice(0, 3).forEach((asset) => {
+    console.log(`${asset.name} (${asset.symbol})`);
+  });
 
-  // 10. Get timeseries data for Bitcoin price
-  // Note: This requires enterprise access, uncomment if you have access
-  await getAssetTimeseriesData("bitcoin", "price");
+  console.log("\n====== 6. Get Asset Details By Slug Example ======");
+  const assetDetailsResponse = await getAssetDetailsBySlug(["bitcoin"]);
 
-  // 11. Get timeseries data with daily granularity
-  // Note: This requires enterprise access, uncomment if you have access
-  await getAssetTimeseriesWithSpecificGranularity("bitcoin", "price", "1d");
+  // Process the response based on its actual structure
+  for (const asset of assetDetailsResponse) {
+    console.log(`${asset.name} (${asset.symbol})`);
+    console.log(`Category: ${asset.category}`);
+    console.log(`Sector: ${asset.sector}`);
+    console.log(`Description: ${asset.description.substring(0, 150)}...`);
+
+    console.log("Links:");
+    asset.links?.slice(0, 3).forEach((link: any) => {
+      console.log(`- ${link.name}: ${link.url}`);
+    });
+
+    console.log("\nMarket Data:");
+    console.log(
+      `Price: $${asset.marketData?.priceUsd?.toLocaleString() || "N/A"}`
+    );
+    console.log(
+      `Market Cap: $${
+        asset.marketData?.marketcap?.circulatingUsd?.toLocaleString() || "N/A"
+      }`
+    );
+    console.log(
+      `24h Volume: $${
+        asset.marketData?.volume24Hour?.toLocaleString() || "N/A"
+      }`
+    );
+
+    console.log("\nAll-Time High:");
+    const athDate = asset.allTimeHigh?.allTimeHighDate
+      ? new Date(asset.allTimeHigh.allTimeHighDate).toLocaleDateString()
+      : "N/A";
+    console.log(`Date: ${athDate}`);
+    console.log(
+      `Price: $${asset.allTimeHigh?.allTimeHigh?.toLocaleString() || "N/A"}`
+    );
+    console.log(
+      `Down from ATH: ${
+        asset.allTimeHigh?.percentDownFromAllTimeHigh?.toFixed(2) || "N/A"
+      }%`
+    );
+
+    console.log("\nROI Data:");
+    console.log(
+      `24h Change: ${
+        asset.returnOnInvestment?.priceChange24h?.toFixed(2) || "N/A"
+      }%`
+    );
+    console.log(
+      `7d Change: ${
+        asset.returnOnInvestment?.priceChange7d?.toFixed(2) || "N/A"
+      }%`
+    );
+    console.log(
+      `30d Change: ${
+        asset.returnOnInvestment?.priceChange30d?.toFixed(2) || "N/A"
+      }%`
+    );
+    console.log(
+      `1y Change: ${
+        asset.returnOnInvestment?.priceChange1y?.toFixed(2) || "N/A"
+      }%`
+    );
+  }
+  console.log(
+    `Retrieved detailed information for ${assetDetailsResponse.length} assets.`
+  );
+
+  console.log("\n====== 7. Get Timeseries Catalog Example ======");
+  const catalogResponse = await getTimeseriesCatalog();
+  console.log(
+    `Retrieved ${catalogResponse.datasets.length} timeseries datasets.`
+  );
+  console.log("First 5 datasets in catalog:");
+
+  catalogResponse.datasets.slice(0, 5).forEach((dataset: any) => {
+    const metricName = dataset.metrics[0]?.name || "N/A";
+    console.log(
+      `${dataset.slug}: ${metricName} and ${
+        dataset.metrics.length - 1
+      } more metrics`
+    );
+  });
+
+  console.log("\n====== 8. Get Assets ATH Info Example ======");
+  const athInfoResponse = await getAssetsATHInfo();
+  console.log(`Retrieved ATH info for ${athInfoResponse.data.length} assets.`);
+  console.log("First 3 assets ATH info:");
+  athInfoResponse.data.slice(0, 3).forEach((asset: any) => {
+    console.log(
+      `${asset.name} (${
+        asset.symbol
+      }) - ATH: $${asset.all_time_high.toLocaleString()} on ${new Date(
+        asset.all_time_high_date
+      ).toLocaleDateString()}`
+    );
+  });
+
+  console.log("\n====== 9. Get Assets ROI Info Example ======");
+  const roiInfoResponse = await getAssetsROIInfo();
+  console.log(`Retrieved ROI info for ${roiInfoResponse.data.length} assets.`);
+  console.log("First 3 assets ROI info:");
+  roiInfoResponse.data.slice(0, 3).forEach((asset: any) => {
+    console.log(
+      `${asset.name} (${asset.symbol}) - 24h: ${asset.price_change_24h.toFixed(
+        2
+      )}%, 7d: ${asset.price_change_7d.toFixed(2)}%`
+    );
+  });
+
+  console.log("\n====== 10. Asset Timeseries Data Example ======");
+  const timeseriesResponse = await getAssetTimeseriesData("bitcoin", "price");
+  if (timeseriesResponse) {
+    console.log(
+      `Retrieved ${
+        timeseriesResponse.data?.points?.length || 0
+      } timeseries data points for bitcoin`
+    );
+    console.log(`Dataset: price`);
+
+    console.log("\nMetadata:");
+    console.log(`Granularity: ${timeseriesResponse.metadata?.granularity}`);
+    console.log(
+      `Metrics: ${timeseriesResponse.metadata?.schema
+        ?.map((item: { name: string }) => item.name)
+        .join(", ")}`
+    );
+
+    if (
+      timeseriesResponse.data?.points &&
+      timeseriesResponse.data.points.length > 0
+    ) {
+      console.log("\nSample data points:");
+      for (
+        let i = 0;
+        i < Math.min(2, timeseriesResponse.data.points.length);
+        i++
+      ) {
+        const point = timeseriesResponse.data.points[i];
+        if (point && point.length >= 6) {
+          const date = new Date(point[0] * 1000);
+          console.log(
+            `Timestamp: ${
+              date.getMonth() + 1
+            }/${date.getDate()}/${date.getFullYear()}`
+          );
+          console.log(`Open: $${point[1].toLocaleString()}`);
+          console.log(`High: $${point[2].toLocaleString()}`);
+          console.log(`Low: $${point[3].toLocaleString()}`);
+          console.log(`Close: $${point[4].toLocaleString()}`);
+          console.log(`Volume: $${point[5].toLocaleString()}`);
+          if (i < Math.min(1, timeseriesResponse.data.points.length - 1)) {
+            console.log("---");
+          }
+        }
+      }
+      console.log(
+        `... and ${Math.max(
+          0,
+          timeseriesResponse.data.points.length - 2
+        )} more points.`
+      );
+    } else {
+      console.log("No data points available.");
+    }
+  } else {
+    console.log("Failed to retrieve timeseries data.");
+  }
+
+  console.log("\n====== 11. Asset Timeseries With Granularity Example ======");
+  const timeseriesWithGranularityResponse =
+    await getAssetTimeseriesWithSpecificGranularity("bitcoin", "price", "1d");
+  if (timeseriesWithGranularityResponse) {
+    console.log(
+      `Retrieved ${
+        timeseriesWithGranularityResponse.data?.points?.length || 0
+      } timeseries data points for bitcoin`
+    );
+    console.log(`Dataset: price, Granularity: 1d`);
+
+    console.log("\nMetadata:");
+    console.log(
+      `Granularity: ${timeseriesWithGranularityResponse.metadata?.granularity}`
+    );
+    console.log(
+      `Metrics: ${timeseriesWithGranularityResponse.metadata?.schema
+        ?.map((item: { name: string }) => item.name)
+        .join(", ")}`
+    );
+
+    if (
+      timeseriesWithGranularityResponse.data?.points &&
+      timeseriesWithGranularityResponse.data.points.length > 0
+    ) {
+      console.log("\nSample data points:");
+      for (
+        let i = 0;
+        i < Math.min(2, timeseriesWithGranularityResponse.data.points.length);
+        i++
+      ) {
+        const point = timeseriesWithGranularityResponse.data.points[i];
+        if (point && point.length >= 6) {
+          const date = new Date(point[0] * 1000);
+          console.log(
+            `Timestamp: ${
+              date.getMonth() + 1
+            }/${date.getDate()}/${date.getFullYear()}`
+          );
+          console.log(`Open: $${point[1].toLocaleString()}`);
+          console.log(`High: $${point[2].toLocaleString()}`);
+          console.log(`Low: $${point[3].toLocaleString()}`);
+          console.log(`Close: $${point[4].toLocaleString()}`);
+          console.log(`Volume: $${point[5].toLocaleString()}`);
+          if (
+            i <
+            Math.min(
+              1,
+              timeseriesWithGranularityResponse.data.points.length - 1
+            )
+          ) {
+            console.log("---");
+          }
+        }
+      }
+      console.log(
+        `... and ${Math.max(
+          0,
+          timeseriesWithGranularityResponse.data.points.length - 2
+        )} more points.`
+      );
+    } else {
+      console.log("No data points available.");
+    }
+  } else {
+    console.log(
+      "Failed to retrieve timeseries data with specified granularity."
+    );
+  }
 }
 
 main().catch(console.error);
