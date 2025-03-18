@@ -1651,8 +1651,23 @@ export type components = {
        * @description Date of the all-time high
        */
       all_time_high_date: string;
+      /**
+       * Format: float
+       * @description Multiple required to reach breakeven from current price
+       */
+      breakeven_multiple: number;
       /** @description Category of the asset */
       category: string;
+      /**
+       * Format: float
+       * @description The cycle low price
+       */
+      cycle_low: number;
+      /**
+       * Format: date-time
+       * @description Date of the cycle low
+       */
+      cycle_low_date: string;
       /** @description Unique identifier for the asset */
       id: string;
       /** @description Name of the asset */
@@ -1664,9 +1679,9 @@ export type components = {
       percent_down_from_ath: number;
       /**
        * Format: float
-       * @description Percent up to all-time high
+       * @description Percent up from cycle low
        */
-      percent_up_to_ath: number;
+      percent_up_from_cycle_low: number;
       /** @description Sector of the asset */
       sector: string;
       /** @description Slug of the asset */
@@ -1680,6 +1695,11 @@ export type components = {
        * @description Time since all-time high in seconds
        */
       time_since_all_time_high_seconds: number;
+      /**
+       * Format: float
+       * @description Time since cycle low in seconds
+       */
+      time_since_cycle_low_seconds: number;
     };
     V2AssetEntity: {
       /** @description Unique identifier for the asset */
@@ -1822,6 +1842,21 @@ export type components = {
        * @description Price change over the last 30 days
        */
       price_change_30d: number;
+      /**
+       * Format: float
+       * @description Price change month-to-date
+       */
+      price_change_mtd: number;
+      /**
+       * Format: float
+       * @description Price change quarter-to-date
+       */
+      price_change_qtd: number;
+      /**
+       * Format: float
+       * @description Price change year-to-date
+       */
+      price_change_ytd: number;
       /** @description Sector of the asset */
       sector: string;
       /** @description Slug of the asset */

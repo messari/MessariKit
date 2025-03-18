@@ -1113,7 +1113,11 @@ components:
         - all_time_high
         - time_since_all_time_high_seconds
         - percent_down_from_ath
-        - percent_up_to_ath
+        - breakeven_multiple
+        - cycle_low
+        - cycle_low_date
+        - time_since_cycle_low_seconds
+        - percent_up_from_cycle_low
       properties:
         id:
           type: string
@@ -1154,10 +1158,26 @@ components:
           type: number
           format: float
           description: Percent down from all-time high
-        percent_up_to_ath:
+        breakeven_multiple:
           type: number
           format: float
-          description: Percent up to all-time high
+          description: Multiple required to reach breakeven from current price
+        cycle_low:
+          type: number
+          format: float
+          description: The cycle low price
+        cycle_low_date:
+          type: string
+          format: date-time
+          description: Date of the cycle low
+        time_since_cycle_low_seconds:
+          type: number
+          format: float
+          description: Time since cycle low in seconds
+        percent_up_from_cycle_low:
+          type: number
+          format: float
+          description: Percent up from cycle low
 
     V2AssetRoiItem:
       type: object
@@ -1175,6 +1195,9 @@ components:
         - price_change_1y
         - price_change_3y
         - price_change_5y
+        - price_change_mtd
+        - price_change_qtd
+        - price_change_ytd
       properties:
         id:
           type: string
@@ -1223,3 +1246,15 @@ components:
           type: number
           format: float
           description: Price change over the last 5 years
+        price_change_mtd:
+          type: number
+          format: float
+          description: Price change month-to-date
+        price_change_qtd:
+          type: number
+          format: float
+          description: Price change quarter-to-date
+        price_change_ytd:
+          type: number
+          format: float
+          description: Price change year-to-date
