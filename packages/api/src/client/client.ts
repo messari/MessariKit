@@ -31,6 +31,14 @@ import {
   getTokenUnlockVestingSchedule,
   getOrganizations,
   getProjects,
+  // V2 asset endpoints
+  getAssetsV2,
+  getAssetDetails,
+  getAssetsTimeseriesCatalog,
+  getAssetsV2ATH,
+  getAssetsV2ROI,
+  getAssetTimeseries,
+  getAssetTimeseriesWithGranularity,
 } from "../types";
 import type {
   createChatCompletionParameters,
@@ -93,6 +101,21 @@ import type {
   getOrganizationsResponse,
   getProjectsParameters,
   getProjectsResponse,
+  // V2 asset endpoints
+  getAssetsV2Parameters,
+  getAssetsV2Response,
+  getAssetDetailsParameters,
+  getAssetDetailsResponse,
+  getAssetsTimeseriesCatalogResponse,
+  getAssetsV2ATHParameters,
+  getAssetsV2ATHResponse,
+  getAssetsV2ROIParameters,
+  getAssetsV2ROIResponse,
+  getAssetTimeseriesParameters,
+  getAssetTimeseriesResponse,
+  getAssetTimeseriesWithGranularityParameters,
+  getAssetTimeseriesWithGranularityResponse,
+  TimeseriesMetadata,
 } from "../types";
 import type { Agent } from "node:http";
 import { pick } from "../utils";
@@ -190,7 +213,11 @@ export class MessariClient extends MessariClientBase {
   }
 
   private async request<T>({ method, path, body, queryParams = {}, options = {} }: RequestParameters): Promise<T> {
-    this.logger(LogLevel.DEBUG, "request start", { method, url: `${this.baseUrl}${path}`, queryParams });
+    this.logger(LogLevel.DEBUG, "request start", {
+      method,
+      url: `${this.baseUrl}${path}`,
+      queryParams,
+    });
 
     this.emit("request", {
       method,
@@ -292,7 +319,11 @@ export class MessariClient extends MessariClientBase {
   }
 
   private async requestWithMetadata<T, M>({ method, path, body, queryParams = {}, options = {} }: RequestParameters): Promise<APIResponseWithMetadata<T, M>> {
-    this.logger(LogLevel.DEBUG, "request with metadata start", { method, url: `${this.baseUrl}${path}`, queryParams });
+    this.logger(LogLevel.DEBUG, "request with metadata start", {
+      method,
+      url: `${this.baseUrl}${path}`,
+      queryParams,
+    });
 
     // Emit request event
     this.emit("request", {
@@ -670,6 +701,83 @@ export class MessariClient extends MessariClientBase {
 
       const response = await fetchPage(params, options);
       return this.paginate<getAssetListResponse["data"], getAssetListParameters>(params, fetchPage, response, options);
+    },
+
+    getAssetsV2: async (params: getAssetsV2Parameters = {}, options?: RequestOptions) => {
+      const fetchPage = async (p: getAssetsV2Parameters, o?: RequestOptions) => {
+        return this.requestWithMetadata<getAssetsV2Response["data"], PaginationMetadata>({
+          method: getAssetsV2.method,
+          path: getAssetsV2.path(),
+          queryParams: pick(p, getAssetsV2.queryParams),
+          options: o,
+        });
+      };
+
+      const response = await fetchPage(params, options);
+      return this.paginate<getAssetsV2Response["data"], getAssetsV2Parameters>(params, fetchPage, response, options);
+    },
+
+    getAssetDetails: async (params: getAssetDetailsParameters, options?: RequestOptions) => {
+      return this.request<getAssetDetailsResponse>({
+        method: getAssetDetails.method,
+        path: getAssetDetails.path(),
+        queryParams: pick(params, getAssetDetails.queryParams),
+        options,
+      });
+    },
+
+    getAssetsTimeseriesCatalog: async (options?: RequestOptions) => {
+      return this.request<getAssetsTimeseriesCatalogResponse>({
+        method: getAssetsTimeseriesCatalog.method,
+        path: getAssetsTimeseriesCatalog.path(),
+        options,
+      });
+    },
+
+    getAssetsV2ATH: async (params: getAssetsV2ATHParameters = {}, options?: RequestOptions) => {
+      const fetchPage = async (p: getAssetsV2ATHParameters, o?: RequestOptions) => {
+        return this.requestWithMetadata<getAssetsV2ATHResponse["data"], PaginationMetadata>({
+          method: getAssetsV2ATH.method,
+          path: getAssetsV2ATH.path(),
+          queryParams: pick(p, getAssetsV2ATH.queryParams),
+          options: o,
+        });
+      };
+
+      const response = await fetchPage(params, options);
+      return this.paginate<getAssetsV2ATHResponse["data"], getAssetsV2ATHParameters>(params, fetchPage, response, options);
+    },
+
+    getAssetsV2ROI: async (params: getAssetsV2ROIParameters = {}, options?: RequestOptions) => {
+      const fetchPage = async (p: getAssetsV2ROIParameters, o?: RequestOptions) => {
+        return this.requestWithMetadata<getAssetsV2ROIResponse["data"], PaginationMetadata>({
+          method: getAssetsV2ROI.method,
+          path: getAssetsV2ROI.path(),
+          queryParams: pick(p, getAssetsV2ROI.queryParams),
+          options: o,
+        });
+      };
+
+      const response = await fetchPage(params, options);
+      return this.paginate<getAssetsV2ROIResponse["data"], getAssetsV2ROIParameters>(params, fetchPage, response, options);
+    },
+
+    getAssetTimeseries: async (params: getAssetTimeseriesParameters, options?: RequestOptions) => {
+      return this.requestWithMetadata<getAssetTimeseriesResponse, TimeseriesMetadata>({
+        method: getAssetTimeseries.method,
+        path: getAssetTimeseries.path(params),
+        queryParams: pick(params, getAssetTimeseries.queryParams),
+        options,
+      });
+    },
+
+    getAssetTimeseriesWithGranularity: async (params: getAssetTimeseriesWithGranularityParameters, options?: RequestOptions) => {
+      return this.requestWithMetadata<getAssetTimeseriesWithGranularityResponse, TimeseriesMetadata>({
+        method: getAssetTimeseriesWithGranularity.method,
+        path: getAssetTimeseriesWithGranularity.path(params),
+        queryParams: pick(params, getAssetTimeseriesWithGranularity.queryParams),
+        options,
+      });
     },
   };
 

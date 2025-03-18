@@ -23,6 +23,8 @@ servers:
 tags:
   - name: Asset
     description: Asset-related endpoints
+  - name: AssetV2
+    description: Asset-related V2 endpoints
 
 security:
   - apiKey: []
@@ -104,6 +106,506 @@ paths:
               schema:
                 $ref: '../../common/components.yaml#/components/schemas/APIError'
 
+  /metrics/v2/assets:
+    get:
+      operationId: getAssetsV2
+      summary: Get Asset List (V2)
+      description: |
+        Get a list of assets with extended information and coverage details.
+      tags:
+        - AssetV2
+      security:
+        - apiKey: []
+      parameters:
+        - $ref: '../../common/parameters.yaml#/components/parameters/apiKey'
+        - $ref: '../../common/parameters.yaml#/components/parameters/page'
+        - $ref: '../../common/parameters.yaml#/components/parameters/limit'
+        - name: category
+          in: query
+          required: false
+          description: Filter by asset category
+          schema:
+            type: string
+        - name: sector
+          in: query
+          required: false
+          description: Filter by asset sector
+          schema:
+            type: string
+        - name: tags
+          in: query
+          required: false
+          description: Filter by asset tags (comma-separated)
+          schema:
+            type: array
+            items:
+              type: string
+        - name: search
+          in: query
+          required: false
+          description: Search query for assets
+          schema:
+            type: string
+        - name: has_diligence
+          in: query
+          required: false
+          description: Filter assets by diligence coverage
+          schema:
+            type: boolean
+        - name: has_intel
+          in: query
+          required: false
+          description: Filter assets by intel coverage
+          schema:
+            type: boolean
+        - name: has_market_data
+          in: query
+          required: false
+          description: Filter assets by market data coverage
+          schema:
+            type: boolean
+        - name: has_news
+          in: query
+          required: false
+          description: Filter assets by news coverage
+          schema:
+            type: boolean
+        - name: has_proposals
+          in: query
+          required: false
+          description: Filter assets by proposals coverage
+          schema:
+            type: boolean
+        - name: has_research
+          in: query
+          required: false
+          description: Filter assets by research coverage
+          schema:
+            type: boolean
+        - name: has_token_unlocks
+          in: query
+          required: false
+          description: Filter assets by token unlocks coverage
+          schema:
+            type: boolean
+        - name: has_fundraising
+          in: query
+          required: false
+          description: Filter assets by fundraising coverage
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../../common/components.yaml#/components/schemas/APIResponseWithMetadata'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/V2AssetListItem'
+                      metadata:
+                        $ref: '../../common/components.yaml#/components/schemas/PaginationResult'
+        '400':
+          description: Client error response
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+        '500':
+          description: Server error response
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+
+  /metrics/v2/assets/details:
+    get:
+      operationId: getAssetDetails
+      summary: Get Asset Details
+      description: |
+        Get detailed information for specific assets by IDs or slugs.
+      tags:
+        - AssetV2
+      security:
+        - apiKey: []
+      parameters:
+        - $ref: '../../common/parameters.yaml#/components/parameters/apiKey'
+        - name: ids
+          in: query
+          required: false
+          description: Comma-separated list of asset IDs
+          schema:
+            type: string
+        - name: slugs
+          in: query
+          required: false
+          description: Comma-separated list of asset slugs
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../../common/components.yaml#/components/schemas/APIResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/V2Asset'
+        '400':
+          description: Client error response
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+        '500':
+          description: Server error response
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+
+  /metrics/v2/assets/metrics:
+    get:
+      operationId: getAssetsTimeseriesCatalog
+      summary: Get Assets Timeseries Catalog
+      description: |
+        Get a catalog of available timeseries datasets and metrics for assets.
+        This endpoint is only available for enterprise users.
+      tags:
+        - AssetV2
+      security:
+        - apiKey: []
+      parameters:
+        - $ref: '../../common/parameters.yaml#/components/parameters/apiKey'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../../common/components.yaml#/components/schemas/APIResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/TimeseriesCatalog'
+        '400':
+          description: Client error response
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+        '403':
+          description: Forbidden - Enterprise access required
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+        '500':
+          description: Server error response
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+
+  /metrics/v2/assets/ath:
+    get:
+      operationId: getAssetsV2ATH
+      summary: Get Assets All-Time High Information
+      description: |
+        Get all-time high information for assets, with various filtering options.
+      tags:
+        - AssetV2
+      security:
+        - apiKey: []
+      parameters:
+        - $ref: '../../common/parameters.yaml#/components/parameters/apiKey'
+        - $ref: '../../common/parameters.yaml#/components/parameters/page'
+        - $ref: '../../common/parameters.yaml#/components/parameters/limit'
+        - name: category
+          in: query
+          required: false
+          description: Filter by asset category
+          schema:
+            type: string
+        - name: sector
+          in: query
+          required: false
+          description: Filter by asset sector
+          schema:
+            type: string
+        - name: tags
+          in: query
+          required: false
+          description: Filter by asset tags (comma-separated)
+          schema:
+            type: array
+            items:
+              type: string
+        - name: search
+          in: query
+          required: false
+          description: Search query for assets
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../../common/components.yaml#/components/schemas/APIResponseWithMetadata'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/V2AssetAthItem'
+                      metadata:
+                        $ref: '../../common/components.yaml#/components/schemas/PaginationResult'
+        '400':
+          description: Client error response
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+        '500':
+          description: Server error response
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+
+  /metrics/v2/assets/roi:
+    get:
+      operationId: getAssetsV2ROI
+      summary: Get Assets Return on Investment Information
+      description: |
+        Get return on investment information for assets, with various filtering options.
+      tags:
+        - AssetV2
+      security:
+        - apiKey: []
+      parameters:
+        - $ref: '../../common/parameters.yaml#/components/parameters/apiKey'
+        - $ref: '../../common/parameters.yaml#/components/parameters/page'
+        - $ref: '../../common/parameters.yaml#/components/parameters/limit'
+        - name: category
+          in: query
+          required: false
+          description: Filter by asset category
+          schema:
+            type: string
+        - name: sector
+          in: query
+          required: false
+          description: Filter by asset sector
+          schema:
+            type: string
+        - name: tags
+          in: query
+          required: false
+          description: Filter by asset tags (comma-separated)
+          schema:
+            type: array
+            items:
+              type: string
+        - name: search
+          in: query
+          required: false
+          description: Search query for assets
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../../common/components.yaml#/components/schemas/APIResponseWithMetadata'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/V2AssetRoiItem'
+                      metadata:
+                        $ref: '../../common/components.yaml#/components/schemas/PaginationResult'
+        '400':
+          description: Client error response
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+        '500':
+          description: Server error response
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+
+  /metrics/v2/assets/{entityIdentifier}/metrics/{datasetSlug}/time-series:
+    get:
+      operationId: getAssetTimeseries
+      summary: Get Asset Timeseries Data
+      description: |
+        Get timeseries data for a specific asset and dataset.
+        This endpoint is only available for enterprise users.
+      tags:
+        - AssetV2
+      security:
+        - apiKey: []
+      parameters:
+        - $ref: '../../common/parameters.yaml#/components/parameters/apiKey'
+        - name: entityIdentifier
+          in: path
+          required: true
+          description: Asset identifier (ID or slug)
+          schema:
+            type: string
+        - name: datasetSlug
+          in: path
+          required: true
+          description: Slug of the dataset to retrieve data for
+          schema:
+            type: string
+        - name: start
+          in: query
+          required: false
+          description: Start time for the data range (ISO 8601 format)
+          schema:
+            type: string
+            format: date-time
+        - name: end
+          in: query
+          required: false
+          description: End time for the data range (ISO 8601 format)
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../../common/components.yaml#/components/schemas/APIResponseWithMetadata'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/TimeseriesData'
+                      metadata:
+                        $ref: '#/components/schemas/TimeseriesMetadata'
+        '400':
+          description: Client error response
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+        '403':
+          description: Forbidden - Enterprise access required
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+        '500':
+          description: Server error response
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+  
+  /metrics/v2/assets/{entityIdentifier}/metrics/{datasetSlug}/time-series/{granularity}:
+    get:
+      operationId: getAssetTimeseriesWithGranularity
+      summary: Get Asset Timeseries Data with Specific Granularity
+      description: |
+        Get timeseries data for a specific asset and dataset with a specific time granularity.
+        This endpoint is only available for enterprise users.
+      tags:
+        - AssetV2
+      security:
+        - apiKey: []
+      parameters:
+        - $ref: '../../common/parameters.yaml#/components/parameters/apiKey'
+        - name: entityIdentifier
+          in: path
+          required: true
+          description: Asset identifier (ID or slug)
+          schema:
+            type: string
+        - name: datasetSlug
+          in: path
+          required: true
+          description: Slug of the dataset to retrieve data for
+          schema:
+            type: string
+        - name: granularity
+          in: path
+          required: true
+          description: Time granularity for the data points
+          schema:
+            $ref: '#/components/schemas/TimeseriesInterval'
+        - name: start
+          in: query
+          required: false
+          description: Start time for the data range (ISO 8601 format)
+          schema:
+            type: string
+            format: date-time
+        - name: end
+          in: query
+          required: false
+          description: End time for the data range (ISO 8601 format)
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../../common/components.yaml#/components/schemas/APIResponseWithMetadata'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/TimeseriesData'
+                      metadata:
+                        $ref: '#/components/schemas/TimeseriesMetadata'
+        '400':
+          description: Client error response
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+        '403':
+          description: Forbidden - Enterprise access required
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+        '500':
+          description: Server error response
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+
 components:
   securitySchemes:
     apiKey:
@@ -142,8 +644,9 @@ components:
           type: string
           description: Slug of the asset
         rank:
-          type: integer
-          nullable: true
+          oneOf:
+            - type: integer
+            - type: "null"
           description: Rank of the asset (optional)
         category:
           type: string
@@ -156,3 +659,567 @@ components:
           items:
             type: string
           description: Tags associated with the asset
+
+    V2AssetListItem:
+      type: object
+      required:
+        - id
+        - name
+        - slug
+        - symbol
+        - category
+        - sector
+        - tags
+        - rank
+        - has_diligence
+        - has_intel
+        - has_market_data
+        - has_news
+        - has_proposals
+        - has_research
+        - has_token_unlocks
+        - has_fundraising
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the asset
+        name:
+          type: string
+          description: Name of the asset
+        slug:
+          type: string
+          description: Slug of the asset
+        symbol:
+          type: string
+          description: Symbol of the asset
+        category:
+          type: string
+          description: Category of the asset
+        sector:
+          type: string
+          description: Sector of the asset
+        tags:
+          type: array
+          items:
+            type: string
+          description: Tags associated with the asset
+        rank:
+          type: number
+          format: float
+          description: Rank of the asset
+        has_diligence:
+          type: boolean
+          description: Whether the asset has diligence coverage
+        has_intel:
+          type: boolean
+          description: Whether the asset has intel coverage
+        has_market_data:
+          type: boolean
+          description: Whether the asset has market data coverage
+        has_news:
+          type: boolean
+          description: Whether the asset has news coverage
+        has_proposals:
+          type: boolean
+          description: Whether the asset has proposals coverage
+        has_research:
+          type: boolean
+          description: Whether the asset has research coverage
+        has_token_unlocks:
+          type: boolean
+          description: Whether the asset has token unlocks coverage
+        has_fundraising:
+          type: boolean
+          description: Whether the asset has fundraising coverage
+
+    AssetV2Link:
+      type: object
+      required:
+        - type
+        - url
+      properties:
+        type:
+          type: string
+          description: Type of the link
+        url:
+          type: string
+          description: URL of the link
+        name:
+          type: string
+          description: Name of the link
+
+    AssetV2MarketData:
+      type: object
+      properties:
+        priceUsd:
+          type: number
+          format: float
+          description: Current price of the asset in USD
+        priceBtc:
+          type: number
+          format: float
+          description: Current price of the asset in BTC
+        priceEth:
+          type: number
+          format: float
+          description: Current price of the asset in ETH
+        volume24Hour:
+          type: number
+          format: float
+          description: 24-hour trading volume of the asset
+        ohlcv1HourUsd:
+          type: object
+          properties:
+            open:
+              type: number
+              format: float
+            high:
+              type: number
+              format: float
+            low:
+              type: number
+              format: float
+            close:
+              type: number
+              format: float
+            volume:
+              type: number
+              format: float
+        ohlcv24HourUsd:
+          type: object
+          properties:
+            open:
+              type: number
+              format: float
+            high:
+              type: number
+              format: float
+            low:
+              type: number
+              format: float
+            close:
+              type: number
+              format: float
+            volume:
+              type: number
+              format: float
+        supply:
+          type: object
+          properties:
+            circulating:
+              type: number
+              format: float
+            total:
+              type: number
+              format: float
+            max:
+              type: number
+              format: float
+        marketcap:
+          type: object
+          properties:
+            circulatingUsd:
+              type: number
+              format: float
+            fullyDilutedUsd:
+              type: number
+              format: float
+            dominance:
+              type: number
+              format: float
+        # Keep the existing properties as fallbacks
+        price:
+          type: number
+          format: float
+          description: Current price of the asset
+        marketCap:
+          type: number
+          format: float
+          description: Market capitalization of the asset
+        volume24h:
+          type: number
+          format: float
+          description: 24-hour trading volume of the asset
+
+    V2AssetROI:
+      type: object
+      properties:
+        priceChange24h:
+          type: number
+          format: float
+          description: Price change over the last 24 hours
+        priceChange7d:
+          type: number
+          format: float
+          description: Price change over the last 7 days
+        priceChange30d:
+          type: number
+          format: float
+          description: Price change over the last 30 days
+        priceChange1y:
+          type: number
+          format: float
+          description: Price change over the last year
+        priceChange3y:
+          type: number
+          format: float
+          description: Price change over the last 3 years
+        priceChange5y:
+          type: number
+          format: float
+          description: Price change over the last 5 years
+        # Keep the existing properties as fallbacks
+        last24h:
+          type: number
+          format: float
+          description: Return on investment over the last 24 hours
+        last7d:
+          type: number
+          format: float
+          description: Return on investment over the last 7 days
+        last30d:
+          type: number
+          format: float
+          description: Return on investment over the last 30 days
+        last90d:
+          type: number
+          format: float
+          description: Return on investment over the last 90 days
+        last1y:
+          type: number
+          format: float
+          description: Return on investment over the last year
+
+    V2AssetATH:
+      type: object
+      properties:
+        allTimeHigh:
+          type: number
+          format: float
+          description: All-time high price
+        allTimeHighDate:
+          type: string
+          format: date-time
+          description: Date of the all-time high
+        percentDownFromAllTimeHigh:
+          type: number
+          format: float
+          description: Percent down from all-time high
+        # Keep the existing properties as fallbacks
+        date:
+          type: string
+          format: date-time
+          description: Date of the all-time high
+        price:
+          type: number
+          format: float
+          description: Price at the all-time high
+        percentDown:
+          type: number
+          format: float
+          description: Percent down from all-time high
+        percentUp:
+          type: number
+          format: float
+          description: Percent up to all-time high
+
+    V2AssetEntity:
+      type: object
+      required:
+        - id
+        - name
+        - slug
+        - symbol
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the asset
+        name:
+          type: string
+          description: Name of the asset
+        slug:
+          type: string
+          description: Slug of the asset
+        symbol:
+          type: string
+          description: Symbol of the asset
+
+    V2Asset:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/V2AssetEntity'
+        - type: object
+          required:
+            - category
+            - sector
+            - tags
+            - description
+            - links
+            - marketData
+            - networkSlugs
+            - protocolSlugs
+            - returnOnInvestment
+            - allTimeHigh
+          properties:
+            rank:
+              type: integer
+              description: Rank of the asset (optional)
+            category:
+              type: string
+              description: Category of the asset
+            sector:
+              type: string
+              description: Sector of the asset
+            tags:
+              type: array
+              items:
+                type: string
+              description: Tags associated with the asset
+            description:
+              type: string
+              description: Description of the asset
+            links:
+              type: array
+              items:
+                $ref: '#/components/schemas/AssetV2Link'
+              description: Links related to the asset
+            marketData:
+              $ref: '#/components/schemas/AssetV2MarketData'
+              description: Market data for the asset
+            networkSlugs:
+              type: array
+              items:
+                type: string
+              description: Slugs of networks related to the asset
+            protocolSlugs:
+              type: array
+              items:
+                type: string
+              description: Slugs of protocols related to the asset
+            returnOnInvestment:
+              $ref: '#/components/schemas/V2AssetROI'
+              description: Return on investment data for the asset
+            allTimeHigh:
+              $ref: '#/components/schemas/V2AssetATH'
+              description: All-time high data for the asset
+
+    TimeseriesPointSchema:
+      type: object
+      required:
+        - name
+        - slug
+        - description
+        - is_timestamp
+      properties:
+        name:
+          type: string
+          description: Name of the metric
+        slug:
+          type: string
+          description: Slug of the metric
+        description:
+          type: string
+          description: Description of the metric
+        is_timestamp:
+          type: boolean
+          description: Whether this point is a timestamp
+
+    TimeseriesInterval:
+      type: string
+      enum:
+        - 1m
+        - 5m
+        - 15m
+        - 30m
+        - 1h
+        - 6h
+        - 1d
+        - 1w
+        - 30d
+        - 1q
+        - 1y
+      description: Time interval granularity for data points
+
+    TimeseriesDataset:
+      type: object
+      required:
+        - slug
+        - granularities
+        - metrics
+      properties:
+        slug:
+          type: string
+          description: Unique slug identifier for the dataset
+        granularities:
+          type: array
+          items:
+            $ref: '#/components/schemas/TimeseriesInterval'
+          description: Available time granularities for the dataset
+        metrics:
+          type: array
+          items:
+            $ref: '#/components/schemas/TimeseriesPointSchema'
+          description: Metrics available in the dataset
+
+    TimeseriesCatalog:
+      type: object
+      required:
+        - datasets
+      properties:
+        datasets:
+          type: array
+          items:
+            $ref: '#/components/schemas/TimeseriesDataset'
+          description: Available timeseries datasets
+
+    TimeseriesMetadata:
+      type: object
+      required:
+        - pointSchemas
+        - granularity
+      properties:
+        pointSchemas:
+          type: array
+          items:
+            $ref: '#/components/schemas/TimeseriesPointSchema'
+          description: Schemas for the points in the timeseries
+        granularity:
+          $ref: '#/components/schemas/TimeseriesInterval'
+          description: Time granularity of the data points
+
+    TimeseriesData:
+      type: object
+      properties:
+        points:
+          type: array
+          items:
+            type: array
+            items:
+              type: number
+            description: Array of values for this data point (timestamp, open, high, low, close, volume, etc.)
+          description: Array of timeseries data points
+
+    V2AssetAthItem:
+      type: object
+      required:
+        - id
+        - name
+        - slug
+        - symbol
+        - category
+        - sector
+        - tags
+        - all_time_high_date
+        - all_time_high
+        - time_since_all_time_high_seconds
+        - percent_down_from_ath
+        - percent_up_to_ath
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the asset
+        name:
+          type: string
+          description: Name of the asset
+        slug:
+          type: string
+          description: Slug of the asset
+        symbol:
+          type: string
+          description: Symbol of the asset
+        category:
+          type: string
+          description: Category of the asset
+        sector:
+          type: string
+          description: Sector of the asset
+        tags:
+          type: array
+          items:
+            type: string
+          description: Tags associated with the asset
+        all_time_high_date:
+          type: string
+          format: date-time
+          description: Date of the all-time high
+        all_time_high:
+          type: number
+          format: float
+          description: Price at the all-time high
+        time_since_all_time_high_seconds:
+          type: number
+          format: float
+          description: Time since all-time high in seconds
+        percent_down_from_ath:
+          type: number
+          format: float
+          description: Percent down from all-time high
+        percent_up_to_ath:
+          type: number
+          format: float
+          description: Percent up to all-time high
+
+    V2AssetRoiItem:
+      type: object
+      required:
+        - id
+        - name
+        - slug
+        - symbol
+        - category
+        - sector
+        - tags
+        - price_change_24h
+        - price_change_7d
+        - price_change_30d
+        - price_change_1y
+        - price_change_3y
+        - price_change_5y
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the asset
+        name:
+          type: string
+          description: Name of the asset
+        slug:
+          type: string
+          description: Slug of the asset
+        symbol:
+          type: string
+          description: Symbol of the asset
+        category:
+          type: string
+          description: Category of the asset
+        sector:
+          type: string
+          description: Sector of the asset
+        tags:
+          type: array
+          items:
+            type: string
+          description: Tags associated with the asset
+        price_change_24h:
+          type: number
+          format: float
+          description: Price change over the last 24 hours
+        price_change_7d:
+          type: number
+          format: float
+          description: Price change over the last 7 days
+        price_change_30d:
+          type: number
+          format: float
+          description: Price change over the last 30 days
+        price_change_1y:
+          type: number
+          format: float
+          description: Price change over the last year
+        price_change_3y:
+          type: number
+          format: float
+          description: Price change over the last 3 years
+        price_change_5y:
+          type: number
+          format: float
+          description: Price change over the last 5 years

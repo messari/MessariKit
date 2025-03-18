@@ -59,6 +59,20 @@ import type {
   AcquisitionDeal,
   getOrganizationsParameters,
   getProjectsParameters,
+  getAssetsV2Parameters,
+  getAssetsV2Response,
+  getAssetDetailsParameters,
+  getAssetDetailsResponse,
+  getAssetsTimeseriesCatalogResponse,
+  getAssetsV2ATHParameters,
+  getAssetsV2ATHResponse,
+  getAssetsV2ROIParameters,
+  getAssetsV2ROIResponse,
+  getAssetTimeseriesParameters,
+  getAssetTimeseriesResponse,
+  getAssetTimeseriesWithGranularityParameters,
+  getAssetTimeseriesWithGranularityResponse,
+  TimeseriesMetadata,
 } from "../types";
 import { LogLevel, type Logger, makeConsoleLogger, createFilteredLogger, noOpLogger } from "../logging";
 import type { PaginatedResult, RequestOptions, ClientEventMap, ClientEventType, ClientEventHandler } from "./types";
@@ -95,6 +109,73 @@ export interface AssetInterface {
    * @returns A paginated result of assets
    */
   getAssetList(params?: getAssetListParameters, options?: RequestOptions): Promise<PaginatedResult<getAssetListResponse["data"], getAssetListParameters>>;
+
+  /**
+   * Gets a paginated list of assets with extended information and coverage details (V2)
+   * @param params Parameters for filtering assets including coverage options
+   * @param options Optional request configuration
+   * @returns A paginated result of assets with extended information
+   */
+  getAssetsV2(params?: getAssetsV2Parameters, options?: RequestOptions): Promise<PaginatedResult<getAssetsV2Response["data"], getAssetsV2Parameters>>;
+
+  /**
+   * Gets detailed information for specific assets by IDs or slugs
+   * @param params Parameters including asset IDs or slugs
+   * @param options Optional request configuration
+   * @returns Promise resolving to detailed asset information
+   */
+  getAssetDetails(params: getAssetDetailsParameters, options?: RequestOptions): Promise<getAssetDetailsResponse>;
+
+  /**
+   * Gets a catalog of available timeseries datasets and metrics for assets
+   * @param options Optional request configuration
+   * @returns Promise resolving to timeseries catalog information
+   */
+  getAssetsTimeseriesCatalog(options?: RequestOptions): Promise<getAssetsTimeseriesCatalogResponse>;
+
+  /**
+   * Gets all-time high information for assets with various filtering options
+   * @param params Parameters for filtering assets
+   * @param options Optional request configuration
+   * @returns A paginated result of assets with ATH information
+   */
+  getAssetsV2ATH(
+    params?: getAssetsV2ATHParameters,
+    options?: RequestOptions,
+  ): Promise<PaginatedResult<getAssetsV2ATHResponse["data"], getAssetsV2ATHParameters>>;
+
+  /**
+   * Gets return on investment information for assets with various filtering options
+   * @param params Parameters for filtering assets
+   * @param options Optional request configuration
+   * @returns A paginated result of assets with ROI information
+   */
+  getAssetsV2ROI(
+    params?: getAssetsV2ROIParameters,
+    options?: RequestOptions,
+  ): Promise<PaginatedResult<getAssetsV2ROIResponse["data"], getAssetsV2ROIParameters>>;
+
+  /**
+   * Gets timeseries data for a specific asset and dataset
+   * @param params Parameters including asset identifier and dataset slug
+   * @param options Optional request configuration
+   * @returns Promise resolving to timeseries data
+   */
+  getAssetTimeseries(
+    params: getAssetTimeseriesParameters,
+    options?: RequestOptions,
+  ): Promise<APIResponseWithMetadata<getAssetTimeseriesResponse, TimeseriesMetadata>>;
+
+  /**
+   * Gets timeseries data for a specific asset and dataset with specific time granularity
+   * @param params Parameters including asset identifier, dataset slug, and granularity
+   * @param options Optional request configuration
+   * @returns Promise resolving to timeseries data
+   */
+  getAssetTimeseriesWithGranularity(
+    params: getAssetTimeseriesWithGranularityParameters,
+    options?: RequestOptions,
+  ): Promise<APIResponseWithMetadata<getAssetTimeseriesWithGranularityResponse, TimeseriesMetadata>>;
 }
 
 /**

@@ -59,6 +59,20 @@ paths:
   # Asset Service Paths
   /asset/v1/assets:
     $ref: './services/asset/openapi.yaml#/paths/~1asset~1v1~1assets'
+  /metrics/v2/assets:
+    $ref: './services/asset/openapi.yaml#/paths/~1metrics~1v2~1assets'
+  /metrics/v2/assets/details:
+    $ref: './services/asset/openapi.yaml#/paths/~1metrics~1v2~1assets~1details'
+  /metrics/v2/assets/metrics:
+    $ref: './services/asset/openapi.yaml#/paths/~1metrics~1v2~1assets~1metrics'
+  /metrics/v2/assets/{entityIdentifier}/metrics/{datasetSlug}/time-series:
+    $ref: './services/asset/openapi.yaml#/paths/~1metrics~1v2~1assets~1{entityIdentifier}~1metrics~1{datasetSlug}~1time-series'
+  /metrics/v2/assets/{entityIdentifier}/metrics/{datasetSlug}/time-series/{granularity}:
+    $ref: './services/asset/openapi.yaml#/paths/~1metrics~1v2~1assets~1{entityIdentifier}~1metrics~1{datasetSlug}~1time-series~1{granularity}'
+  /metrics/v2/assets/ath:
+    $ref: './services/asset/openapi.yaml#/paths/~1metrics~1v2~1assets~1ath'
+  /metrics/v2/assets/roi:
+    $ref: './services/asset/openapi.yaml#/paths/~1metrics~1v2~1assets~1roi'
 
   # Intel Service Paths
   /intel/v1/events:
