@@ -74,20 +74,8 @@ import type {
   getAssetTimeseriesWithGranularityResponse,
   TimeseriesMetadata,
 } from "../types";
-import {
-  LogLevel,
-  type Logger,
-  makeConsoleLogger,
-  createFilteredLogger,
-  noOpLogger,
-} from "../logging";
-import type {
-  PaginatedResult,
-  RequestOptions,
-  ClientEventMap,
-  ClientEventType,
-  ClientEventHandler,
-} from "./types";
+import { LogLevel, type Logger, makeConsoleLogger, createFilteredLogger, noOpLogger } from "../logging";
+import type { PaginatedResult, RequestOptions, ClientEventMap, ClientEventType, ClientEventHandler } from "./types";
 
 /**
  * Interface for the AI API methods
@@ -99,10 +87,7 @@ export interface AIInterface {
    * @param options Optional request configuration
    * @returns A promise resolving to the chat completion response
    */
-  createChatCompletion(
-    params: createChatCompletionParameters,
-    options?: RequestOptions
-  ): Promise<createChatCompletionResponse>;
+  createChatCompletion(params: createChatCompletionParameters, options?: RequestOptions): Promise<createChatCompletionResponse>;
 
   /**
    * Extracts entities from text content
@@ -110,10 +95,7 @@ export interface AIInterface {
    * @param options Optional request configuration
    * @returns A promise resolving to the extracted entities
    */
-  extractEntities(
-    params: extractEntitiesParameters,
-    options?: RequestOptions
-  ): Promise<extractEntitiesResponse>;
+  extractEntities(params: extractEntitiesParameters, options?: RequestOptions): Promise<extractEntitiesResponse>;
 }
 
 /**
@@ -126,12 +108,7 @@ export interface AssetInterface {
    * @param options Optional request configuration
    * @returns A paginated result of assets
    */
-  getAssetList(
-    params?: getAssetListParameters,
-    options?: RequestOptions
-  ): Promise<
-    PaginatedResult<getAssetListResponse["data"], getAssetListParameters>
-  >;
+  getAssetList(params?: getAssetListParameters, options?: RequestOptions): Promise<PaginatedResult<getAssetListResponse["data"], getAssetListParameters>>;
 
   /**
    * Gets a paginated list of assets with extended information and coverage details (V2)
@@ -139,12 +116,7 @@ export interface AssetInterface {
    * @param options Optional request configuration
    * @returns A paginated result of assets with extended information
    */
-  getAssetsV2(
-    params?: getAssetsV2Parameters,
-    options?: RequestOptions
-  ): Promise<
-    PaginatedResult<getAssetsV2Response["data"], getAssetsV2Parameters>
-  >;
+  getAssetsV2(params?: getAssetsV2Parameters, options?: RequestOptions): Promise<PaginatedResult<getAssetsV2Response["data"], getAssetsV2Parameters>>;
 
   /**
    * Gets detailed information for specific assets by IDs or slugs
@@ -152,19 +124,14 @@ export interface AssetInterface {
    * @param options Optional request configuration
    * @returns Promise resolving to detailed asset information
    */
-  getAssetDetails(
-    params: getAssetDetailsParameters,
-    options?: RequestOptions
-  ): Promise<getAssetDetailsResponse>;
+  getAssetDetails(params: getAssetDetailsParameters, options?: RequestOptions): Promise<getAssetDetailsResponse>;
 
   /**
    * Gets a catalog of available timeseries datasets and metrics for assets
    * @param options Optional request configuration
    * @returns Promise resolving to timeseries catalog information
    */
-  getAssetsTimeseriesCatalog(
-    options?: RequestOptions
-  ): Promise<getAssetsTimeseriesCatalogResponse>;
+  getAssetsTimeseriesCatalog(options?: RequestOptions): Promise<getAssetsTimeseriesCatalogResponse>;
 
   /**
    * Gets all-time high information for assets with various filtering options
@@ -174,10 +141,8 @@ export interface AssetInterface {
    */
   getAssetsV2ATH(
     params?: getAssetsV2ATHParameters,
-    options?: RequestOptions
-  ): Promise<
-    PaginatedResult<getAssetsV2ATHResponse["data"], getAssetsV2ATHParameters>
-  >;
+    options?: RequestOptions,
+  ): Promise<PaginatedResult<getAssetsV2ATHResponse["data"], getAssetsV2ATHParameters>>;
 
   /**
    * Gets return on investment information for assets with various filtering options
@@ -187,10 +152,8 @@ export interface AssetInterface {
    */
   getAssetsV2ROI(
     params?: getAssetsV2ROIParameters,
-    options?: RequestOptions
-  ): Promise<
-    PaginatedResult<getAssetsV2ROIResponse["data"], getAssetsV2ROIParameters>
-  >;
+    options?: RequestOptions,
+  ): Promise<PaginatedResult<getAssetsV2ROIResponse["data"], getAssetsV2ROIParameters>>;
 
   /**
    * Gets timeseries data for a specific asset and dataset
@@ -200,10 +163,8 @@ export interface AssetInterface {
    */
   getAssetTimeseries(
     params: getAssetTimeseriesParameters,
-    options?: RequestOptions
-  ): Promise<
-    APIResponseWithMetadata<getAssetTimeseriesResponse, TimeseriesMetadata>
-  >;
+    options?: RequestOptions,
+  ): Promise<APIResponseWithMetadata<getAssetTimeseriesResponse, TimeseriesMetadata>>;
 
   /**
    * Gets timeseries data for a specific asset and dataset with specific time granularity
@@ -213,13 +174,8 @@ export interface AssetInterface {
    */
   getAssetTimeseriesWithGranularity(
     params: getAssetTimeseriesWithGranularityParameters,
-    options?: RequestOptions
-  ): Promise<
-    APIResponseWithMetadata<
-      getAssetTimeseriesWithGranularityResponse,
-      TimeseriesMetadata
-    >
-  >;
+    options?: RequestOptions,
+  ): Promise<APIResponseWithMetadata<getAssetTimeseriesWithGranularityResponse, TimeseriesMetadata>>;
 }
 
 /**
@@ -232,12 +188,7 @@ export interface IntelInterface {
    * @param options Optional request configuration
    * @returns A paginated result of events
    */
-  getAllEvents(
-    params?: getAllEventsParameters,
-    options?: RequestOptions
-  ): Promise<
-    PaginatedResult<getAllEventsResponse["data"], getAllEventsParameters>
-  >;
+  getAllEvents(params?: getAllEventsParameters, options?: RequestOptions): Promise<PaginatedResult<getAllEventsResponse["data"], getAllEventsParameters>>;
 
   /**
    * Gets a specific event by ID along with its history
@@ -245,10 +196,7 @@ export interface IntelInterface {
    * @param options Optional request configuration
    * @returns A promise resolving to the event and its history
    */
-  getById(
-    params: getEventAndHistoryParameters,
-    options?: RequestOptions
-  ): Promise<getEventAndHistoryResponse>;
+  getById(params: getEventAndHistoryParameters, options?: RequestOptions): Promise<getEventAndHistoryResponse>;
 
   /**
    * Gets all assets with optional filtering
@@ -256,12 +204,7 @@ export interface IntelInterface {
    * @param options Optional request configuration
    * @returns A paginated result of assets
    */
-  getAllAssets(
-    params?: getAllAssetsParameters,
-    options?: RequestOptions
-  ): Promise<
-    PaginatedResult<getAllAssetsResponse["data"], getAllAssetsParameters>
-  >;
+  getAllAssets(params?: getAllAssetsParameters, options?: RequestOptions): Promise<PaginatedResult<getAllAssetsResponse["data"], getAllAssetsParameters>>;
 }
 
 /**
@@ -274,12 +217,7 @@ export interface NewsInterface {
    * @param options Optional request configuration
    * @returns A paginated result of news items
    */
-  getNewsFeedPaginated(
-    params: getNewsFeedParameters,
-    options?: RequestOptions
-  ): Promise<
-    PaginatedResult<getNewsFeedResponse["data"], getNewsFeedParameters>
-  >;
+  getNewsFeedPaginated(params: getNewsFeedParameters, options?: RequestOptions): Promise<PaginatedResult<getNewsFeedResponse["data"], getNewsFeedParameters>>;
 
   /**
    * Gets assets mentioned in news with pagination
@@ -289,13 +227,8 @@ export interface NewsInterface {
    */
   getNewsFeedAssetsPaginated(
     params: getNewsFeedAssetsParameters,
-    options?: RequestOptions
-  ): Promise<
-    PaginatedResult<
-      getNewsFeedAssetsResponse["data"],
-      getNewsFeedAssetsParameters
-    >
-  >;
+    options?: RequestOptions,
+  ): Promise<PaginatedResult<getNewsFeedAssetsResponse["data"], getNewsFeedAssetsParameters>>;
 
   /**
    * Gets news sources with pagination
@@ -305,10 +238,8 @@ export interface NewsInterface {
    */
   getNewsSourcesPaginated(
     params: getNewsSourcesParameters,
-    options?: RequestOptions
-  ): Promise<
-    PaginatedResult<getNewsSourcesResponse["data"], getNewsSourcesParameters>
-  >;
+    options?: RequestOptions,
+  ): Promise<PaginatedResult<getNewsSourcesResponse["data"], getNewsSourcesParameters>>;
 }
 
 /**
@@ -320,9 +251,7 @@ export interface MarketsInterface {
    * @param params Parameters including the asset ID
    * @returns A promise resolving to the asset price data
    */
-  getAssetPrice(
-    params: getAssetMarketdataParameters
-  ): Promise<getAssetMarketdataResponse>;
+  getAssetPrice(params: getAssetMarketdataParameters): Promise<getAssetMarketdataResponse>;
 
   /**
    * Gets ROI data for a specific asset
@@ -360,18 +289,14 @@ export interface RecapsAPIInterface {
    * @param params.project_id The project ID to get the recap for
    * @return The recaps for the given project
    */
-  getProjectRecap(
-    params: getProjectRecapParameters
-  ): Promise<getProjectRecapResponse>;
+  getProjectRecap(params: getProjectRecapParameters): Promise<getProjectRecapResponse>;
 
   /**
    * Gets the detailed recap for a single exchange. Includes performance summary, volume data, and news items with summaries
    * @param params.exchange_id The exchange ID to get the recap for
    * @return The recap for the given exchange
    */
-  getExchangeRecap(
-    params: getExchangeRecapParameters
-  ): Promise<getExchangeRecapResponse>;
+  getExchangeRecap(params: getExchangeRecapParameters): Promise<getExchangeRecapResponse>;
 
   /**
    * Gets overall performance summary for all exchanges, their ranking by volume and news items with summaries
@@ -390,10 +315,7 @@ export interface ResearchInterface {
    * @param options Optional request configuration
    * @returns A promise resolving to the research reports
    */
-  getResearchReports(
-    params: getResearchReportsParameters,
-    options?: RequestOptions
-  ): Promise<getResearchReportsResponse>;
+  getResearchReports(params: getResearchReportsParameters, options?: RequestOptions): Promise<getResearchReportsResponse>;
 
   /**
    * Gets a specific research report by ID
@@ -401,19 +323,14 @@ export interface ResearchInterface {
    * @param options Optional request configuration
    * @returns A promise resolving to the research report
    */
-  getResearchReportById(
-    params: getResearchReportByIdParameters,
-    options?: RequestOptions
-  ): Promise<getResearchReportByIdResponse>;
+  getResearchReportById(params: getResearchReportByIdParameters, options?: RequestOptions): Promise<getResearchReportByIdResponse>;
 
   /**
    * Gets all available research report tags
    * @param options Optional request configuration
    * @returns A promise that resolves when the operation completes
    */
-  getResearchReportTags(
-    options?: RequestOptions
-  ): Promise<getResearchReportTagsResponse>;
+  getResearchReportTags(options?: RequestOptions): Promise<getResearchReportTagsResponse>;
 }
 
 /**
@@ -431,9 +348,7 @@ export interface DiligenceAPIInterface {
    * @param params The parameters for the diligence report
    * @return The diligence report
    */
-  getDiligenceReport(
-    params: getReportByAssetIDParameters
-  ): Promise<getReportByAssetIDResponse>;
+  getDiligenceReport(params: getReportByAssetIDParameters): Promise<getReportByAssetIDResponse>;
 }
 
 /**
@@ -444,67 +359,42 @@ export interface FundraisingAPIInterface {
    * Gets a list of all fundraising rounds based on provided filters
    * @param params Query parameters for filtering funding rounds
    */
-  getFundingRounds(
-    params?: getFundingRoundsParameters
-  ): Promise<APIResponseWithMetadata<FundingRound[]>>;
+  getFundingRounds(params?: getFundingRoundsParameters): Promise<APIResponseWithMetadata<FundingRound[]>>;
 
   /**
    * Gets a list of all investors for a given fundraising round
    * @param params Query parameters for filtering investors
    */
-  getFundingRoundsInvestors(
-    params?: getFundingRoundsInvestorsParameters
-  ): Promise<APIResponseWithMetadata<Investors[]>>;
+  getFundingRoundsInvestors(params?: getFundingRoundsInvestorsParameters): Promise<APIResponseWithMetadata<Investors[]>>;
 
   /**
    * Gets a list of all acquisition deals based on provided filters
    * @param params Query parameters for filtering acquisition deals
    */
-  getAcquisitionDeals(
-    params?: getAcquisitionDealsParameters
-  ): Promise<APIResponseWithMetadata<AcquisitionDeal[]>>;
+  getAcquisitionDeals(params?: getAcquisitionDealsParameters): Promise<APIResponseWithMetadata<AcquisitionDeal[]>>;
 
   /**
    * Gets a list of all organizations based on provided filters
    * @param params Query parameters for filtering organizations
    */
-  getOrganizations(
-    params?: getOrganizationsParameters
-  ): Promise<APIResponseWithMetadata<Organization[]>>;
+  getOrganizations(params?: getOrganizationsParameters): Promise<APIResponseWithMetadata<Organization[]>>;
 
   /**
    * Gets a list of all projects based on provided filters
    * @param params Query parameters for filtering projects
    */
-  getProjects(
-    params?: getProjectsParameters
-  ): Promise<APIResponseWithMetadata<Project[]>>;
+  getProjects(params?: getProjectsParameters): Promise<APIResponseWithMetadata<Project[]>>;
 }
 
 /**
  * Interface for the Token Unlocks API methods
  */
 export interface TokenUnlocksInterface {
-  getSupportedAssets(
-    params?: getTokenUnlockSupportedAssetsParameters,
-    options?: RequestOptions
-  ): Promise<getTokenUnlockSupportedAssetsResponse>;
-  getAllocations(
-    params?: getTokenUnlockAllocationsParameters,
-    options?: RequestOptions
-  ): Promise<getTokenUnlockAllocationsResponse>;
-  getVestingSchedule(
-    params: getTokenUnlockVestingScheduleParameters,
-    options?: RequestOptions
-  ): Promise<getTokenUnlockVestingScheduleResponse>;
-  getUnlocks(
-    params: getTokenUnlocksParameters,
-    options?: RequestOptions
-  ): Promise<getTokenUnlocksResponse>;
-  getEvents(
-    params: getTokenUnlockEventsParameters,
-    options?: RequestOptions
-  ): Promise<getTokenUnlockEventsResponse>;
+  getSupportedAssets(params?: getTokenUnlockSupportedAssetsParameters, options?: RequestOptions): Promise<getTokenUnlockSupportedAssetsResponse>;
+  getAllocations(params?: getTokenUnlockAllocationsParameters, options?: RequestOptions): Promise<getTokenUnlockAllocationsResponse>;
+  getVestingSchedule(params: getTokenUnlockVestingScheduleParameters, options?: RequestOptions): Promise<getTokenUnlockVestingScheduleResponse>;
+  getUnlocks(params: getTokenUnlocksParameters, options?: RequestOptions): Promise<getTokenUnlocksResponse>;
+  getEvents(params: getTokenUnlockEventsParameters, options?: RequestOptions): Promise<getTokenUnlockEventsResponse>;
 }
 
 /**
@@ -575,10 +465,7 @@ export abstract class MessariClientBase {
   /**
    * Event handlers for the client
    */
-  protected abstract readonly eventHandlers: Map<
-    ClientEventType,
-    Set<ClientEventHandler<ClientEventType>>
-  >;
+  protected abstract readonly eventHandlers: Map<ClientEventType, Set<ClientEventHandler<ClientEventType>>>;
 
   /**
    * Constructor for the MessariClientBase class
@@ -694,16 +581,11 @@ export abstract class MessariClientBase {
    * @param event The event type to listen for
    * @param handler The handler function to call when the event occurs
    */
-  public on<T extends ClientEventType>(
-    event: T,
-    handler: ClientEventHandler<T>
-  ): void {
+  public on<T extends ClientEventType>(event: T, handler: ClientEventHandler<T>): void {
     if (!this.eventHandlers.has(event)) {
       this.eventHandlers.set(event, new Set());
     }
-    this.eventHandlers
-      .get(event)
-      ?.add(handler as ClientEventHandler<ClientEventType>);
+    this.eventHandlers.get(event)?.add(handler as ClientEventHandler<ClientEventType>);
   }
 
   /**
@@ -711,14 +593,9 @@ export abstract class MessariClientBase {
    * @param event The event type to remove the handler from
    * @param handler The handler function to remove
    */
-  public off<T extends ClientEventType>(
-    event: T,
-    handler: ClientEventHandler<T>
-  ): void {
+  public off<T extends ClientEventType>(event: T, handler: ClientEventHandler<T>): void {
     if (this.eventHandlers.has(event)) {
-      this.eventHandlers
-        .get(event)
-        ?.delete(handler as ClientEventHandler<ClientEventType>);
+      this.eventHandlers.get(event)?.delete(handler as ClientEventHandler<ClientEventType>);
     }
   }
 
@@ -727,10 +604,7 @@ export abstract class MessariClientBase {
    * @param event The event type to emit
    * @param data The event data to pass to handlers
    */
-  protected emit<T extends ClientEventType>(
-    event: T,
-    data: ClientEventMap[T]
-  ): void {
+  protected emit<T extends ClientEventType>(event: T, data: ClientEventMap[T]): void {
     if (this.eventHandlers.has(event)) {
       for (const handler of this.eventHandlers.get(event) || []) {
         try {

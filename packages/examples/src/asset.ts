@@ -21,7 +21,6 @@ if (!API_KEY) {
 const client = new MessariClient({
   apiKey: API_KEY,
   logLevel: LogLevel.INFO,
-  baseUrl: "https://api-stage.messari.io",
 });
 
 const newAssetTable = () => {
