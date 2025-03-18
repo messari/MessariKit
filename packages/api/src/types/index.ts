@@ -651,5 +651,125 @@ export const getTokenUnlockEvents = {
   path: (p: PathParams) => `/token-unlocks/v1/assets/${p.assetId}/events`,
 } as const;
 
+
+export type getTeamAllowanceResponse = components['schemas']['AllowanceInfo'];
+export type getTeamAllowanceError = components['schemas']['APIError'];
+
+export type getTeamAllowanceParameters = null;
+
+
+export const getTeamAllowance = {
+  method: 'GET' as const,
+  pathParams: [] as const,
+  queryParams: [] as const,
+  bodyParams: [] as const,
+  path: () => '/user-management/v1/api/credits/allowance'
+} as const;
+
+
+export type getPermissionsResponse = components['schemas']['PermissionsResponse'];
+export type getPermissionsError = components['schemas']['APIError'];
+
+export type getPermissionsParameters = null;
+
+
+export const getPermissions = {
+  method: 'GET' as const,
+  pathParams: [] as const,
+  queryParams: [] as const,
+  bodyParams: [] as const,
+  path: () => '/user-management/v1/api/permissions'
+} as const;
+
+
+export type listWatchlistsResponse = components['schemas']['Watchlist'];
+export type listWatchlistsError = components['schemas']['APIError'];
+
+export type listWatchlistsParameters = null;
+
+
+export const listWatchlists = {
+  method: 'GET' as const,
+  pathParams: [] as const,
+  queryParams: [] as const,
+  bodyParams: [] as const,
+  path: () => '/user-management/v1/watchlists'
+} as const;
+
+
+export type createWatchlistResponse = void;
+export type createWatchlistError = components['schemas']['APIError'];
+
+export type createWatchlistParameters = components['schemas']['CreateWatchlistRequest'];
+
+
+export const createWatchlist = {
+  method: 'POST' as const,
+  pathParams: [] as const,
+  queryParams: [] as const,
+  bodyParams: ['assetIds', 'title'] as const,
+  path: () => '/user-management/v1/watchlists'
+} as const;
+
+
+export type deleteWatchlistResponse = components['schemas']['APIResponse'];
+export type deleteWatchlistError = components['schemas']['APIError'];
+
+export type deleteWatchlistParameters = { id: string };
+
+
+export const deleteWatchlist = {
+  method: 'DELETE' as const,
+  pathParams: ['id'] as const,
+  queryParams: [] as const,
+  bodyParams: [] as const,
+  path: (p: PathParams) => `/user-management/v1/watchlists/${p.id}`
+} as const;
+
+
+export type getWatchlistResponse = components['schemas']['Watchlist'];
+export type getWatchlistError = components['schemas']['APIError'];
+
+export type getWatchlistParameters = { id: string };
+
+
+export const getWatchlist = {
+  method: 'GET' as const,
+  pathParams: ['id'] as const,
+  queryParams: [] as const,
+  bodyParams: [] as const,
+  path: (p: PathParams) => `/user-management/v1/watchlists/${p.id}`
+} as const;
+
+
+export type updateWatchlistResponse = components['schemas']['Watchlist'];
+export type updateWatchlistError = components['schemas']['APIError'];
+
+export type updateWatchlistParameters = components['schemas']['UpdateWatchlistRequest'] & { id: string };
+
+
+export const updateWatchlist = {
+  method: 'PATCH' as const,
+  pathParams: ['id'] as const,
+  queryParams: [] as const,
+  bodyParams: ['assetIds', 'title', 'watchlistID'] as const,
+  path: (p: PathParams) => `/user-management/v1/watchlists/${p.id}`
+} as const;
+
+
+export type modifyWatchlistAssetsResponse = components['schemas']['Watchlist'];
+export type modifyWatchlistAssetsError = components['schemas']['APIError'];
+
+export type modifyWatchlistAssetsParameters = components['schemas']['ModifyWatchlistAssetsRequest'] & { id: string };
+
+
+export const modifyWatchlistAssets = {
+  method: 'PATCH' as const,
+  pathParams: ['id'] as const,
+  queryParams: [] as const,
+  bodyParams: ['action', 'assetIds', 'watchlistID'] as const,
+  path: (p: PathParams) => `/user-management/v1/watchlists/${p.id}/assets`
+} as const;
+
 // Re-export schema types
 export * from "./schema";

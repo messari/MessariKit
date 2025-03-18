@@ -280,6 +280,56 @@ export type paths = {
      */
     get: operations["getTokenUnlockVestingSchedule"];
   };
+  "/user-management/v1/api/credits/allowance": {
+    /**
+     * Get a team's current credit allowance
+     * @description Get a team's current credit allowance
+     */
+    get: operations["getTeamAllowance"];
+  };
+  "/user-management/v1/api/permissions": {
+    /**
+     * Get all permissions with active status
+     * @description Returns all available permissions with flags indicating which ones are granted to the current user
+     */
+    get: operations["getPermissions"];
+  };
+  "/user-management/v1/watchlists": {
+    /**
+     * List user's watchlists
+     * @description Get all watchlists for the authenticated user
+     */
+    get: operations["listWatchlists"];
+    /**
+     * Create a new watchlist
+     * @description Create a new watchlist for the authenticated user
+     */
+    post: operations["createWatchlist"];
+  };
+  "/user-management/v1/watchlists/{id}": {
+    /**
+     * Get a watchlist
+     * @description Get a specific watchlist by ID for the authenticated user
+     */
+    get: operations["getWatchlist"];
+    /**
+     * Delete a watchlist
+     * @description Delete a specific watchlist by ID for the authenticated user
+     */
+    delete: operations["deleteWatchlist"];
+    /**
+     * Update a watchlist
+     * @description Update a specific watchlist by ID for the authenticated user
+     */
+    patch: operations["updateWatchlist"];
+  };
+  "/user-management/v1/watchlists/{id}/assets": {
+    /**
+     * Modify watchlist assets
+     * @description Modify the assets in a specific watchlist by ID for the authenticated user
+     */
+    patch: operations["modifyWatchlistAssets"];
+  };
 };
 
 export type webhooks = Record<string, never>;
@@ -313,6 +363,15 @@ export type components = {
      * @enum {string}
      */
     AcquisitionDealStatus: "Announced" | "Completed" | "Canceled";
+    AllowanceInfo: {
+      creditsAllocated?: number;
+      endDate?: string;
+      id?: string;
+      isActive?: boolean;
+      remainingCredits?: number;
+      startDate?: string;
+      teamId?: number;
+    };
     /** @description Announcement details (to be defined) */
     Announcement: Record<string, never>;
     APIError: {
@@ -574,6 +633,10 @@ export type components = {
     ChatCompletionResponseMetadata: {
       /** @description Current status of the chat completion */
       status: string;
+    };
+    CreateWatchlistRequest: {
+      assetIds?: string[];
+      title?: string;
     };
     Document: {
       /** @description Assets mentioned in the document */
@@ -994,6 +1057,12 @@ export type components = {
       /** @description List of projects that invested */
       projects?: components["schemas"]["Project"][];
     };
+    ModifyWatchlistAssetsAction: string;
+    ModifyWatchlistAssetsRequest: {
+      action: components["schemas"]["ModifyWatchlistAssetsAction"];
+      assetIds: string[];
+      watchlistID: string;
+    };
     /** @description Network metrics data */
     NetworkMetrics: {
       active_addresses?: number;
@@ -1082,6 +1151,18 @@ export type components = {
        * @example 100
        */
       total?: number;
+    };
+    Permission: {
+      /** @description Indicates whether the permission is granted to the user */
+      active?: boolean;
+      name?: string;
+      permissionSlug?: string;
+    };
+    PermissionsResponse: {
+      expiresAt?: string;
+      hasAllAccess?: boolean;
+      hasFullMarketDataGranularity?: boolean;
+      permissions?: components["schemas"]["Permission"][];
     };
     /** @description Person details (to be defined) */
     Person: Record<string, never>;
@@ -1744,6 +1825,13 @@ export type components = {
       /** @description Tags associated with the asset */
       tags: string[];
     };
+    UpdateWatchlistRequest: {
+      /** @description Optional: if not provided, the watchlist assets will not be updated. But if empty, all assets will be removed. */
+      assetIds?: string[];
+      /** @description Optional: if not provided, the watchlist title will not be updated */
+      title?: string;
+      watchlistID: string;
+    };
     /** @description Video and podcast ranking information */
     VideoPodcastResponse: {
       summary?: {
@@ -1754,6 +1842,13 @@ export type components = {
         title?: string;
         url?: string;
       }[];
+    };
+    Watchlist: {
+      assetIds?: string[];
+      createdAt?: string;
+      id?: string;
+      title?: string;
+      updatedAt?: string;
     };
   };
   responses: {
@@ -3369,6 +3464,314 @@ export type operations = {
         };
       };
       /** @description Server error response */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+    };
+  };
+  /**
+   * Get a team's current credit allowance
+   * @description Get a team's current credit allowance
+   */
+  getTeamAllowance: {
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["AllowanceInfo"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+    };
+  };
+  /**
+   * Get all permissions with active status
+   * @description Returns all available permissions with flags indicating which ones are granted to the current user
+   */
+  getPermissions: {
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["PermissionsResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Bad Request */
+      401: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Bad Request */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+    };
+  };
+  /**
+   * List user's watchlists
+   * @description Get all watchlists for the authenticated user
+   */
+  listWatchlists: {
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["APIResponse"] & {
+            data?: components["schemas"]["Watchlist"];
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+    };
+  };
+  /**
+   * Create a new watchlist
+   * @description Create a new watchlist for the authenticated user
+   */
+  createWatchlist: {
+    /** @description Create watchlist request */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateWatchlistRequest"];
+      };
+    };
+    responses: {
+      /** @description Created */
+      201: {
+        content: {
+          "application/json": components["schemas"]["APIResponse"] & {
+            data?: components["schemas"]["Watchlist"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Bad Request */
+      403: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Bad Request */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+    };
+  };
+  /**
+   * Get a watchlist
+   * @description Get a specific watchlist by ID for the authenticated user
+   */
+  getWatchlist: {
+    parameters: {
+      path: {
+        /** @description Watchlist ID */
+        id: string;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["APIResponse"] & {
+            data?: components["schemas"]["Watchlist"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Bad Request */
+      404: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Bad Request */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+    };
+  };
+  /**
+   * Delete a watchlist
+   * @description Delete a specific watchlist by ID for the authenticated user
+   */
+  deleteWatchlist: {
+    parameters: {
+      path: {
+        /** @description Watchlist ID */
+        id: string;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["APIResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Bad Request */
+      403: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Bad Request */
+      404: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Bad Request */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+    };
+  };
+  /**
+   * Update a watchlist
+   * @description Update a specific watchlist by ID for the authenticated user
+   */
+  updateWatchlist: {
+    parameters: {
+      path: {
+        /** @description Watchlist ID */
+        id: string;
+      };
+    };
+    /** @description Update watchlist request */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateWatchlistRequest"];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["APIResponse"] & {
+            data?: components["schemas"]["Watchlist"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Bad Request */
+      403: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Bad Request */
+      404: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Bad Request */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+    };
+  };
+  /**
+   * Modify watchlist assets
+   * @description Modify the assets in a specific watchlist by ID for the authenticated user
+   */
+  modifyWatchlistAssets: {
+    parameters: {
+      path: {
+        /** @description Watchlist ID */
+        id: string;
+      };
+    };
+    /** @description Modify watchlist assets request */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ModifyWatchlistAssetsRequest"];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["APIResponse"] & {
+            data?: components["schemas"]["Watchlist"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Bad Request */
+      403: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Bad Request */
+      404: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Bad Request */
       500: {
         content: {
           "application/json": components["schemas"]["APIError"];

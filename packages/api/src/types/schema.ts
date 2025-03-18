@@ -17,6 +17,8 @@ export type AcquisitionDeal = components["schemas"]["AcquisitionDeal"];
 
 export type AcquisitionDealStatus = components["schemas"]["AcquisitionDealStatus"];
 
+export type AllowanceInfo = components["schemas"]["AllowanceInfo"];
+
 export type Announcement = components["schemas"]["Announcement"];
 
 export type Asset = components["schemas"]["Asset"];
@@ -48,6 +50,8 @@ export type ChatCompletionRequest = components["schemas"]["ChatCompletionRequest
 export type ChatCompletionResponse = components["schemas"]["ChatCompletionResponse"];
 
 export type ChatCompletionResponseMetadata = components["schemas"]["ChatCompletionResponseMetadata"];
+
+export type CreateWatchlistRequest = components["schemas"]["CreateWatchlistRequest"];
 
 export type Document = components["schemas"]["Document"];
 
@@ -103,6 +107,10 @@ export type IntelResponse = components["schemas"]["IntelResponse"];
 
 export type Investors = components["schemas"]["Investors"];
 
+export type ModifyWatchlistAssetsAction = components["schemas"]["ModifyWatchlistAssetsAction"];
+
+export type ModifyWatchlistAssetsRequest = components["schemas"]["ModifyWatchlistAssetsRequest"];
+
 export type NetworkMetrics = components["schemas"]["NetworkMetrics"];
 
 export type NewsAsset = components["schemas"]["NewsAsset"];
@@ -114,6 +122,10 @@ export type OHLCV = components["schemas"]["OHLCV"];
 export type Organization = components["schemas"]["Organization"];
 
 export type PaginationResult = components["schemas"]["PaginationResult"];
+
+export type Permission = components["schemas"]["Permission"];
+
+export type PermissionsResponse = components["schemas"]["PermissionsResponse"];
 
 export type Person = components["schemas"]["Person"];
 
@@ -192,3 +204,7 @@ export type V2AssetROI = components["schemas"]["V2AssetROI"];
 export type V2AssetRoiItem = components["schemas"]["V2AssetRoiItem"];
 
 export type VideoPodcastResponse = components["schemas"]["VideoPodcastResponse"];
+
+export type UpdateWatchlistRequest = components["schemas"]["UpdateWatchlistRequest"];
+
+export type Watchlist = components["schemas"]["Watchlist"];
