@@ -53,7 +53,7 @@ Different subscription tiers provide different levels of access to the API. See 
 ```json
 {
   "mcpServers": {
-    "perplexity-ask": {
+    "messari-copilot": {
       "command": "npx",
       "args": [
         "-y",
@@ -112,7 +112,7 @@ If you need more than 50 requests per day, you can contact Messari's sales team 
 
 ### Troubleshooting 
 
-The Claude documentation provides an excellent [troubleshooting guide](https://modelcontextprotocol.io/docs/tools/debugging) you can refer to. However, you can still reach out to us at api@perplexity.ai for any additional support or [file a bug](https://github.com/messari/MessariKit/issues). 
+The Claude documentation provides an excellent [troubleshooting guide](https://modelcontextprotocol.io/docs/tools/debugging) you can refer to. However, you can still reach out to us at contact@messari.io for any additional support or [file a bug](https://github.com/messari/MessariKit/issues). 
 
 
 ## License
