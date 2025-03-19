@@ -73,7 +73,7 @@ export const getAssetsV2 = {
   pathParams: [] as const,
   queryParams: ['page', 'limit', 'category', 'sector', 'tags', 'search', 'has_diligence', 'has_intel', 'has_market_data', 'has_news', 'has_proposals', 'has_research', 'has_token_unlocks', 'has_fundraising'] as const,
   bodyParams: [] as const,
-  path: () => '/v2/assets'
+  path: () => '/metrics/v2/assets'
 } as const;
 
 
@@ -88,7 +88,7 @@ export const getAssetDetails = {
   pathParams: [] as const,
   queryParams: ['ids', 'slugs'] as const,
   bodyParams: [] as const,
-  path: () => '/v2/assets/details'
+  path: () => '/metrics/v2/assets/details'
 } as const;
 
 
@@ -103,7 +103,7 @@ export const getAssetsTimeseriesCatalog = {
   pathParams: [] as const,
   queryParams: [] as const,
   bodyParams: [] as const,
-  path: () => '/v2/assets/metrics'
+  path: () => '/metrics/v2/assets/metrics'
 } as const;
 
 
@@ -118,7 +118,7 @@ export const getAssetTimeseries = {
   pathParams: ['entityIdentifier', 'datasetSlug'] as const,
   queryParams: ['start', 'end'] as const,
   bodyParams: [] as const,
-  path: (p: PathParams) => `/v2/assets/${p.entityIdentifier}/metrics/${p.datasetSlug}/time-series`
+  path: (p: PathParams) => `/metrics/v2/assets/${p.entityIdentifier}/metrics/${p.datasetSlug}/time-series`
 } as const;
 
 
@@ -133,7 +133,7 @@ export const getAssetTimeseriesWithGranularity = {
   pathParams: ['entityIdentifier', 'datasetSlug', 'granularity'] as const,
   queryParams: ['start', 'end'] as const,
   bodyParams: [] as const,
-  path: (p: PathParams) => `/v2/assets/${p.entityIdentifier}/metrics/${p.datasetSlug}/time-series/${p.granularity}`
+  path: (p: PathParams) => `/metrics/v2/assets/${p.entityIdentifier}/metrics/${p.datasetSlug}/time-series/${p.granularity}`
 } as const;
 
 
@@ -148,7 +148,7 @@ export const getAssetsV2ATH = {
   pathParams: [] as const,
   queryParams: ['page', 'limit', 'category', 'sector', 'tags', 'search'] as const,
   bodyParams: [] as const,
-  path: () => '/v2/assets/ath'
+  path: () => '/metrics/v2/assets/ath'
 } as const;
 
 
@@ -163,7 +163,7 @@ export const getAssetsV2ROI = {
   pathParams: [] as const,
   queryParams: ['page', 'limit', 'category', 'sector', 'tags', 'search'] as const,
   bodyParams: [] as const,
-  path: () => '/v2/assets/roi'
+  path: () => '/metrics/v2/assets/roi'
 } as const;
 
 
