@@ -27,12 +27,12 @@ const client = new MessariClient({
 export async function getAssetsATHInfo() {
   try {
     // Retrieve all assets
-    const response = await client.asset.getAssetDetails({});
+    const response = await client.asset.getAssetsV2ATH({});
 
     // Sort assets by percentDownFromAllTimeHigh
-    const sortedAssets = response.sort((a, b) => {
-      const aDownPercent = a.allTimeHigh?.percentDownFromAllTimeHigh ?? 100;
-      const bDownPercent = b.allTimeHigh?.percentDownFromAllTimeHigh ?? 100;
+    const sortedAssets = response.data.sort((a, b) => {
+      const aDownPercent = a.allTimeHigh?.allTimeHighPercentDown ?? 100;
+      const bDownPercent = b.allTimeHigh?.allTimeHighPercentDown ?? 100;
       return aDownPercent - bDownPercent;
     });
 
@@ -43,9 +43,10 @@ export async function getAssetsATHInfo() {
         { name: "Symbol", alignment: "left" },
         { name: "ATH Date", alignment: "left" },
         { name: "ATH Price", alignment: "right" },
-        { name: "Current Price", alignment: "right" },
         { name: "Down from ATH", alignment: "right" },
-        { name: "Up to recover ATH", alignment: "right" },
+        { name: "Cycle Low Date", alignment: "left" },
+        { name: "Cycle Low Price", alignment: "right" },
+        { name: "Up from Cycle Low", alignment: "right" },
       ],
     });
 
@@ -59,37 +60,34 @@ export async function getAssetsATHInfo() {
       const athDate = asset.allTimeHigh?.allTimeHighDate ? new Date(asset.allTimeHigh.allTimeHighDate).toLocaleDateString() : "N/A";
       const athPrice = asset.allTimeHigh?.allTimeHigh
         ? asset.allTimeHigh.allTimeHigh.toLocaleString("en-US", {
-            style: "currency",
-            currency: "USD",
-            minimumFractionDigits: 3,
-            maximumFractionDigits: 3,
-          })
+          style: "currency",
+          currency: "USD",
+          minimumFractionDigits: 3,
+          maximumFractionDigits: 3,
+        })
         : "N/A";
-      const currentPrice = asset.marketData?.priceUsd
-        ? asset.marketData.priceUsd.toLocaleString("en-US", {
-            style: "currency",
-            currency: "USD",
-            minimumFractionDigits: 3,
-            maximumFractionDigits: 3,
-          })
-        : "N/A";
-      const downFromAth = asset.allTimeHigh?.percentDownFromAllTimeHigh ? `${asset.allTimeHigh.percentDownFromAllTimeHigh.toFixed(2)}%` : "N/A";
+      const downFromAth = asset.allTimeHigh?.allTimeHighPercentDown ? `${asset.allTimeHigh.allTimeHighPercentDown.toFixed(2)}%` : "N/A";
 
-      let upToRecover = "N/A";
-      if (asset.allTimeHigh?.percentDownFromAllTimeHigh) {
-        const percentDown = asset.allTimeHigh.percentDownFromAllTimeHigh;
-        const recoveryPercentage = (100 / (1 - percentDown / 100) - 100).toFixed(2);
-        upToRecover = `${recoveryPercentage}%`;
-      }
+      const cycleLowDate = asset.allTimeHigh?.cycleLowDate ? new Date(asset.allTimeHigh.cycleLowDate).toLocaleDateString() : "N/A";
+      const cycleLowPrice = asset.allTimeHigh?.cycleLow
+        ? asset.allTimeHigh.cycleLow.toLocaleString("en-US", {
+          style: "currency",
+          currency: "USD",
+          minimumFractionDigits: 3,
+          maximumFractionDigits: 3,
+        })
+        : "N/A";
+      const upFromCycleLow = asset.allTimeHigh?.cycleLowPercentUp ? `${asset.allTimeHigh.cycleLowPercentUp.toFixed(2)}%` : "N/A";
 
       t.addRow({
         Name: asset.name,
         Symbol: asset.symbol,
         "ATH Date": athDate,
         "ATH Price": athPrice,
-        "Current Price": currentPrice,
         "Down from ATH": downFromAth,
-        "Up to recover ATH": upToRecover,
+        "Cycle Low Date": cycleLowDate,
+        "Cycle Low Price": cycleLowPrice,
+        "Up from Cycle Low": upFromCycleLow,
       });
     }
     t.printTable();
@@ -98,7 +96,7 @@ export async function getAssetsATHInfo() {
       console.log(`... and ${assetsWithValidAth.length - 20} more rows not displayed.`);
     }
 
-    console.log(`Total assets retrieved: ${response.length}`);
+    console.log(`Total assets retrieved: ${response.data.length}`);
     return response;
   } catch (error) {
     console.error("Error fetching ATH data:", error);
@@ -113,7 +111,7 @@ async function main() {
   console.log("Fetching All-Time High (ATH) information for assets...");
   try {
     const response = await getAssetsATHInfo();
-    console.log(`Successfully retrieved ATH data for ${response.length} assets.`);
+    console.log(`Successfully retrieved ATH data for ${response.data.length} assets.`);
   } catch (error) {
     console.error("Error running ATH example:", error);
   }

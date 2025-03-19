@@ -27,14 +27,7 @@ const client = new MessariClient({
 export async function getAssetsROIInfo() {
   try {
     // Retrieve all assets with details
-    const response = await client.asset.getAssetDetails({});
-
-    // Sort assets by market cap (largest first)
-    const sortedAssets = response.sort((a, b) => {
-      const aMarketCap = a.marketData?.marketcap?.circulatingUsd ?? 0;
-      const bMarketCap = b.marketData?.marketcap?.circulatingUsd ?? 0;
-      return bMarketCap - aMarketCap;
-    });
+    const response = await client.asset.getAssetsV2ROI({});
 
     // Create a table to display ROI data
     const t = new Table({
@@ -44,12 +37,13 @@ export async function getAssetsROIInfo() {
         { name: "24h", alignment: "right" },
         { name: "7d", alignment: "right" },
         { name: "30d", alignment: "right" },
+        { name: "YTD", alignment: "right" },
         { name: "1y", alignment: "right" },
       ],
     });
 
     // Filter for assets with valid ROI data
-    const assetsWithValidROI = sortedAssets.filter((asset) => asset.returnOnInvestment);
+    const assetsWithValidROI = response.data.filter((asset) => asset.returnOnInvestment);
 
     // Limit to at most 20 rows for console output
     const dataToDisplay = assetsWithValidROI.slice(0, 20);
@@ -60,14 +54,15 @@ export async function getAssetsROIInfo() {
       const h24 = roi?.priceChange24h ? `${roi.priceChange24h.toFixed(2)}%` : "N/A";
       const d7 = roi?.priceChange7d ? `${roi.priceChange7d.toFixed(2)}%` : "N/A";
       const d30 = roi?.priceChange30d ? `${roi.priceChange30d.toFixed(2)}%` : "N/A";
+      const ytd = roi?.priceChangeYTD ? `${roi.priceChangeYTD.toFixed(2)}%` : "N/A";
       const y1 = roi?.priceChange1y ? `${roi.priceChange1y.toFixed(2)}%` : "N/A";
-
       t.addRow({
         Name: asset.name,
         Symbol: asset.symbol,
         "24h": h24,
         "7d": d7,
         "30d": d30,
+        "YTD": ytd,
         "1y": y1,
       });
     }
@@ -77,7 +72,7 @@ export async function getAssetsROIInfo() {
       console.log(`... and ${assetsWithValidROI.length - 20} more rows not displayed.`);
     }
 
-    console.log(`Total assets retrieved: ${response.length}`);
+    console.log(`Total assets retrieved: ${response.data.length}`);
     return response;
   } catch (error) {
     console.error("Error fetching ROI data:", error);
@@ -92,7 +87,7 @@ async function main() {
   console.log("Fetching Return On Investment (ROI) information for assets...");
   try {
     const response = await getAssetsROIInfo();
-    console.log(`Successfully retrieved ROI data for ${response.length} assets.`);
+    console.log(`Successfully retrieved ROI data for ${response.data.length} assets.`);
   } catch (error) {
     console.error("Error running ROI example:", error);
   }
