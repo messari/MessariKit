@@ -60,22 +60,22 @@ export async function getAssetsATHInfo() {
       const athDate = asset.allTimeHigh?.allTimeHighDate ? new Date(asset.allTimeHigh.allTimeHighDate).toLocaleDateString() : "N/A";
       const athPrice = asset.allTimeHigh?.allTimeHigh
         ? asset.allTimeHigh.allTimeHigh.toLocaleString("en-US", {
-          style: "currency",
-          currency: "USD",
-          minimumFractionDigits: 3,
-          maximumFractionDigits: 3,
-        })
+            style: "currency",
+            currency: "USD",
+            minimumFractionDigits: 3,
+            maximumFractionDigits: 3,
+          })
         : "N/A";
       const downFromAth = asset.allTimeHigh?.allTimeHighPercentDown ? `${asset.allTimeHigh.allTimeHighPercentDown.toFixed(2)}%` : "N/A";
 
       const cycleLowDate = asset.allTimeHigh?.cycleLowDate ? new Date(asset.allTimeHigh.cycleLowDate).toLocaleDateString() : "N/A";
       const cycleLowPrice = asset.allTimeHigh?.cycleLow
         ? asset.allTimeHigh.cycleLow.toLocaleString("en-US", {
-          style: "currency",
-          currency: "USD",
-          minimumFractionDigits: 3,
-          maximumFractionDigits: 3,
-        })
+            style: "currency",
+            currency: "USD",
+            minimumFractionDigits: 3,
+            maximumFractionDigits: 3,
+          })
         : "N/A";
       const upFromCycleLow = asset.allTimeHigh?.cycleLowPercentUp ? `${asset.allTimeHigh.cycleLowPercentUp.toFixed(2)}%` : "N/A";
 
