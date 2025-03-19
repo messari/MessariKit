@@ -30,82 +30,6 @@ security:
   - apiKey: []
 
 paths:
-  /asset/v1/assets:
-    get:
-      operationId: getAssetList
-      summary: Get Asset List
-      description: |
-        Get a paginated list of assets.
-        Each filter allows multiple values, comma-separated.
-        All assets that match any of the values for a given filter will be returned, 
-        as long as they are not filtered out by other filters.
-      tags:
-        - Asset
-      security:
-        - apiKey: []
-      parameters:
-        - $ref: '../../common/parameters.yaml#/components/parameters/apiKey'
-        - $ref: '../../common/parameters.yaml#/components/parameters/page'
-        - $ref: '../../common/parameters.yaml#/components/parameters/limit'
-        - name: symbol
-          in: query
-          required: false
-          description: Filter by asset symbols (comma-separated). It might return multiple assets for a given symbol.
-          schema:
-            type: string
-        - name: name
-          in: query
-          required: false
-          description: Filter by asset names (comma-separated). It might return multiple assets for a given name.
-          schema:
-            type: string
-        - name: category
-          in: query
-          required: false
-          description: Filter by asset categories (comma-separated)
-          schema:
-            type: string
-        - name: sector
-          in: query
-          required: false
-          description: Filter by asset sectors (comma-separated)
-          schema:
-            type: string
-        - name: tags
-          in: query
-          required: false
-          description: Filter by asset tags (comma-separated)
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Successful response
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: '../../common/components.yaml#/components/schemas/APIResponseWithMetadata'
-                  - type: object
-                    properties:
-                      data:
-                        type: array
-                        items:
-                          $ref: '#/components/schemas/BasicAsset'
-                      metadata:
-                        $ref: '../../common/components.yaml#/components/schemas/PaginationResult'
-        '400':
-          description: Client error response
-          content:
-            application/json:
-              schema:
-                $ref: '../../common/components.yaml#/components/schemas/APIError'
-        '500':
-          description: Server error response
-          content:
-            application/json:
-              schema:
-                $ref: '../../common/components.yaml#/components/schemas/APIError'
-
   /metrics/v2/assets:
     get:
       operationId: getAssetsV2
@@ -118,8 +42,6 @@ paths:
         - apiKey: []
       parameters:
         - $ref: '../../common/parameters.yaml#/components/parameters/apiKey'
-        - $ref: '../../common/parameters.yaml#/components/parameters/page'
-        - $ref: '../../common/parameters.yaml#/components/parameters/limit'
         - name: category
           in: query
           required: false
@@ -208,8 +130,6 @@ paths:
                         type: array
                         items:
                           $ref: '#/components/schemas/V2AssetListItem'
-                      metadata:
-                        $ref: '../../common/components.yaml#/components/schemas/PaginationResult'
         '400':
           description: Client error response
           content:
@@ -330,8 +250,6 @@ paths:
         - apiKey: []
       parameters:
         - $ref: '../../common/parameters.yaml#/components/parameters/apiKey'
-        - $ref: '../../common/parameters.yaml#/components/parameters/page'
-        - $ref: '../../common/parameters.yaml#/components/parameters/limit'
         - name: category
           in: query
           required: false
@@ -372,8 +290,6 @@ paths:
                         type: array
                         items:
                           $ref: '#/components/schemas/V2AssetAthItem'
-                      metadata:
-                        $ref: '../../common/components.yaml#/components/schemas/PaginationResult'
         '400':
           description: Client error response
           content:
@@ -399,8 +315,6 @@ paths:
         - apiKey: []
       parameters:
         - $ref: '../../common/parameters.yaml#/components/parameters/apiKey'
-        - $ref: '../../common/parameters.yaml#/components/parameters/page'
-        - $ref: '../../common/parameters.yaml#/components/parameters/limit'
         - name: category
           in: query
           required: false
@@ -441,8 +355,6 @@ paths:
                         type: array
                         items:
                           $ref: '#/components/schemas/V2AssetRoiItem'
-                      metadata:
-                        $ref: '../../common/components.yaml#/components/schemas/PaginationResult'
         '400':
           description: Client error response
           content:

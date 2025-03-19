@@ -12,10 +12,6 @@ import {
   getAssetATH,
   getAssetsROI,
   getAssetsATH,
-  getProjectRecap,
-  getExchangeRecap,
-  getExchangeRankingsRecap,
-  getAssetList,
   getPreviews,
   getReportByAssetID,
   getResearchReports,
@@ -66,13 +62,6 @@ import type {
   getAssetATHResponse,
   getAssetsROIResponse,
   getAssetsATHResponse,
-  getProjectRecapParameters,
-  getProjectRecapResponse,
-  getExchangeRecapParameters,
-  getExchangeRecapResponse,
-  getExchangeRankingsRecapResponse,
-  getAssetListParameters,
-  getAssetListResponse,
   getPreviewsResponse,
   getReportByAssetIDResponse,
   getReportByAssetIDParameters,
@@ -441,21 +430,21 @@ export class MessariClient extends MessariClientBase {
     // Convert PaginationResult to PaginationMetadata
     const metadata: PaginationMetadata = response.metadata
       ? {
-          page: response.metadata.page || 1,
-          limit: response.metadata.limit || 10,
-          total: response.metadata.total || 0,
-          totalRows: response.metadata.total || 0,
-          totalPages: Math.ceil((response.metadata.total || 0) / (response.metadata.limit || 10)),
-          hasMore: response.metadata.hasMore || false,
-        }
+        page: response.metadata.page || 1,
+        limit: response.metadata.limit || 10,
+        total: response.metadata.total || 0,
+        totalRows: response.metadata.total || 0,
+        totalPages: Math.ceil((response.metadata.total || 0) / (response.metadata.limit || 10)),
+        hasMore: response.metadata.hasMore || false,
+      }
       : {
-          page: 1,
-          limit: 10,
-          total: 0,
-          totalRows: 0,
-          totalPages: 0,
-          hasMore: false,
-        };
+        page: 1,
+        limit: 10,
+        total: 0,
+        totalRows: 0,
+        totalPages: 0,
+        hasMore: false,
+      };
 
     const currentPage = metadata.page;
     const hasNextPage = metadata.hasMore || false || currentPage < (metadata.totalPages || 0);
@@ -485,17 +474,17 @@ export class MessariClient extends MessariClientBase {
             const nextPageResponse = await fetchPage(nextPageParams, options);
             const nextPageMetadata: PaginationMetadata = nextPageResponse.metadata
               ? {
-                  page: nextPageResponse.metadata.page || nextPage,
-                  limit: nextPageResponse.metadata.limit || metadata.limit,
-                  totalRows: nextPageResponse.metadata.total || metadata.totalRows || 0,
-                  totalPages: Math.ceil((nextPageResponse.metadata.total || metadata.totalRows || 0) / (nextPageResponse.metadata.limit || metadata.limit)),
-                }
+                page: nextPageResponse.metadata.page || nextPage,
+                limit: nextPageResponse.metadata.limit || metadata.limit,
+                totalRows: nextPageResponse.metadata.total || metadata.totalRows || 0,
+                totalPages: Math.ceil((nextPageResponse.metadata.total || metadata.totalRows || 0) / (nextPageResponse.metadata.limit || metadata.limit)),
+              }
               : {
-                  page: nextPage,
-                  limit: metadata.limit,
-                  totalRows: metadata.totalRows || 0,
-                  totalPages: metadata.totalPages || 0,
-                };
+                page: nextPage,
+                limit: metadata.limit,
+                totalRows: metadata.totalRows || 0,
+                totalPages: metadata.totalPages || 0,
+              };
 
             return {
               data: nextPageResponse.data,
@@ -525,17 +514,17 @@ export class MessariClient extends MessariClientBase {
             const prevPageResponse = await fetchPage(prevPageParams, options);
             const prevPageMetadata: PaginationMetadata = prevPageResponse.metadata
               ? {
-                  page: prevPageResponse.metadata.page || prevPage,
-                  limit: prevPageResponse.metadata.limit || metadata.limit,
-                  totalRows: prevPageResponse.metadata.total || metadata.totalRows || 0,
-                  totalPages: Math.ceil((prevPageResponse.metadata.total || metadata.totalRows || 0) / (prevPageResponse.metadata.limit || metadata.limit)),
-                }
+                page: prevPageResponse.metadata.page || prevPage,
+                limit: prevPageResponse.metadata.limit || metadata.limit,
+                totalRows: prevPageResponse.metadata.total || metadata.totalRows || 0,
+                totalPages: Math.ceil((prevPageResponse.metadata.total || metadata.totalRows || 0) / (prevPageResponse.metadata.limit || metadata.limit)),
+              }
               : {
-                  page: prevPage,
-                  limit: metadata.limit,
-                  totalRows: metadata.totalRows || 0,
-                  totalPages: metadata.totalPages || 0,
-                };
+                page: prevPage,
+                limit: metadata.limit,
+                totalRows: metadata.totalRows || 0,
+                totalPages: metadata.totalPages || 0,
+              };
 
             return {
               data: prevPageResponse.data,
@@ -560,17 +549,17 @@ export class MessariClient extends MessariClientBase {
             const pageResponse = await fetchPage(pageParams, options);
             const pageMetadata: PaginationMetadata = pageResponse.metadata
               ? {
-                  page: pageResponse.metadata.page || page,
-                  limit: pageResponse.metadata.limit || metadata.limit,
-                  totalRows: pageResponse.metadata.total || metadata.totalRows || 0,
-                  totalPages: Math.ceil((pageResponse.metadata.total || metadata.totalRows || 0) / (pageResponse.metadata.limit || metadata.limit)),
-                }
+                page: pageResponse.metadata.page || page,
+                limit: pageResponse.metadata.limit || metadata.limit,
+                totalRows: pageResponse.metadata.total || metadata.totalRows || 0,
+                totalPages: Math.ceil((pageResponse.metadata.total || metadata.totalRows || 0) / (pageResponse.metadata.limit || metadata.limit)),
+              }
               : {
-                  page,
-                  limit: metadata.limit,
-                  totalRows: metadata.totalRows || 0,
-                  totalPages: metadata.totalPages || 0,
-                };
+                page,
+                limit: metadata.limit,
+                totalRows: metadata.totalRows || 0,
+                totalPages: metadata.totalPages || 0,
+              };
 
             return {
               data: pageResponse.data,
@@ -689,36 +678,17 @@ export class MessariClient extends MessariClientBase {
    * @deprecated Asset is Work-in-Progress and not production ready
    */
   public readonly asset: AssetInterface = {
-    getAssetList: async (params: getAssetListParameters = {}, options?: RequestOptions) => {
-      const fetchPage = async (p: getAssetListParameters, o?: RequestOptions) => {
-        return this.requestWithMetadata<getAssetListResponse["data"], PaginationMetadata>({
-          method: getAssetList.method,
-          path: getAssetList.path(),
-          queryParams: pick(p, getAssetList.queryParams),
-          options: o,
-        });
-      };
-
-      const response = await fetchPage(params, options);
-      return this.paginate<getAssetListResponse["data"], getAssetListParameters>(params, fetchPage, response, options);
-    },
-
     getAssetsV2: async (params: getAssetsV2Parameters = {}, options?: RequestOptions) => {
-      const fetchPage = async (p: getAssetsV2Parameters, o?: RequestOptions) => {
-        return this.requestWithMetadata<getAssetsV2Response["data"], PaginationMetadata>({
-          method: getAssetsV2.method,
-          path: getAssetsV2.path(),
-          queryParams: pick(p, getAssetsV2.queryParams),
-          options: o,
-        });
-      };
-
-      const response = await fetchPage(params, options);
-      return this.paginate<getAssetsV2Response["data"], getAssetsV2Parameters>(params, fetchPage, response, options);
+      return this.requestWithMetadata<getAssetsV2Response, PaginationMetadata>({
+        method: getAssetsV2.method,
+        path: getAssetsV2.path(),
+        queryParams: pick(params, getAssetsV2.queryParams),
+        options,
+      });
     },
 
     getAssetDetails: async (params: getAssetDetailsParameters, options?: RequestOptions) => {
-      return this.request<getAssetDetailsResponse>({
+      return this.requestWithMetadata<getAssetDetailsResponse, PaginationMetadata>({
         method: getAssetDetails.method,
         path: getAssetDetails.path(),
         queryParams: pick(params, getAssetDetails.queryParams),
@@ -727,7 +697,7 @@ export class MessariClient extends MessariClientBase {
     },
 
     getAssetsTimeseriesCatalog: async (options?: RequestOptions) => {
-      return this.request<getAssetsTimeseriesCatalogResponse>({
+      return this.requestWithMetadata<getAssetsTimeseriesCatalogResponse, PaginationMetadata>({
         method: getAssetsTimeseriesCatalog.method,
         path: getAssetsTimeseriesCatalog.path(),
         options,
@@ -735,31 +705,23 @@ export class MessariClient extends MessariClientBase {
     },
 
     getAssetsV2ATH: async (params: getAssetsV2ATHParameters = {}, options?: RequestOptions) => {
-      const fetchPage = async (p: getAssetsV2ATHParameters, o?: RequestOptions) => {
-        return this.requestWithMetadata<getAssetsV2ATHResponse["data"], PaginationMetadata>({
-          method: getAssetsV2ATH.method,
-          path: getAssetsV2ATH.path(),
-          queryParams: pick(p, getAssetsV2ATH.queryParams),
-          options: o,
-        });
-      };
+      return this.requestWithMetadata<getAssetsV2ATHResponse, PaginationMetadata>({
+        method: getAssetsV2ATH.method,
+        path: getAssetsV2ATH.path(),
+        queryParams: pick(params, getAssetsV2ATH.queryParams),
+        options,
+      });
 
-      const response = await fetchPage(params, options);
-      return this.paginate<getAssetsV2ATHResponse["data"], getAssetsV2ATHParameters>(params, fetchPage, response, options);
     },
 
     getAssetsV2ROI: async (params: getAssetsV2ROIParameters = {}, options?: RequestOptions) => {
-      const fetchPage = async (p: getAssetsV2ROIParameters, o?: RequestOptions) => {
-        return this.requestWithMetadata<getAssetsV2ROIResponse["data"], PaginationMetadata>({
-          method: getAssetsV2ROI.method,
-          path: getAssetsV2ROI.path(),
-          queryParams: pick(p, getAssetsV2ROI.queryParams),
-          options: o,
-        });
-      };
+      return this.requestWithMetadata<getAssetsV2ROIResponse, PaginationMetadata>({
+        method: getAssetsV2ROI.method,
+        path: getAssetsV2ROI.path(),
+        queryParams: pick(params, getAssetsV2ROI.queryParams),
+        options,
+      });
 
-      const response = await fetchPage(params, options);
-      return this.paginate<getAssetsV2ROIResponse["data"], getAssetsV2ROIParameters>(params, fetchPage, response, options);
     },
 
     getAssetTimeseries: async (params: getAssetTimeseriesParameters, options?: RequestOptions) => {

@@ -45,7 +45,6 @@ async function getAssetsV2WithCoverage() {
   try {
     const response = await client.asset.getAssetsV2({
       has_market_data: true,
-      limit: 10,
     });
 
     console.log(`Retrieved ${response.data.length} assets with market data coverage`);
@@ -99,10 +98,11 @@ async function getAssetsBySlugs(slugs: string[]) {
     const response = await client.asset.getAssetDetails({
       slugs: slugs.join(","),
     });
+    const assets = response.data;
 
-    console.log(`Retrieved ${response.length} assets matching symbols: ${slugs.join(", ")}`);
+    console.log(`Retrieved ${assets.length} assets matching symbols: ${slugs.join(", ")}`);
     const t = newAssetTable();
-    for (const asset of response.slice(0, 10)) {
+    for (const asset of assets.slice(0, 10)) {
       t.addRow({
         Rank: asset.rank,
         Name: asset.name,
@@ -116,7 +116,7 @@ async function getAssetsBySlugs(slugs: string[]) {
     }
     t.printTable();
 
-    return response;
+    return assets;
   } catch (error) {
     console.error("Error fetching assets by symbol:", error);
     throw error;
@@ -202,9 +202,10 @@ async function getAssetDetailsBySlug(slugs: string[]) {
       slugs: slugs.join(","),
     });
 
-    console.log(`Retrieved detailed information for ${response.length} assets`);
+    const assets = response.data;
+    console.log(`Retrieved detailed information for ${assets.length} assets`);
 
-    for (const asset of response) {
+    for (const asset of response.data) {
       console.log(`\n${asset.name} (${asset.symbol})`);
       console.log(`Category: ${asset.category}`);
       console.log(`Sector: ${asset.sector}`);
@@ -249,7 +250,7 @@ async function getAssetDetailsBySlug(slugs: string[]) {
         console.log("No ROI data available");
       }
 
-      if (response.length > 1) {
+      if (assets.length > 1) {
         console.log(`\n${"-".repeat(50)}`);
       }
     }
@@ -267,10 +268,10 @@ async function getAssetDetailsBySlug(slugs: string[]) {
 async function getTimeseriesCatalog() {
   try {
     const response = await client.asset.getAssetsTimeseriesCatalog();
+    const datasets = response.data.datasets;
+    console.log(`Retrieved ${datasets.length} timeseries datasets`);
 
-    console.log(`Retrieved ${response.datasets.length} timeseries datasets`);
-
-    for (const dataset of response.datasets.slice(0, 3)) {
+    for (const dataset of datasets.slice(0, 3)) {
       console.log(`\nDataset: ${dataset.slug}`);
       console.log(`Available granularities: ${dataset.granularities.join(", ")}`);
       console.log(
@@ -420,14 +421,14 @@ async function main() {
 
   console.log("\n====== 5. Get Asset Details By Slug Example ======");
   const assetDetailsResponse = await getAssetDetailsBySlug(["bitcoin"]);
-  console.log(`Retrieved detailed information for ${assetDetailsResponse.length} assets.`);
+  console.log(`Retrieved detailed information for ${assetDetailsResponse.data.length} assets.`);
 
   console.log("\n====== 6. Get Timeseries Catalog Example ======");
   const catalogResponse = await getTimeseriesCatalog();
-  console.log(`Retrieved ${catalogResponse.datasets.length} timeseries datasets.`);
+  console.log(`Retrieved ${catalogResponse.data.datasets.length} timeseries datasets.`);
   console.log("First 5 datasets in catalog:");
 
-  for (const dataset of catalogResponse.datasets.slice(0, 5)) {
+  for (const dataset of catalogResponse.data.datasets.slice(0, 5)) {
     const metricName = dataset.metrics[0]?.name || "N/A";
     console.log(`${dataset.slug}: ${metricName} and ${dataset.metrics.length - 1} more metrics`);
   }
