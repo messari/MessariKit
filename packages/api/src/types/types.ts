@@ -3,7 +3,6 @@
  * Do not make direct changes to the file.
  */
 
-
 export type paths = {
   "/ai-digest/api/v1/exchange-rankings-recap": {
     /**
@@ -619,7 +618,20 @@ export type components = {
      * @description Type of entity being extracted or referenced
      * @enum {string}
      */
-    EntityType: "acquired_entity" | "acquiring_entity" | "asset" | "x_user" | "funded_entity" | "investor" | "network" | "person" | "exchange" | "organization" | "project" | "protocol" | "nft_collection";
+    EntityType:
+      | "acquired_entity"
+      | "acquiring_entity"
+      | "asset"
+      | "x_user"
+      | "funded_entity"
+      | "investor"
+      | "network"
+      | "person"
+      | "exchange"
+      | "organization"
+      | "project"
+      | "protocol"
+      | "nft_collection";
     Event: {
       /** @description Block number when the event activates */
       activationBlock?: number | null;
@@ -674,6 +686,16 @@ export type components = {
     ExchangeNewsRecap: {
       id?: string;
       news?: {
+        id?: string;
+        publishDate?: string;
+        sourceId?: string;
+        sourceName?: string;
+        title?: string;
+        url?: string;
+      }[];
+      summaries?: {
+        _category?: number;
+        references?: {
           id?: string;
           publishDate?: string;
           sourceId?: string;
@@ -681,18 +703,8 @@ export type components = {
           title?: string;
           url?: string;
         }[];
-      summaries?: {
-          _category?: number;
-          references?: {
-              id?: string;
-              publishDate?: string;
-              sourceId?: string;
-              sourceName?: string;
-              title?: string;
-              url?: string;
-            }[];
-          summary?: string;
-        }[];
+        summary?: string;
+      }[];
     };
     /** @description Performance recap for exchanges */
     ExchangePerformanceRecap: {
@@ -714,6 +726,16 @@ export type components = {
     ExchangeRankingsNewsRecap: {
       id?: string;
       news?: {
+        id?: string;
+        publishDate?: string;
+        sourceId?: string;
+        sourceName?: string;
+        title?: string;
+        url?: string;
+      }[];
+      summaries?: {
+        _category?: number;
+        references?: {
           id?: string;
           publishDate?: string;
           sourceId?: string;
@@ -721,18 +743,8 @@ export type components = {
           title?: string;
           url?: string;
         }[];
-      summaries?: {
-          _category?: number;
-          references?: {
-              id?: string;
-              publishDate?: string;
-              sourceId?: string;
-              sourceName?: string;
-              title?: string;
-              url?: string;
-            }[];
-          summary?: string;
-        }[];
+        summary?: string;
+      }[];
       summary?: string;
     };
     /** @description Performance recap for exchange rankings */
@@ -740,19 +752,19 @@ export type components = {
       data?: {
         /** @description List of top exchanges */
         topExchanges?: {
-            id?: string;
-            name?: string;
-            project_id?: string;
-            slug?: string;
-            type?: string;
-          }[];
+          id?: string;
+          name?: string;
+          project_id?: string;
+          slug?: string;
+          type?: string;
+        }[];
         /** @description List of top listed tokens */
         topListedTokens?: {
-            assetId?: string;
-            listedCount?: number;
-            name?: string;
-            symbol?: string;
-          }[];
+          assetId?: string;
+          listedCount?: number;
+          name?: string;
+          symbol?: string;
+        }[];
         /** @description Volume of top listed tokens */
         topListedTokenVolume?: number;
         /** @description Total spot trading volumes */
@@ -811,13 +823,13 @@ export type components = {
       date?: string;
       endDate?: string;
       references?: {
-          id?: string;
-          publishDate?: string;
-          sourceId?: string;
-          sourceName?: string;
-          title?: string;
-          url?: string;
-        }[];
+        id?: string;
+        publishDate?: string;
+        sourceId?: string;
+        sourceName?: string;
+        title?: string;
+        url?: string;
+      }[];
       startDate?: string;
       summary?: string;
       type?: string;
@@ -876,7 +888,37 @@ export type components = {
      * @description Type of the funding round
      * @enum {string}
      */
-    FundingRoundType: "Accelerator" | "Debt Financing" | "Extended Pre Seed" | "Extended Seed" | "Extended Series A" | "Extended Series B" | "Extended Series C" | "Extended Series D" | "Grant" | "ICO" | "IPO" | "Post IPO" | "Post IPO Debt" | "Pre Seed" | "Pre Series A" | "Pre Series B" | "Private Token Sale" | "Public Token Sale" | "Seed" | "Series A" | "Series B" | "Series C" | "Series D" | "Series E" | "Series F" | "Series G" | "Series H" | "Strategic" | "Treasury Diversification" | "Undisclosed";
+    FundingRoundType:
+      | "Accelerator"
+      | "Debt Financing"
+      | "Extended Pre Seed"
+      | "Extended Seed"
+      | "Extended Series A"
+      | "Extended Series B"
+      | "Extended Series C"
+      | "Extended Series D"
+      | "Grant"
+      | "ICO"
+      | "IPO"
+      | "Post IPO"
+      | "Post IPO Debt"
+      | "Pre Seed"
+      | "Pre Series A"
+      | "Pre Series B"
+      | "Private Token Sale"
+      | "Public Token Sale"
+      | "Seed"
+      | "Series A"
+      | "Series B"
+      | "Series C"
+      | "Series D"
+      | "Series E"
+      | "Series F"
+      | "Series G"
+      | "Series H"
+      | "Strategic"
+      | "Treasury Diversification"
+      | "Undisclosed";
     GetAllEventsRequest: {
       /** @description Filter by categories */
       category?: string[];
@@ -937,9 +979,9 @@ export type components = {
     /** @description Intel information response */
     IntelResponse: {
       metadata?: {
-          eventId?: string;
-          eventName?: string;
-        }[];
+        eventId?: string;
+        eventName?: string;
+      }[];
       summary?: string;
     };
     Investors: {
@@ -977,13 +1019,13 @@ export type components = {
     /** @description News information response */
     NewsResponse: {
       metadata?: {
-          documentId?: string;
-          documentName?: string;
-          documentUrl?: string;
-          sourceId?: string;
-          sourceName?: string;
-          sourceType?: string;
-        }[];
+        documentId?: string;
+        documentName?: string;
+        documentUrl?: string;
+        sourceId?: string;
+        sourceName?: string;
+        sourceType?: string;
+      }[];
       summary?: string;
     };
     OHLCV: {
@@ -1109,9 +1151,9 @@ export type components = {
     /** @description Proposition information response */
     PropositionResponse: {
       metadata?: {
-          propositionId?: string;
-          title?: string;
-        }[];
+        propositionId?: string;
+        title?: string;
+      }[];
       summary?: string;
     };
     /**
@@ -1208,9 +1250,9 @@ export type components = {
     /** @description Research information response */
     ResearchResponse: {
       metadata?: {
-          slug?: string;
-          title?: string;
-        }[];
+        slug?: string;
+        title?: string;
+      }[];
       summary?: string;
     };
     Resource: {
@@ -1258,9 +1300,9 @@ export type components = {
       confidenceScore?: string;
       /** @description Details of the entity */
       details?: {
-          id?: string;
-          type?: string;
-        }[];
+        id?: string;
+        type?: string;
+      }[];
       /** @description Name of the entity */
       name?: string;
       relevanceScore?: string;
@@ -1338,21 +1380,21 @@ export type components = {
     TokenUnlockAllocation: {
       allocationRecipientCount?: number;
       allocations?: {
-          allocationRecipient?: string;
-          assumptions?: string;
-          cumulativeUnlockedNative?: number;
-          cumulativeUnlockedUSD?: number;
-          description?: string;
-          percentOfUnlocksCompleted?: number;
-          sources?: {
-              source?: string;
-              sourceType?: string;
-            }[];
-          totalAllocationNative?: number;
-          totalAllocationUSD?: number;
-          unlocksRemainingNative?: number;
-          unlocksRemainingUSD?: number;
+        allocationRecipient?: string;
+        assumptions?: string;
+        cumulativeUnlockedNative?: number;
+        cumulativeUnlockedUSD?: number;
+        description?: string;
+        percentOfUnlocksCompleted?: number;
+        sources?: {
+          source?: string;
+          sourceType?: string;
         }[];
+        totalAllocationNative?: number;
+        totalAllocationUSD?: number;
+        unlocksRemainingNative?: number;
+        unlocksRemainingUSD?: number;
+      }[];
       asset?: {
         id?: string;
         name?: string;
@@ -1397,28 +1439,20 @@ export type components = {
         symbol?: string;
       };
       unlockEvents?: {
-          cliff?: {
-            allocations?: {
-                allocationRecipient?: string;
-                amountNative?: number;
-                amountUSD?: number;
-                percentOfTotalAllocation?: number;
-              }[];
+        cliff?: {
+          allocations?: {
+            allocationRecipient?: string;
             amountNative?: number;
             amountUSD?: number;
             percentOfTotalAllocation?: number;
-          };
-          dailyLinearRateChange?: {
-            allocations?: {
-                allocationRecipient?: string;
-                dailyAmountNative?: number;
-                dailyAmountUSD?: number;
-                nextDailyAmountNative?: number;
-                nextDailyAmountUSD?: number;
-                nextPercentOfTotalAllocation?: number;
-                percentChangeOfRate?: number;
-                percentOfTotalAllocation?: number;
-              }[];
+          }[];
+          amountNative?: number;
+          amountUSD?: number;
+          percentOfTotalAllocation?: number;
+        };
+        dailyLinearRateChange?: {
+          allocations?: {
+            allocationRecipient?: string;
             dailyAmountNative?: number;
             dailyAmountUSD?: number;
             nextDailyAmountNative?: number;
@@ -1426,9 +1460,17 @@ export type components = {
             nextPercentOfTotalAllocation?: number;
             percentChangeOfRate?: number;
             percentOfTotalAllocation?: number;
-          };
-          timestamp?: string;
-        }[];
+          }[];
+          dailyAmountNative?: number;
+          dailyAmountUSD?: number;
+          nextDailyAmountNative?: number;
+          nextDailyAmountUSD?: number;
+          nextPercentOfTotalAllocation?: number;
+          percentChangeOfRate?: number;
+          percentOfTotalAllocation?: number;
+        };
+        timestamp?: string;
+      }[];
     };
     TokenUnlockSupportedAsset: {
       category?: string;
@@ -1445,13 +1487,13 @@ export type components = {
     };
     TokenUnlockUnlocks: {
       allocations?: {
-          allocationRecipient?: string;
-          dailySnapshots?: {
-              timestamp?: string;
-              unlockedInPeriodNative?: number;
-              unlockedInPeriodUSD?: number;
-            }[];
+        allocationRecipient?: string;
+        dailySnapshots?: {
+          timestamp?: string;
+          unlockedInPeriodNative?: number;
+          unlockedInPeriodUSD?: number;
         }[];
+      }[];
       asset?: {
         id?: string;
         name?: string;
@@ -1465,23 +1507,23 @@ export type components = {
       projectedEndDate?: string;
       startDate?: string;
       totalSnapshots?: {
-          timestamp?: string;
-          unlockedInPeriodNative?: number;
-          unlockedInPeriodUSD?: number;
-        }[];
+        timestamp?: string;
+        unlockedInPeriodNative?: number;
+        unlockedInPeriodUSD?: number;
+      }[];
     };
     TokenUnlockVestingSchedule: {
       allocations?: {
-          allocationRecipient?: string;
-          dailySnapshots?: {
-              cumulativeUnlockedNative?: number;
-              cumulativeUnlockedUSD?: number;
-              percentOfUnlocksCompleted?: number;
-              timestamp?: string;
-              unlocksRemainingNative?: number;
-              unlocksRemainingUSD?: number;
-            }[];
+        allocationRecipient?: string;
+        dailySnapshots?: {
+          cumulativeUnlockedNative?: number;
+          cumulativeUnlockedUSD?: number;
+          percentOfUnlocksCompleted?: number;
+          timestamp?: string;
+          unlocksRemainingNative?: number;
+          unlocksRemainingUSD?: number;
         }[];
+      }[];
       asset?: {
         id?: string;
         name?: string;
@@ -1493,13 +1535,13 @@ export type components = {
       projectedEndDate?: string;
       startTime?: string;
       totalDailySnapshots?: {
-          cumulativeUnlockedNative?: number;
-          cumulativeUnlockedUSD?: number;
-          percentOfUnlocksCompleted?: number;
-          timestamp?: string;
-          unlocksRemainingNative?: number;
-          unlocksRemainingUSD?: number;
-        }[];
+        cumulativeUnlockedNative?: number;
+        cumulativeUnlockedUSD?: number;
+        percentOfUnlocksCompleted?: number;
+        timestamp?: string;
+        unlocksRemainingNative?: number;
+        unlocksRemainingUSD?: number;
+      }[];
     };
     V2Asset: components["schemas"]["V2AssetEntity"] & {
       /** @description All-time high data for the asset */
@@ -1705,13 +1747,13 @@ export type components = {
     /** @description Video and podcast ranking information */
     VideoPodcastResponse: {
       summary?: {
-          id?: string;
-          sourceID?: string;
-          sourceName?: string;
-          summary?: string;
-          title?: string;
-          url?: string;
-        }[];
+        id?: string;
+        sourceID?: string;
+        sourceName?: string;
+        summary?: string;
+        title?: string;
+        url?: string;
+      }[];
     };
   };
   responses: {
@@ -1738,7 +1780,6 @@ export type $defs = Record<string, never>;
 export type external = Record<string, never>;
 
 export type operations = {
-
   /**
    * Get Exchange Rankings Recap
    * @description Gets daily recap for the exchange rankings page
@@ -2158,7 +2199,37 @@ export type operations = {
         /** @description Comma-separated list of investor (persons, projects, orgs) IDs who invested in the funding rounds */
         investorId?: string;
         /** @description Comma-separated list of funding round types to filter by */
-        type?: "Accelerator" | "Debt Financing" | "Extended Pre Seed" | "Extended Seed" | "Extended Series A" | "Extended Series B" | "Extended Series C" | "Extended Series D" | "Grant" | "ICO" | "IPO" | "Post IPO" | "Post IPO Debt" | "Pre Seed" | "Pre Series A" | "Pre Series B" | "Private Token Sale" | "Public Token Sale" | "Seed" | "Series A" | "Series B" | "Series C" | "Series D" | "Series E" | "Series F" | "Series G" | "Series H" | "Strategic" | "Treasury Diversification" | "Undisclosed";
+        type?:
+          | "Accelerator"
+          | "Debt Financing"
+          | "Extended Pre Seed"
+          | "Extended Seed"
+          | "Extended Series A"
+          | "Extended Series B"
+          | "Extended Series C"
+          | "Extended Series D"
+          | "Grant"
+          | "ICO"
+          | "IPO"
+          | "Post IPO"
+          | "Post IPO Debt"
+          | "Pre Seed"
+          | "Pre Series A"
+          | "Pre Series B"
+          | "Private Token Sale"
+          | "Public Token Sale"
+          | "Seed"
+          | "Series A"
+          | "Series B"
+          | "Series C"
+          | "Series D"
+          | "Series E"
+          | "Series F"
+          | "Series G"
+          | "Series H"
+          | "Strategic"
+          | "Treasury Diversification"
+          | "Undisclosed";
         /** @description Comma-separated list of funding round stages to filter by */
         stage?: "Seed" | "Early Stage" | "Late Stage" | "Public Equity Offering" | "Post Public Equity" | "Miscellaneous";
         /** @description Filter by maximum amount raised in USD */
@@ -2213,7 +2284,37 @@ export type operations = {
         /** @description Comma-separated list of investor (persons, projects, orgs) IDs who invested in the funding rounds */
         investorId?: string;
         /** @description Comma-separated list of funding round types to filter by */
-        type?: "Accelerator" | "Debt Financing" | "Extended Pre Seed" | "Extended Seed" | "Extended Series A" | "Extended Series B" | "Extended Series C" | "Extended Series D" | "Grant" | "ICO" | "IPO" | "Post IPO" | "Post IPO Debt" | "Pre Seed" | "Pre Series A" | "Pre Series B" | "Private Token Sale" | "Public Token Sale" | "Seed" | "Series A" | "Series B" | "Series C" | "Series D" | "Series E" | "Series F" | "Series G" | "Series H" | "Strategic" | "Treasury Diversification" | "Undisclosed";
+        type?:
+          | "Accelerator"
+          | "Debt Financing"
+          | "Extended Pre Seed"
+          | "Extended Seed"
+          | "Extended Series A"
+          | "Extended Series B"
+          | "Extended Series C"
+          | "Extended Series D"
+          | "Grant"
+          | "ICO"
+          | "IPO"
+          | "Post IPO"
+          | "Post IPO Debt"
+          | "Pre Seed"
+          | "Pre Series A"
+          | "Pre Series B"
+          | "Private Token Sale"
+          | "Public Token Sale"
+          | "Seed"
+          | "Series A"
+          | "Series B"
+          | "Series C"
+          | "Series D"
+          | "Series E"
+          | "Series F"
+          | "Series G"
+          | "Series H"
+          | "Strategic"
+          | "Treasury Diversification"
+          | "Undisclosed";
         /** @description Comma-separated list of funding round stages to filter by */
         stage?: "Seed" | "Early Stage" | "Late Stage" | "Public Equity Offering" | "Post Public Equity" | "Miscellaneous";
         /** @description Filter by maximum amount raised in USD */

@@ -129,10 +129,7 @@ export interface AssetInterface {
    * @param options Optional request configuration
    * @returns A paginated result of assets with ATH information
    */
-  getAssetsV2ATH(
-    params?: getAssetsV2ATHParameters,
-    options?: RequestOptions,
-  ): Promise<APIResponseWithMetadata<getAssetsV2ATHResponse>>;
+  getAssetsV2ATH(params?: getAssetsV2ATHParameters, options?: RequestOptions): Promise<APIResponseWithMetadata<getAssetsV2ATHResponse>>;
 
   /**
    * Gets return on investment information for assets with various filtering options
@@ -140,10 +137,7 @@ export interface AssetInterface {
    * @param options Optional request configuration
    * @returns A paginated result of assets with ROI information
    */
-  getAssetsV2ROI(
-    params?: getAssetsV2ROIParameters,
-    options?: RequestOptions,
-  ): Promise<APIResponseWithMetadata<getAssetsV2ROIResponse>>;
+  getAssetsV2ROI(params?: getAssetsV2ROIParameters, options?: RequestOptions): Promise<APIResponseWithMetadata<getAssetsV2ROIResponse>>;
 
   /**
    * Gets timeseries data for a specific asset and dataset
