@@ -7,11 +7,6 @@ import {
   getAllEvents,
   getEventAndHistory,
   getAllAssets,
-  getAssetMarketdata,
-  getAssetROI,
-  getAssetATH,
-  getAssetsROI,
-  getAssetsATH,
   getPreviews,
   getReportByAssetID,
   getResearchReports,
@@ -54,14 +49,6 @@ import type {
   getAllAssetsParameters,
   getAllAssetsResponse,
   getAllEventsResponse,
-  getAssetMarketdataParameters,
-  getAssetMarketdataResponse,
-  getAssetROIParameters,
-  getAssetROIResponse,
-  getAssetATHParameters,
-  getAssetATHResponse,
-  getAssetsROIResponse,
-  getAssetsATHResponse,
   getPreviewsResponse,
   getReportByAssetIDResponse,
   getReportByAssetIDParameters,
@@ -127,7 +114,6 @@ import type {
   FundraisingAPIInterface,
   DiligenceAPIInterface,
   IntelInterface,
-  MarketsInterface,
   NewsInterface,
   RecapsAPIInterface,
   ResearchInterface,
@@ -636,41 +622,6 @@ export class MessariClient extends MessariClientBase {
         path: extractEntities.path(),
         body: pick(params, extractEntities.bodyParams),
         options,
-      }),
-  };
-
-  /**
-   * @deprecated Markets is Work-in-Progress and not production ready
-   */
-  public readonly markets: MarketsInterface = {
-    getAssetPrice: (params: getAssetMarketdataParameters) =>
-      this.request<getAssetMarketdataResponse>({
-        method: getAssetMarketdata.method,
-        path: getAssetMarketdata.path(params),
-      }),
-
-    getAssetROI: (params: getAssetROIParameters) =>
-      this.request<getAssetROIResponse>({
-        method: getAssetROI.method,
-        path: getAssetROI.path(params),
-      }),
-
-    getAssetATH: (params: getAssetATHParameters) =>
-      this.request<getAssetATHResponse>({
-        method: getAssetATH.method,
-        path: getAssetATH.path(params),
-      }),
-
-    getAllAssetsROI: () =>
-      this.request<getAssetsROIResponse>({
-        method: getAssetsROI.method,
-        path: getAssetsROI.path(),
-      }),
-
-    getAllAssetsATH: () =>
-      this.request<getAssetsATHResponse>({
-        method: getAssetsATH.method,
-        path: getAssetsATH.path(),
       }),
   };
 

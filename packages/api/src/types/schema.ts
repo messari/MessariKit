@@ -23,21 +23,11 @@ export type Asset = components["schemas"]["Asset"];
 
 export type AssetList = components["schemas"]["AssetList"];
 
-export type AssetMarketData = components["schemas"]["AssetMarketData"];
-
-export type AssetMarketcap = components["schemas"]["AssetMarketcap"];
-
 export type AssetReport = components["schemas"]["AssetReport"];
-
-export type AssetSupply = components["schemas"]["AssetSupply"];
 
 export type AssetV2Link = components["schemas"]["AssetV2Link"];
 
 export type AssetV2MarketData = components["schemas"]["AssetV2MarketData"];
-
-export type AssetWithATHData = components["schemas"]["AssetWithATHData"];
-
-export type AssetWithROIData = components["schemas"]["AssetWithROIData"];
 
 export type Author = components["schemas"]["Author"];
 
@@ -109,23 +99,17 @@ export type NewsAsset = components["schemas"]["NewsAsset"];
 
 export type NewsResponse = components["schemas"]["NewsResponse"];
 
-export type OHLCV = components["schemas"]["OHLCV"];
-
 export type Organization = components["schemas"]["Organization"];
 
 export type PaginationResult = components["schemas"]["PaginationResult"];
 
 export type Person = components["schemas"]["Person"];
 
-export type PlatformContract = components["schemas"]["PlatformContract"];
-
 export type Project = components["schemas"]["Project"];
 
 export type ProjectRecapResponse = components["schemas"]["ProjectRecapResponse"];
 
 export type PropositionResponse = components["schemas"]["PropositionResponse"];
-
-export type ROIData = components["schemas"]["ROIData"];
 
 export type RecapSlug = components["schemas"]["RecapSlug"];
 
@@ -150,8 +134,6 @@ export type SourceType = components["schemas"]["SourceType"];
 export type SummaryResponse = components["schemas"]["SummaryResponse"];
 
 export type Tag = components["schemas"]["Tag"];
-
-export type TimeUTC = components["schemas"]["TimeUTC"];
 
 export type TimeseriesCatalog = components["schemas"]["TimeseriesCatalog"];
 

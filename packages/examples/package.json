@@ -14,7 +14,6 @@
 		"start:diligence": "tsx src/diligence.ts",
 		"start:fundraising": "tsx src/fundraising.ts",
 		"start:intel": "tsx src/intelEvents.ts",
-		"start:marketdata": "tsx src/marketData.ts",
 		"start:news": "tsx src/newsFeed.ts",
 		"start:recaps": "tsx src/recaps.ts",
 		"start:research": "tsx src/research.ts",
