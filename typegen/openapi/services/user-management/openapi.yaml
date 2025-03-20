@@ -17,6 +17,14 @@ components:
         teamId:
           type: integer
       type: object
+      required:
+        - creditsAllocated
+        - endDate
+        - id
+        - isActive
+        - remainingCredits
+        - startDate
+        - teamId
     CreateWatchlistRequest:
       properties:
         assetIds:
@@ -27,8 +35,14 @@ components:
         title:
           type: string
       type: object
+      required:
+        - assetIds
+        - title
     ModifyWatchlistAssetsAction:
       type: string
+      enum:
+        - add
+        - remove
       x-enum-varnames:
         - ModifyWatchlistAssetsActionAdd
         - ModifyWatchlistAssetsActionRemove
@@ -58,6 +72,10 @@ components:
         permissionSlug:
           type: string
       type: object
+      required:
+        - active
+        - name
+        - permissionSlug
     PermissionsResponse:
       properties:
         expiresAt:
@@ -72,12 +90,11 @@ components:
           type: array
           uniqueItems: false
       type: object
-    Response-any:
-      properties:
-        data: {}
-        error:
-          type: string
-      type: object
+      required:
+        - expiresAt
+        - hasAllAccess
+        - hasFullMarketDataGranularity
+        - permissions
     UpdateWatchlistRequest:
       properties:
         assetIds:
@@ -114,6 +131,12 @@ components:
         updatedAt:
           type: string
       type: object
+      required:
+        - assetIds
+        - createdAt
+        - id
+        - title
+        - updatedAt
   securitySchemes:
     apiKey:
       description:
@@ -215,7 +238,9 @@ paths:
                   - type: object
                     properties:
                       data:
-                        $ref: "#/components/schemas/Watchlist"
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Watchlist"
           description: OK
         "500":
           content:
@@ -286,10 +311,6 @@ paths:
             type: string
       responses:
         "200":
-          content:
-            application/json:
-              schema:
-                $ref: "../../common/components.yaml#/components/schemas/APIResponse"
           description: OK
         "400":
           content:

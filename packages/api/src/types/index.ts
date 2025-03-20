@@ -682,7 +682,7 @@ export const getPermissions = {
 } as const;
 
 
-export type listWatchlistsResponse = components['schemas']['Watchlist'];
+export type listWatchlistsResponse = components['schemas']['Watchlist'][];
 export type listWatchlistsError = components['schemas']['APIError'];
 
 export type listWatchlistsParameters = null;
@@ -712,7 +712,7 @@ export const createWatchlist = {
 } as const;
 
 
-export type deleteWatchlistResponse = components['schemas']['APIResponse'];
+export type deleteWatchlistResponse = void;
 export type deleteWatchlistError = components['schemas']['APIError'];
 
 export type deleteWatchlistParameters = { id: string };

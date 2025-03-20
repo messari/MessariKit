@@ -35,6 +35,14 @@ import {
   getAssetsV2ROI,
   getAssetTimeseries,
   getAssetTimeseriesWithGranularity,
+  modifyWatchlistAssets,
+  deleteWatchlist,
+  listWatchlists,
+  getPermissions,
+  createWatchlist,
+  getTeamAllowance,
+  getWatchlist,
+  updateWatchlist,
 } from "../types";
 import type {
   createChatCompletionParameters,
@@ -105,6 +113,19 @@ import type {
   getAssetTimeseriesWithGranularityParameters,
   getAssetTimeseriesWithGranularityResponse,
   TimeseriesMetadata,
+  modifyWatchlistAssetsResponse,
+  modifyWatchlistAssetsParameters,
+  deleteWatchlistResponse,
+  deleteWatchlistParameters,
+  listWatchlistsResponse,
+  createWatchlistParameters,
+  createWatchlistResponse,
+  getPermissionsResponse,
+  getWatchlistParameters,
+  getTeamAllowanceResponse,
+  getWatchlistResponse,
+  updateWatchlistParameters,
+  updateWatchlistResponse,
 } from "../types";
 import type { Agent } from "node:http";
 import { pick } from "../utils";
@@ -132,6 +153,7 @@ import type {
   RecapsAPIInterface,
   ResearchInterface,
   TokenUnlocksInterface,
+  UserManagementInterface,
 } from "./base";
 import { MessariClientBase } from "./base";
 
@@ -278,7 +300,16 @@ export class MessariClient extends MessariClientBase {
         throw error;
       }
 
-      const responseData = await response.json();
+      // Check if the response is JSON or text based on Content-Type header
+      const contentType = response.headers.get("Content-Type");
+      let responseData;
+
+      if (contentType && contentType.toLowerCase().includes("application/json")) {
+        responseData = await response.json();
+      } else {
+        responseData = { data: await response.text() };
+      }
+      
       this.logger(LogLevel.DEBUG, "request success", { responseData });
 
       // Emit response event
@@ -964,6 +995,83 @@ export class MessariClient extends MessariClientBase {
       });
     },
   };
+
+  /**
+   * User Management API service
+   * Provides methods for managing user-specific data like watchlists, credits, and permissions
+   */
+  public readonly userManagement: UserManagementInterface = {
+    getTeamAllowance: (options?: RequestOptions) =>
+      this.request<getTeamAllowanceResponse>({
+        method: getTeamAllowance.method,
+        path: getTeamAllowance.path(),
+        options,
+      }),
+
+    getPermissions: (options?: RequestOptions) =>
+      this.request<getPermissionsResponse>({
+        method: getPermissions.method,
+        path: getPermissions.path(),
+        options,
+      }),
+
+    listWatchlists: (options?: RequestOptions) =>
+      this.request<listWatchlistsResponse>({
+        method: listWatchlists.method,
+        path: listWatchlists.path(),
+        options,
+      }),
+
+    createWatchlist: (
+      params: createWatchlistParameters,
+      options?: RequestOptions
+    ) =>
+      this.request<createWatchlistResponse>({
+        method: createWatchlist.method,
+        path: createWatchlist.path(),
+        body: pick(params, createWatchlist.bodyParams),
+        options,
+      }),
+
+    getWatchlist: (params: getWatchlistParameters, options?: RequestOptions) =>
+      this.request<getWatchlistResponse>({
+        method: getWatchlist.method,
+        path: getWatchlist.path(params),
+        options,
+      }),
+
+    updateWatchlist: (
+      params: updateWatchlistParameters,
+      options?: RequestOptions
+    ) =>
+      this.request<updateWatchlistResponse>({
+        method: updateWatchlist.method,
+        path: updateWatchlist.path({ id: params.id }),
+        body: pick(params, updateWatchlist.bodyParams),
+        options,
+      }),
+
+    deleteWatchlist: (
+      params: deleteWatchlistParameters,
+      options?: RequestOptions
+    ) =>
+      this.request<deleteWatchlistResponse>({
+        method: deleteWatchlist.method,
+        path: deleteWatchlist.path(params),
+        options,
+      }),
+
+    modifyWatchlistAssets: (
+      params: modifyWatchlistAssetsParameters,
+      options?: RequestOptions
+    ) =>
+      this.request<modifyWatchlistAssetsResponse>({
+        method: modifyWatchlistAssets.method,
+        path: modifyWatchlistAssets.path({ id: params.id }),
+        body: pick(params, modifyWatchlistAssets.bodyParams),
+        options,
+      }),
+  };    
 
   // Recaps is commented out as we don't want to expose it yet
   // public readonly recaps: RecapsAPIInterface = {

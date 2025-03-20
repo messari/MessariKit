@@ -364,13 +364,13 @@ export type components = {
      */
     AcquisitionDealStatus: "Announced" | "Completed" | "Canceled";
     AllowanceInfo: {
-      creditsAllocated?: number;
-      endDate?: string;
-      id?: string;
-      isActive?: boolean;
-      remainingCredits?: number;
-      startDate?: string;
-      teamId?: number;
+      creditsAllocated: number;
+      endDate: string;
+      id: string;
+      isActive: boolean;
+      remainingCredits: number;
+      startDate: string;
+      teamId: number;
     };
     /** @description Announcement details (to be defined) */
     Announcement: Record<string, never>;
@@ -635,8 +635,8 @@ export type components = {
       status: string;
     };
     CreateWatchlistRequest: {
-      assetIds?: string[];
-      title?: string;
+      assetIds: string[];
+      title: string;
     };
     Document: {
       /** @description Assets mentioned in the document */
@@ -1057,7 +1057,8 @@ export type components = {
       /** @description List of projects that invested */
       projects?: components["schemas"]["Project"][];
     };
-    ModifyWatchlistAssetsAction: string;
+    /** @enum {string} */
+    ModifyWatchlistAssetsAction: "add" | "remove";
     ModifyWatchlistAssetsRequest: {
       action: components["schemas"]["ModifyWatchlistAssetsAction"];
       assetIds: string[];
@@ -1154,15 +1155,15 @@ export type components = {
     };
     Permission: {
       /** @description Indicates whether the permission is granted to the user */
-      active?: boolean;
-      name?: string;
-      permissionSlug?: string;
+      active: boolean;
+      name: string;
+      permissionSlug: string;
     };
     PermissionsResponse: {
-      expiresAt?: string;
-      hasAllAccess?: boolean;
-      hasFullMarketDataGranularity?: boolean;
-      permissions?: components["schemas"]["Permission"][];
+      expiresAt: string;
+      hasAllAccess: boolean;
+      hasFullMarketDataGranularity: boolean;
+      permissions: components["schemas"]["Permission"][];
     };
     /** @description Person details (to be defined) */
     Person: Record<string, never>;
@@ -1844,11 +1845,11 @@ export type components = {
       }[];
     };
     Watchlist: {
-      assetIds?: string[];
-      createdAt?: string;
-      id?: string;
-      title?: string;
-      updatedAt?: string;
+      assetIds: string[];
+      createdAt: string;
+      id: string;
+      title: string;
+      updatedAt: string;
     };
   };
   responses: {
@@ -3539,7 +3540,7 @@ export type operations = {
       200: {
         content: {
           "application/json": components["schemas"]["APIResponse"] & {
-            data?: components["schemas"]["Watchlist"];
+            data?: components["schemas"]["Watchlist"][];
           };
         };
       };
@@ -3645,9 +3646,7 @@ export type operations = {
     responses: {
       /** @description OK */
       200: {
-        content: {
-          "application/json": components["schemas"]["APIResponse"];
-        };
+        content: never;
       };
       /** @description Bad Request */
       400: {
