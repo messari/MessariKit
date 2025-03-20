@@ -9,8 +9,12 @@ MessariKit is the official TypeScript/JavaScript SDK for interacting with Messar
 | AI | Chat Completion | `/ai/v1/chat/completions` | ✅ |
 | AI | Entity Extraction | `/ai/v1/classification/extraction` | ✅ |
 | |
-| Asset | Asset List | `/asset/v1/assets` | 🚧 |
-| Asset | Asset By ID | `/asset/v1/assets/{assetId}` | ❌ |
+| Asset | Asset List | `/metrics/v2/assets` | ✅ |
+| Asset | Asset Details | `/metrics/v2/assets/details` | ✅ |
+| Asset | Asset ATHs | `/metrics/v2/assets/ath` | ✅ |
+| Asset | Asset ROIs | `/metrics/v2/assets/roi` | ✅ |
+| Asset | Asset Metrics | `/metrics/v2/assets/metrics` | ✅ |
+| Asset | Asset Price Time Series | `/metrics/v2/assets/{assetId}/metrics/price/time-series/{granularity}` | ✅ |
 | |
 | Intel | Events | `/intel/v1/events` | 🚧 |
 | Intel | Events By ID | `/intel/v1/events/{eventId}` | 🚧 |
