@@ -101,17 +101,26 @@ async function getAssetsBySlugs(slugs: string[]) {
     const assets = response.data;
 
     console.log(`Retrieved ${assets.length} assets matching symbols: ${slugs.join(", ")}`);
-    const t = newAssetTable();
+    const t = new Table({
+      columns: [
+        { name: "Rank", alignment: "right" },
+        { name: "Name", alignment: "left" },
+        { name: "Symbol", alignment: "left" },
+        { name: "Category", alignment: "left" },
+        { name: "Sector", alignment: "left" },
+        { name: "Price", alignment: "left" },
+        { name: "FDV", alignment: "left" },
+      ],
+    });
     for (const asset of assets.slice(0, 10)) {
       t.addRow({
         Rank: asset.rank,
         Name: asset.name,
         Symbol: asset.symbol,
-        Slug: asset.slug,
         Category: asset.category,
         Sector: asset.sector,
-        Tags: asset.tags.join(", "),
-        "Asset ID": asset.id,
+        Price: asset.marketData?.priceUsd?.toLocaleString(),
+        FDV: asset.marketData?.marketcap?.fullyDilutedUsd?.toLocaleString(),
       });
     }
     t.printTable();
