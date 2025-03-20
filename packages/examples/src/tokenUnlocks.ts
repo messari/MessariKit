@@ -248,33 +248,29 @@ async function getUnlockEvents(assetId: string) {
 
 async function main() {
   try {
+    const solanaId = "b3d5d66c-26a2-404c-9325-91dc714a722b";
+
     // 1. Get all supported token unlock assets
     const supportedAssets = await getSupportedAssets();
     console.log("\n");
 
     // 2. Get allocations for first two supported assets
     if (supportedAssets.length >= 2) {
-      const assetIDs = `${supportedAssets[0].id},${supportedAssets[1].id}`;
+      const assetIDs = `${solanaId},${supportedAssets[0].id},${supportedAssets[1].id}`;
       await getAssetAllocations(assetIDs);
       console.log("\n");
     }
 
     // 3. Get vesting schedule for the first supported asset
-    if (supportedAssets.length > 0 && supportedAssets[0].id) {
-      await getVestingSchedule(supportedAssets[0].id);
-      console.log("\n");
-    }
+    await getVestingSchedule(solanaId);
+    console.log("\n");
 
     // 4. Get token unlocks for the first supported asset
-    if (supportedAssets.length > 0 && supportedAssets[0].id) {
-      await getTokenUnlocks(supportedAssets[0].id);
-      console.log("\n");
-    }
+    await getTokenUnlocks(solanaId);
+    console.log("\n");
 
     // 5. Get unlock events for the first supported asset
-    if (supportedAssets.length > 0 && supportedAssets[0].id) {
-      await getUnlockEvents(supportedAssets[0].id);
-    }
+    await getUnlockEvents(solanaId);
   } catch (error) {
     console.error("An error occurred:", error);
   }
