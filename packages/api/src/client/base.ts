@@ -28,8 +28,6 @@ import type {
   getExchangeRecapParameters,
   getExchangeRecapResponse,
   getProjectRecapResponse,
-  getAssetListResponse,
-  getAssetListParameters,
   APIResponseWithMetadata,
   getPreviewsResponse,
   getReportByAssetIDParameters,
@@ -103,20 +101,12 @@ export interface AIInterface {
  */
 export interface AssetInterface {
   /**
-   * Gets a paginated list of assets
-   * @param params Parameters for filtering assets
-   * @param options Optional request configuration
-   * @returns A paginated result of assets
-   */
-  getAssetList(params?: getAssetListParameters, options?: RequestOptions): Promise<PaginatedResult<getAssetListResponse["data"], getAssetListParameters>>;
-
-  /**
    * Gets a paginated list of assets with extended information and coverage details (V2)
    * @param params Parameters for filtering assets including coverage options
    * @param options Optional request configuration
    * @returns A paginated result of assets with extended information
    */
-  getAssetsV2(params?: getAssetsV2Parameters, options?: RequestOptions): Promise<PaginatedResult<getAssetsV2Response["data"], getAssetsV2Parameters>>;
+  getAssetsV2(params?: getAssetsV2Parameters, options?: RequestOptions): Promise<APIResponseWithMetadata<getAssetsV2Response>>;
 
   /**
    * Gets detailed information for specific assets by IDs or slugs
@@ -124,14 +114,14 @@ export interface AssetInterface {
    * @param options Optional request configuration
    * @returns Promise resolving to detailed asset information
    */
-  getAssetDetails(params: getAssetDetailsParameters, options?: RequestOptions): Promise<getAssetDetailsResponse>;
+  getAssetDetails(params: getAssetDetailsParameters, options?: RequestOptions): Promise<APIResponseWithMetadata<getAssetDetailsResponse>>;
 
   /**
    * Gets a catalog of available timeseries datasets and metrics for assets
    * @param options Optional request configuration
    * @returns Promise resolving to timeseries catalog information
    */
-  getAssetsTimeseriesCatalog(options?: RequestOptions): Promise<getAssetsTimeseriesCatalogResponse>;
+  getAssetsTimeseriesCatalog(options?: RequestOptions): Promise<APIResponseWithMetadata<getAssetsTimeseriesCatalogResponse>>;
 
   /**
    * Gets all-time high information for assets with various filtering options
@@ -139,10 +129,7 @@ export interface AssetInterface {
    * @param options Optional request configuration
    * @returns A paginated result of assets with ATH information
    */
-  getAssetsV2ATH(
-    params?: getAssetsV2ATHParameters,
-    options?: RequestOptions,
-  ): Promise<PaginatedResult<getAssetsV2ATHResponse["data"], getAssetsV2ATHParameters>>;
+  getAssetsV2ATH(params?: getAssetsV2ATHParameters, options?: RequestOptions): Promise<APIResponseWithMetadata<getAssetsV2ATHResponse>>;
 
   /**
    * Gets return on investment information for assets with various filtering options
@@ -150,10 +137,7 @@ export interface AssetInterface {
    * @param options Optional request configuration
    * @returns A paginated result of assets with ROI information
    */
-  getAssetsV2ROI(
-    params?: getAssetsV2ROIParameters,
-    options?: RequestOptions,
-  ): Promise<PaginatedResult<getAssetsV2ROIResponse["data"], getAssetsV2ROIParameters>>;
+  getAssetsV2ROI(params?: getAssetsV2ROIParameters, options?: RequestOptions): Promise<APIResponseWithMetadata<getAssetsV2ROIResponse>>;
 
   /**
    * Gets timeseries data for a specific asset and dataset

@@ -39,25 +39,10 @@ export const extractEntities = {
   path: () => "/ai/v1/classification/extraction",
 } as const;
 
-export type getAssetListResponse = APIResponseWithMetadata<components["schemas"]["BasicAsset"][], components["schemas"]["PaginationResult"]>;
-export type getAssetListError = components["schemas"]["APIError"];
-
-export type getAssetListParameters = { page?: number; limit?: number; symbol?: string; name?: string; category?: string; sector?: string; tags?: string };
-
-export const getAssetList = {
-  method: "GET" as const,
-  pathParams: [] as const,
-  queryParams: ["page", "limit", "symbol", "name", "category", "sector", "tags"] as const,
-  bodyParams: [] as const,
-  path: () => "/asset/v1/assets",
-} as const;
-
-export type getAssetsV2Response = APIResponseWithMetadata<components["schemas"]["V2AssetListItem"][], components["schemas"]["PaginationResult"]>;
+export type getAssetsV2Response = components["schemas"]["V2AssetListItem"][];
 export type getAssetsV2Error = components["schemas"]["APIError"];
 
 export type getAssetsV2Parameters = {
-  page?: number;
-  limit?: number;
   category?: string;
   sector?: string;
   tags?: string[];
@@ -76,8 +61,6 @@ export const getAssetsV2 = {
   method: "GET" as const,
   pathParams: [] as const,
   queryParams: [
-    "page",
-    "limit",
     "category",
     "sector",
     "tags",
@@ -151,28 +134,28 @@ export const getAssetTimeseriesWithGranularity = {
   path: (p: PathParams) => `/metrics/v2/assets/${p.entityIdentifier}/metrics/${p.datasetSlug}/time-series/${p.granularity}`,
 } as const;
 
-export type getAssetsV2ATHResponse = APIResponseWithMetadata<components["schemas"]["V2AssetAthItem"][], components["schemas"]["PaginationResult"]>;
+export type getAssetsV2ATHResponse = components["schemas"]["V2AssetAthItem"][];
 export type getAssetsV2ATHError = components["schemas"]["APIError"];
 
-export type getAssetsV2ATHParameters = { page?: number; limit?: number; category?: string; sector?: string; tags?: string[]; search?: string };
+export type getAssetsV2ATHParameters = { category?: string; sector?: string; tags?: string[]; search?: string };
 
 export const getAssetsV2ATH = {
   method: "GET" as const,
   pathParams: [] as const,
-  queryParams: ["page", "limit", "category", "sector", "tags", "search"] as const,
+  queryParams: ["category", "sector", "tags", "search"] as const,
   bodyParams: [] as const,
   path: () => "/metrics/v2/assets/ath",
 } as const;
 
-export type getAssetsV2ROIResponse = APIResponseWithMetadata<components["schemas"]["V2AssetRoiItem"][], components["schemas"]["PaginationResult"]>;
+export type getAssetsV2ROIResponse = components["schemas"]["V2AssetRoiItem"][];
 export type getAssetsV2ROIError = components["schemas"]["APIError"];
 
-export type getAssetsV2ROIParameters = { page?: number; limit?: number; category?: string; sector?: string; tags?: string[]; search?: string };
+export type getAssetsV2ROIParameters = { category?: string; sector?: string; tags?: string[]; search?: string };
 
 export const getAssetsV2ROI = {
   method: "GET" as const,
   pathParams: [] as const,
-  queryParams: ["page", "limit", "category", "sector", "tags", "search"] as const,
+  queryParams: ["category", "sector", "tags", "search"] as const,
   bodyParams: [] as const,
   path: () => "/metrics/v2/assets/roi",
 } as const;

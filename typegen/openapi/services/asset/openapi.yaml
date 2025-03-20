@@ -30,82 +30,6 @@ security:
   - apiKey: []
 
 paths:
-  /asset/v1/assets:
-    get:
-      operationId: getAssetList
-      summary: Get Asset List
-      description: |
-        Get a paginated list of assets.
-        Each filter allows multiple values, comma-separated.
-        All assets that match any of the values for a given filter will be returned, 
-        as long as they are not filtered out by other filters.
-      tags:
-        - Asset
-      security:
-        - apiKey: []
-      parameters:
-        - $ref: '../../common/parameters.yaml#/components/parameters/apiKey'
-        - $ref: '../../common/parameters.yaml#/components/parameters/page'
-        - $ref: '../../common/parameters.yaml#/components/parameters/limit'
-        - name: symbol
-          in: query
-          required: false
-          description: Filter by asset symbols (comma-separated). It might return multiple assets for a given symbol.
-          schema:
-            type: string
-        - name: name
-          in: query
-          required: false
-          description: Filter by asset names (comma-separated). It might return multiple assets for a given name.
-          schema:
-            type: string
-        - name: category
-          in: query
-          required: false
-          description: Filter by asset categories (comma-separated)
-          schema:
-            type: string
-        - name: sector
-          in: query
-          required: false
-          description: Filter by asset sectors (comma-separated)
-          schema:
-            type: string
-        - name: tags
-          in: query
-          required: false
-          description: Filter by asset tags (comma-separated)
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Successful response
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: '../../common/components.yaml#/components/schemas/APIResponseWithMetadata'
-                  - type: object
-                    properties:
-                      data:
-                        type: array
-                        items:
-                          $ref: '#/components/schemas/BasicAsset'
-                      metadata:
-                        $ref: '../../common/components.yaml#/components/schemas/PaginationResult'
-        '400':
-          description: Client error response
-          content:
-            application/json:
-              schema:
-                $ref: '../../common/components.yaml#/components/schemas/APIError'
-        '500':
-          description: Server error response
-          content:
-            application/json:
-              schema:
-                $ref: '../../common/components.yaml#/components/schemas/APIError'
-
   /metrics/v2/assets:
     get:
       operationId: getAssetsV2
@@ -118,8 +42,6 @@ paths:
         - apiKey: []
       parameters:
         - $ref: '../../common/parameters.yaml#/components/parameters/apiKey'
-        - $ref: '../../common/parameters.yaml#/components/parameters/page'
-        - $ref: '../../common/parameters.yaml#/components/parameters/limit'
         - name: category
           in: query
           required: false
@@ -208,8 +130,6 @@ paths:
                         type: array
                         items:
                           $ref: '#/components/schemas/V2AssetListItem'
-                      metadata:
-                        $ref: '../../common/components.yaml#/components/schemas/PaginationResult'
         '400':
           description: Client error response
           content:
@@ -330,8 +250,6 @@ paths:
         - apiKey: []
       parameters:
         - $ref: '../../common/parameters.yaml#/components/parameters/apiKey'
-        - $ref: '../../common/parameters.yaml#/components/parameters/page'
-        - $ref: '../../common/parameters.yaml#/components/parameters/limit'
         - name: category
           in: query
           required: false
@@ -372,8 +290,6 @@ paths:
                         type: array
                         items:
                           $ref: '#/components/schemas/V2AssetAthItem'
-                      metadata:
-                        $ref: '../../common/components.yaml#/components/schemas/PaginationResult'
         '400':
           description: Client error response
           content:
@@ -399,8 +315,6 @@ paths:
         - apiKey: []
       parameters:
         - $ref: '../../common/parameters.yaml#/components/parameters/apiKey'
-        - $ref: '../../common/parameters.yaml#/components/parameters/page'
-        - $ref: '../../common/parameters.yaml#/components/parameters/limit'
         - name: category
           in: query
           required: false
@@ -441,8 +355,6 @@ paths:
                         type: array
                         items:
                           $ref: '#/components/schemas/V2AssetRoiItem'
-                      metadata:
-                        $ref: '../../common/components.yaml#/components/schemas/PaginationResult'
         '400':
           description: Client error response
           content:
@@ -841,88 +753,6 @@ components:
           format: float
           description: 24-hour trading volume of the asset
 
-    V2AssetROI:
-      type: object
-      properties:
-        priceChange24h:
-          type: number
-          format: float
-          description: Price change over the last 24 hours
-        priceChange7d:
-          type: number
-          format: float
-          description: Price change over the last 7 days
-        priceChange30d:
-          type: number
-          format: float
-          description: Price change over the last 30 days
-        priceChange1y:
-          type: number
-          format: float
-          description: Price change over the last year
-        priceChange3y:
-          type: number
-          format: float
-          description: Price change over the last 3 years
-        priceChange5y:
-          type: number
-          format: float
-          description: Price change over the last 5 years
-        # Keep the existing properties as fallbacks
-        last24h:
-          type: number
-          format: float
-          description: Return on investment over the last 24 hours
-        last7d:
-          type: number
-          format: float
-          description: Return on investment over the last 7 days
-        last30d:
-          type: number
-          format: float
-          description: Return on investment over the last 30 days
-        last90d:
-          type: number
-          format: float
-          description: Return on investment over the last 90 days
-        last1y:
-          type: number
-          format: float
-          description: Return on investment over the last year
-
-    V2AssetATH:
-      type: object
-      properties:
-        allTimeHigh:
-          type: number
-          format: float
-          description: All-time high price
-        allTimeHighDate:
-          type: string
-          format: date-time
-          description: Date of the all-time high
-        percentDownFromAllTimeHigh:
-          type: number
-          format: float
-          description: Percent down from all-time high
-        # Keep the existing properties as fallbacks
-        date:
-          type: string
-          format: date-time
-          description: Date of the all-time high
-        price:
-          type: number
-          format: float
-          description: Price at the all-time high
-        percentDown:
-          type: number
-          format: float
-          description: Percent down from all-time high
-        percentUp:
-          type: number
-          format: float
-          description: Percent up to all-time high
-
     V2AssetEntity:
       type: object
       required:
@@ -1109,15 +939,7 @@ components:
         - category
         - sector
         - tags
-        - all_time_high_date
-        - all_time_high
-        - time_since_all_time_high_seconds
-        - percent_down_from_ath
-        - breakeven_multiple
-        - cycle_low
-        - cycle_low_date
-        - time_since_cycle_low_seconds
-        - percent_up_from_cycle_low
+        - allTimeHigh
       properties:
         id:
           type: string
@@ -1142,42 +964,9 @@ components:
           items:
             type: string
           description: Tags associated with the asset
-        all_time_high_date:
-          type: string
-          format: date-time
-          description: Date of the all-time high
-        all_time_high:
-          type: number
-          format: float
-          description: Price at the all-time high
-        time_since_all_time_high_seconds:
-          type: number
-          format: float
-          description: Time since all-time high in seconds
-        percent_down_from_ath:
-          type: number
-          format: float
-          description: Percent down from all-time high
-        breakeven_multiple:
-          type: number
-          format: float
-          description: Multiple required to reach breakeven from current price
-        cycle_low:
-          type: number
-          format: float
-          description: The cycle low price
-        cycle_low_date:
-          type: string
-          format: date-time
-          description: Date of the cycle low
-        time_since_cycle_low_seconds:
-          type: number
-          format: float
-          description: Time since cycle low in seconds
-        percent_up_from_cycle_low:
-          type: number
-          format: float
-          description: Percent up from cycle low
+        allTimeHigh:
+          $ref: '#/components/schemas/V2AssetATH'
+          description: All-time high data for the asset
 
     V2AssetRoiItem:
       type: object
@@ -1189,15 +978,7 @@ components:
         - category
         - sector
         - tags
-        - price_change_24h
-        - price_change_7d
-        - price_change_30d
-        - price_change_1y
-        - price_change_3y
-        - price_change_5y
-        - price_change_mtd
-        - price_change_qtd
-        - price_change_ytd
+        - returnOnInvestment
       properties:
         id:
           type: string
@@ -1222,39 +1003,106 @@ components:
           items:
             type: string
           description: Tags associated with the asset
-        price_change_24h:
+        returnOnInvestment:
+          $ref: '#/components/schemas/V2AssetROI'
+          description: Return on investment data for the asset
+
+    V2AssetROI:
+      type: object
+      required:
+        - priceChange24h
+        - priceChange7d
+        - priceChange30d
+        - priceChange1y
+        - priceChange3y
+        - priceChange5y
+        - priceChangeMTD
+        - priceChangeQTD
+        - priceChangeYTD
+      properties:
+        priceChange24h:
           type: number
           format: float
           description: Price change over the last 24 hours
-        price_change_7d:
+        priceChange7d:
           type: number
           format: float
           description: Price change over the last 7 days
-        price_change_30d:
+        priceChange30d:
           type: number
           format: float
           description: Price change over the last 30 days
-        price_change_1y:
+        priceChange1y:
           type: number
           format: float
           description: Price change over the last year
-        price_change_3y:
+        priceChange3y:
           type: number
           format: float
           description: Price change over the last 3 years
-        price_change_5y:
+        priceChange5y:
           type: number
           format: float
           description: Price change over the last 5 years
-        price_change_mtd:
+        priceChangeMTD:
           type: number
           format: float
           description: Price change month-to-date
-        price_change_qtd:
+        priceChangeQTD:
           type: number
           format: float
           description: Price change quarter-to-date
-        price_change_ytd:
+        priceChangeYTD:
           type: number
           format: float
           description: Price change year-to-date
+
+    V2AssetATH:
+      type: object
+      required:
+        - allTimeHigh
+        - allTimeHighDate
+        - allTimeHighTimeSinceSeconds
+        - allTimeHighPercentDown
+        - breakevenMultiple
+        - cycleLow
+        - cycleLowDate
+        - cycleLowTimeSinceSeconds
+        - cycleLowPercentUp
+      properties:
+        allTimeHigh:
+          type: number
+          format: float
+          description: Price at the all-time high
+        allTimeHighDate:
+          type: string
+          format: date-time
+          description: Date of the all-time high
+        allTimeHighTimeSinceSeconds:
+          type: number
+          format: float
+          description: Time since all-time high in seconds
+        allTimeHighPercentDown:
+          type: number
+          format: float
+          description: Percent down from all-time high
+        breakevenMultiple:
+          type: number
+          format: float
+          description: Multiple required to reach breakeven from current price
+        cycleLow:
+          type: number
+          format: float
+          description: The cycle low price
+        cycleLowDate:
+          type: string
+          format: date-time
+          description: Date of the cycle low
+        cycleLowTimeSinceSeconds:
+          type: number
+          format: float
+          description: Time since cycle low in seconds
+        cycleLowPercentUp:
+          type: number
+          format: float
+          description: Percent up from cycle low

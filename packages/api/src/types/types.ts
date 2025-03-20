@@ -41,16 +41,6 @@ export type paths = {
      */
     post: operations["extractEntities"];
   };
-  "/asset/v1/assets": {
-    /**
-     * Get Asset List
-     * @description Get a paginated list of assets.
-     * Each filter allows multiple values, comma-separated.
-     * All assets that match any of the values for a given filter will be returned,
-     * as long as they are not filtered out by other filters.
-     */
-    get: operations["getAssetList"];
-  };
   "/diligence/v1/report/asset/{assetId}": {
     /**
      * Get Diligence Report
@@ -548,32 +538,6 @@ export type components = {
       linkedinUrl: string;
       /** @description Name of the author */
       name: string;
-    };
-    BasicAsset: {
-      /** @description Category of the asset */
-      category: string;
-      /**
-       * Format: uuid
-       * @description Unique identifier for the asset
-       */
-      id: string;
-      /** @description Name of the asset */
-      name: string;
-      /** @description Rank of the asset (optional) */
-      rank?: number | null;
-      /** @description Sector of the asset */
-      sector: string;
-      /**
-       * Format: int32
-       * @description Serial identifier for the asset
-       */
-      serialId: number;
-      /** @description Slug of the asset */
-      slug: string;
-      /** @description Symbol of the asset */
-      symbol: string;
-      /** @description Tags associated with the asset */
-      tags: string[];
     };
     ChatCompletionMessage: {
       /** @description The message content */
@@ -1606,82 +1570,59 @@ export type components = {
     V2AssetATH: {
       /**
        * Format: float
-       * @description All-time high price
+       * @description Price at the all-time high
        */
-      allTimeHigh?: number;
+      allTimeHigh: number;
       /**
        * Format: date-time
        * @description Date of the all-time high
        */
-      allTimeHighDate?: string;
-      /**
-       * Format: date-time
-       * @description Date of the all-time high
-       */
-      date?: string;
+      allTimeHighDate: string;
       /**
        * Format: float
        * @description Percent down from all-time high
        */
-      percentDown?: number;
+      allTimeHighPercentDown: number;
       /**
        * Format: float
-       * @description Percent down from all-time high
+       * @description Time since all-time high in seconds
        */
-      percentDownFromAllTimeHigh?: number;
-      /**
-       * Format: float
-       * @description Percent up to all-time high
-       */
-      percentUp?: number;
-      /**
-       * Format: float
-       * @description Price at the all-time high
-       */
-      price?: number;
-    };
-    V2AssetAthItem: {
-      /**
-       * Format: float
-       * @description Price at the all-time high
-       */
-      all_time_high: number;
-      /**
-       * Format: date-time
-       * @description Date of the all-time high
-       */
-      all_time_high_date: string;
+      allTimeHighTimeSinceSeconds: number;
       /**
        * Format: float
        * @description Multiple required to reach breakeven from current price
        */
-      breakeven_multiple: number;
-      /** @description Category of the asset */
-      category: string;
+      breakevenMultiple: number;
       /**
        * Format: float
        * @description The cycle low price
        */
-      cycle_low: number;
+      cycleLow: number;
       /**
        * Format: date-time
        * @description Date of the cycle low
        */
-      cycle_low_date: string;
-      /** @description Unique identifier for the asset */
-      id: string;
-      /** @description Name of the asset */
-      name: string;
-      /**
-       * Format: float
-       * @description Percent down from all-time high
-       */
-      percent_down_from_ath: number;
+      cycleLowDate: string;
       /**
        * Format: float
        * @description Percent up from cycle low
        */
-      percent_up_from_cycle_low: number;
+      cycleLowPercentUp: number;
+      /**
+       * Format: float
+       * @description Time since cycle low in seconds
+       */
+      cycleLowTimeSinceSeconds: number;
+    };
+    V2AssetAthItem: {
+      /** @description All-time high data for the asset */
+      allTimeHigh: components["schemas"]["V2AssetATH"];
+      /** @description Category of the asset */
+      category: string;
+      /** @description Unique identifier for the asset */
+      id: string;
+      /** @description Name of the asset */
+      name: string;
       /** @description Sector of the asset */
       sector: string;
       /** @description Slug of the asset */
@@ -1690,16 +1631,6 @@ export type components = {
       symbol: string;
       /** @description Tags associated with the asset */
       tags: string[];
-      /**
-       * Format: float
-       * @description Time since all-time high in seconds
-       */
-      time_since_all_time_high_seconds: number;
-      /**
-       * Format: float
-       * @description Time since cycle low in seconds
-       */
-      time_since_cycle_low_seconds: number;
     };
     V2AssetEntity: {
       /** @description Unique identifier for the asset */
@@ -1751,59 +1682,49 @@ export type components = {
     V2AssetROI: {
       /**
        * Format: float
-       * @description Return on investment over the last year
-       */
-      last1y?: number;
-      /**
-       * Format: float
-       * @description Return on investment over the last 7 days
-       */
-      last7d?: number;
-      /**
-       * Format: float
-       * @description Return on investment over the last 24 hours
-       */
-      last24h?: number;
-      /**
-       * Format: float
-       * @description Return on investment over the last 30 days
-       */
-      last30d?: number;
-      /**
-       * Format: float
-       * @description Return on investment over the last 90 days
-       */
-      last90d?: number;
-      /**
-       * Format: float
        * @description Price change over the last year
        */
-      priceChange1y?: number;
+      priceChange1y: number;
       /**
        * Format: float
        * @description Price change over the last 3 years
        */
-      priceChange3y?: number;
+      priceChange3y: number;
       /**
        * Format: float
        * @description Price change over the last 5 years
        */
-      priceChange5y?: number;
+      priceChange5y: number;
       /**
        * Format: float
        * @description Price change over the last 7 days
        */
-      priceChange7d?: number;
+      priceChange7d: number;
       /**
        * Format: float
        * @description Price change over the last 24 hours
        */
-      priceChange24h?: number;
+      priceChange24h: number;
       /**
        * Format: float
        * @description Price change over the last 30 days
        */
-      priceChange30d?: number;
+      priceChange30d: number;
+      /**
+       * Format: float
+       * @description Price change month-to-date
+       */
+      priceChangeMTD: number;
+      /**
+       * Format: float
+       * @description Price change quarter-to-date
+       */
+      priceChangeQTD: number;
+      /**
+       * Format: float
+       * @description Price change year-to-date
+       */
+      priceChangeYTD: number;
     };
     V2AssetRoiItem: {
       /** @description Category of the asset */
@@ -1812,51 +1733,8 @@ export type components = {
       id: string;
       /** @description Name of the asset */
       name: string;
-      /**
-       * Format: float
-       * @description Price change over the last year
-       */
-      price_change_1y: number;
-      /**
-       * Format: float
-       * @description Price change over the last 3 years
-       */
-      price_change_3y: number;
-      /**
-       * Format: float
-       * @description Price change over the last 5 years
-       */
-      price_change_5y: number;
-      /**
-       * Format: float
-       * @description Price change over the last 7 days
-       */
-      price_change_7d: number;
-      /**
-       * Format: float
-       * @description Price change over the last 24 hours
-       */
-      price_change_24h: number;
-      /**
-       * Format: float
-       * @description Price change over the last 30 days
-       */
-      price_change_30d: number;
-      /**
-       * Format: float
-       * @description Price change month-to-date
-       */
-      price_change_mtd: number;
-      /**
-       * Format: float
-       * @description Price change quarter-to-date
-       */
-      price_change_qtd: number;
-      /**
-       * Format: float
-       * @description Price change year-to-date
-       */
-      price_change_ytd: number;
+      /** @description Return on investment data for the asset */
+      returnOnInvestment: components["schemas"]["V2AssetROI"];
       /** @description Sector of the asset */
       sector: string;
       /** @description Slug of the asset */
@@ -2096,57 +1974,6 @@ export type operations = {
             data?: components["schemas"]["ExtractResponse"];
             metadata?: components["schemas"]["ExtractResponseMetadata"];
           };
-        };
-      };
-      /** @description Server error response */
-      500: {
-        content: {
-          "application/json": components["schemas"]["APIError"];
-        };
-      };
-    };
-  };
-  /**
-   * Get Asset List
-   * @description Get a paginated list of assets.
-   * Each filter allows multiple values, comma-separated.
-   * All assets that match any of the values for a given filter will be returned,
-   * as long as they are not filtered out by other filters.
-   */
-  getAssetList: {
-    parameters: {
-      query?: {
-        page?: components["parameters"]["page"];
-        limit?: components["parameters"]["limit"];
-        /** @description Filter by asset symbols (comma-separated). It might return multiple assets for a given symbol. */
-        symbol?: string;
-        /** @description Filter by asset names (comma-separated). It might return multiple assets for a given name. */
-        name?: string;
-        /** @description Filter by asset categories (comma-separated) */
-        category?: string;
-        /** @description Filter by asset sectors (comma-separated) */
-        sector?: string;
-        /** @description Filter by asset tags (comma-separated) */
-        tags?: string;
-      };
-      header: {
-        "x-messari-api-key": components["parameters"]["apiKey"];
-      };
-    };
-    responses: {
-      /** @description Successful response */
-      200: {
-        content: {
-          "application/json": components["schemas"]["APIResponseWithMetadata"] & {
-            data?: components["schemas"]["BasicAsset"][];
-            metadata?: components["schemas"]["PaginationResult"];
-          };
-        };
-      };
-      /** @description Client error response */
-      400: {
-        content: {
-          "application/json": components["schemas"]["APIError"];
         };
       };
       /** @description Server error response */
@@ -2805,8 +2632,6 @@ export type operations = {
   getAssetsV2: {
     parameters: {
       query?: {
-        page?: components["parameters"]["page"];
-        limit?: components["parameters"]["limit"];
         /** @description Filter by asset category */
         category?: string;
         /** @description Filter by asset sector */
@@ -2842,7 +2667,6 @@ export type operations = {
         content: {
           "application/json": components["schemas"]["APIResponseWithMetadata"] & {
             data?: components["schemas"]["V2AssetListItem"][];
-            metadata?: components["schemas"]["PaginationResult"];
           };
         };
       };
@@ -2975,8 +2799,6 @@ export type operations = {
   getAssetsV2ATH: {
     parameters: {
       query?: {
-        page?: components["parameters"]["page"];
-        limit?: components["parameters"]["limit"];
         /** @description Filter by asset category */
         category?: string;
         /** @description Filter by asset sector */
@@ -2996,7 +2818,6 @@ export type operations = {
         content: {
           "application/json": components["schemas"]["APIResponseWithMetadata"] & {
             data?: components["schemas"]["V2AssetAthItem"][];
-            metadata?: components["schemas"]["PaginationResult"];
           };
         };
       };
@@ -3100,8 +2921,6 @@ export type operations = {
   getAssetsV2ROI: {
     parameters: {
       query?: {
-        page?: components["parameters"]["page"];
-        limit?: components["parameters"]["limit"];
         /** @description Filter by asset category */
         category?: string;
         /** @description Filter by asset sector */
@@ -3121,7 +2940,6 @@ export type operations = {
         content: {
           "application/json": components["schemas"]["APIResponseWithMetadata"] & {
             data?: components["schemas"]["V2AssetRoiItem"][];
-            metadata?: components["schemas"]["PaginationResult"];
           };
         };
       };

@@ -41,8 +41,6 @@ export type AssetWithROIData = components["schemas"]["AssetWithROIData"];
 
 export type Author = components["schemas"]["Author"];
 
-export type BasicAsset = components["schemas"]["BasicAsset"];
-
 export type ChatCompletionMessage = components["schemas"]["ChatCompletionMessage"];
 
 export type ChatCompletionRequest = components["schemas"]["ChatCompletionRequest"];

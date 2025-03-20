@@ -12,10 +12,6 @@ import {
   getAssetATH,
   getAssetsROI,
   getAssetsATH,
-  getProjectRecap,
-  getExchangeRecap,
-  getExchangeRankingsRecap,
-  getAssetList,
   getPreviews,
   getReportByAssetID,
   getResearchReports,
@@ -66,13 +62,6 @@ import type {
   getAssetATHResponse,
   getAssetsROIResponse,
   getAssetsATHResponse,
-  getProjectRecapParameters,
-  getProjectRecapResponse,
-  getExchangeRecapParameters,
-  getExchangeRecapResponse,
-  getExchangeRankingsRecapResponse,
-  getAssetListParameters,
-  getAssetListResponse,
   getPreviewsResponse,
   getReportByAssetIDResponse,
   getReportByAssetIDParameters,
@@ -689,36 +678,17 @@ export class MessariClient extends MessariClientBase {
    * @deprecated Asset is Work-in-Progress and not production ready
    */
   public readonly asset: AssetInterface = {
-    getAssetList: async (params: getAssetListParameters = {}, options?: RequestOptions) => {
-      const fetchPage = async (p: getAssetListParameters, o?: RequestOptions) => {
-        return this.requestWithMetadata<getAssetListResponse["data"], PaginationMetadata>({
-          method: getAssetList.method,
-          path: getAssetList.path(),
-          queryParams: pick(p, getAssetList.queryParams),
-          options: o,
-        });
-      };
-
-      const response = await fetchPage(params, options);
-      return this.paginate<getAssetListResponse["data"], getAssetListParameters>(params, fetchPage, response, options);
-    },
-
     getAssetsV2: async (params: getAssetsV2Parameters = {}, options?: RequestOptions) => {
-      const fetchPage = async (p: getAssetsV2Parameters, o?: RequestOptions) => {
-        return this.requestWithMetadata<getAssetsV2Response["data"], PaginationMetadata>({
-          method: getAssetsV2.method,
-          path: getAssetsV2.path(),
-          queryParams: pick(p, getAssetsV2.queryParams),
-          options: o,
-        });
-      };
-
-      const response = await fetchPage(params, options);
-      return this.paginate<getAssetsV2Response["data"], getAssetsV2Parameters>(params, fetchPage, response, options);
+      return this.requestWithMetadata<getAssetsV2Response, PaginationMetadata>({
+        method: getAssetsV2.method,
+        path: getAssetsV2.path(),
+        queryParams: pick(params, getAssetsV2.queryParams),
+        options,
+      });
     },
 
     getAssetDetails: async (params: getAssetDetailsParameters, options?: RequestOptions) => {
-      return this.request<getAssetDetailsResponse>({
+      return this.requestWithMetadata<getAssetDetailsResponse, PaginationMetadata>({
         method: getAssetDetails.method,
         path: getAssetDetails.path(),
         queryParams: pick(params, getAssetDetails.queryParams),
@@ -727,7 +697,7 @@ export class MessariClient extends MessariClientBase {
     },
 
     getAssetsTimeseriesCatalog: async (options?: RequestOptions) => {
-      return this.request<getAssetsTimeseriesCatalogResponse>({
+      return this.requestWithMetadata<getAssetsTimeseriesCatalogResponse, PaginationMetadata>({
         method: getAssetsTimeseriesCatalog.method,
         path: getAssetsTimeseriesCatalog.path(),
         options,
@@ -735,31 +705,21 @@ export class MessariClient extends MessariClientBase {
     },
 
     getAssetsV2ATH: async (params: getAssetsV2ATHParameters = {}, options?: RequestOptions) => {
-      const fetchPage = async (p: getAssetsV2ATHParameters, o?: RequestOptions) => {
-        return this.requestWithMetadata<getAssetsV2ATHResponse["data"], PaginationMetadata>({
-          method: getAssetsV2ATH.method,
-          path: getAssetsV2ATH.path(),
-          queryParams: pick(p, getAssetsV2ATH.queryParams),
-          options: o,
-        });
-      };
-
-      const response = await fetchPage(params, options);
-      return this.paginate<getAssetsV2ATHResponse["data"], getAssetsV2ATHParameters>(params, fetchPage, response, options);
+      return this.requestWithMetadata<getAssetsV2ATHResponse, PaginationMetadata>({
+        method: getAssetsV2ATH.method,
+        path: getAssetsV2ATH.path(),
+        queryParams: pick(params, getAssetsV2ATH.queryParams),
+        options,
+      });
     },
 
     getAssetsV2ROI: async (params: getAssetsV2ROIParameters = {}, options?: RequestOptions) => {
-      const fetchPage = async (p: getAssetsV2ROIParameters, o?: RequestOptions) => {
-        return this.requestWithMetadata<getAssetsV2ROIResponse["data"], PaginationMetadata>({
-          method: getAssetsV2ROI.method,
-          path: getAssetsV2ROI.path(),
-          queryParams: pick(p, getAssetsV2ROI.queryParams),
-          options: o,
-        });
-      };
-
-      const response = await fetchPage(params, options);
-      return this.paginate<getAssetsV2ROIResponse["data"], getAssetsV2ROIParameters>(params, fetchPage, response, options);
+      return this.requestWithMetadata<getAssetsV2ROIResponse, PaginationMetadata>({
+        method: getAssetsV2ROI.method,
+        path: getAssetsV2ROI.path(),
+        queryParams: pick(params, getAssetsV2ROI.queryParams),
+        options,
+      });
     },
 
     getAssetTimeseries: async (params: getAssetTimeseriesParameters, options?: RequestOptions) => {
