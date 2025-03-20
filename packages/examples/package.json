@@ -10,6 +10,7 @@
 		"start:asset": "tsx src/asset/asset.ts",
 		"start:asset:ath": "tsx src/asset/ath.ts",
 		"start:asset:roi": "tsx src/asset/roi.ts",
+		"start:asset:timeseries": "tsx src/asset/timeseries.ts",
 		"start:ai": "tsx src/ai.ts",
 		"start:diligence": "tsx src/diligence.ts",
 		"start:fundraising": "tsx src/fundraising.ts",
