@@ -137,12 +137,12 @@ export const getAssetTimeseriesWithGranularity = {
 export type getAssetsV2ATHResponse = components["schemas"]["V2AssetAthItem"][];
 export type getAssetsV2ATHError = components["schemas"]["APIError"];
 
-export type getAssetsV2ATHParameters = { category?: string; sector?: string; tags?: string[]; search?: string };
+export type getAssetsV2ATHParameters = { ids?: string; slugs?: string; category?: string; sector?: string; tags?: string[]; search?: string };
 
 export const getAssetsV2ATH = {
   method: "GET" as const,
   pathParams: [] as const,
-  queryParams: ["category", "sector", "tags", "search"] as const,
+  queryParams: ["ids", "slugs", "category", "sector", "tags", "search"] as const,
   bodyParams: [] as const,
   path: () => "/metrics/v2/assets/ath",
 } as const;
@@ -150,12 +150,12 @@ export const getAssetsV2ATH = {
 export type getAssetsV2ROIResponse = components["schemas"]["V2AssetRoiItem"][];
 export type getAssetsV2ROIError = components["schemas"]["APIError"];
 
-export type getAssetsV2ROIParameters = { category?: string; sector?: string; tags?: string[]; search?: string };
+export type getAssetsV2ROIParameters = { ids?: string; slugs?: string; category?: string; sector?: string; tags?: string[]; search?: string };
 
 export const getAssetsV2ROI = {
   method: "GET" as const,
   pathParams: [] as const,
-  queryParams: ["category", "sector", "tags", "search"] as const,
+  queryParams: ["ids", "slugs", "category", "sector", "tags", "search"] as const,
   bodyParams: [] as const,
   path: () => "/metrics/v2/assets/roi",
 } as const;

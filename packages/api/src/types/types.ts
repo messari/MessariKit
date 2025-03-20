@@ -2479,6 +2479,10 @@ export type operations = {
   getAssetsV2ATH: {
     parameters: {
       query?: {
+        /** @description Comma-separated list of asset IDs */
+        ids?: string;
+        /** @description Comma-separated list of asset slugs */
+        slugs?: string;
         /** @description Filter by asset category */
         category?: string;
         /** @description Filter by asset sector */
@@ -2601,6 +2605,10 @@ export type operations = {
   getAssetsV2ROI: {
     parameters: {
       query?: {
+        /** @description Comma-separated list of asset IDs */
+        ids?: string;
+        /** @description Comma-separated list of asset slugs */
+        slugs?: string;
         /** @description Filter by asset category */
         category?: string;
         /** @description Filter by asset sector */
