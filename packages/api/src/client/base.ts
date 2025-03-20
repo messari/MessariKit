@@ -361,10 +361,7 @@ export interface UserManagementInterface {
    * @param options Optional request configuration
    * @returns A promise resolving to the created watchlist
    */
-  createWatchlist(
-    params: createWatchlistParameters,
-    options?: RequestOptions
-  ): Promise<createWatchlistResponse>;
+  createWatchlist(params: createWatchlistParameters, options?: RequestOptions): Promise<createWatchlistResponse>;
 
   /**
    * Get a specific watchlist by ID for the authenticated user
@@ -372,10 +369,7 @@ export interface UserManagementInterface {
    * @param options Optional request configuration
    * @returns A promise resolving to the requested watchlist
    */
-  getWatchlist(
-    params: getWatchlistParameters,
-    options?: RequestOptions
-  ): Promise<getWatchlistResponse>;
+  getWatchlist(params: getWatchlistParameters, options?: RequestOptions): Promise<getWatchlistResponse>;
 
   /**
    * Update a specific watchlist by ID for the authenticated user
@@ -383,10 +377,7 @@ export interface UserManagementInterface {
    * @param options Optional request configuration
    * @returns A promise resolving to the updated watchlist
    */
-  updateWatchlist(
-    params: updateWatchlistParameters,
-    options?: RequestOptions
-  ): Promise<updateWatchlistResponse>;
+  updateWatchlist(params: updateWatchlistParameters, options?: RequestOptions): Promise<updateWatchlistResponse>;
 
   /**
    * Delete a specific watchlist by ID for the authenticated user
@@ -394,10 +385,7 @@ export interface UserManagementInterface {
    * @param options Optional request configuration
    * @returns A promise resolving to the API response
    */
-  deleteWatchlist(
-    params: deleteWatchlistParameters,
-    options?: RequestOptions
-  ): Promise<deleteWatchlistResponse>;
+  deleteWatchlist(params: deleteWatchlistParameters, options?: RequestOptions): Promise<deleteWatchlistResponse>;
 
   /**
    * Modify the assets in a specific watchlist by ID for the authenticated user
@@ -405,10 +393,7 @@ export interface UserManagementInterface {
    * @param options Optional request configuration
    * @returns A promise resolving to the modified watchlist
    */
-  modifyWatchlistAssets(
-    params: modifyWatchlistAssetsParameters,
-    options?: RequestOptions
-  ): Promise<modifyWatchlistAssetsResponse>;
+  modifyWatchlistAssets(params: modifyWatchlistAssetsParameters, options?: RequestOptions): Promise<modifyWatchlistAssetsResponse>;
 }
 
 /**
@@ -699,5 +684,3 @@ export abstract class MessariClientBase {
     }
   }
 }
-
-

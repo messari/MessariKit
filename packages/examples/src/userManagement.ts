@@ -11,9 +11,7 @@ const API_KEY = process.env.MESSARI_API_KEY;
 // Check if API key is available
 if (!API_KEY) {
   console.error("Error: MESSARI_API_KEY environment variable is not set.");
-  console.error(
-    "Please create a .env file with your API key or set it in your environment."
-  );
+  console.error("Please create a .env file with your API key or set it in your environment.");
   process.exit(1);
 }
 
@@ -84,9 +82,7 @@ async function main() {
     const updatedWatchlists = await client.userManagement.listWatchlists();
 
     // Find the newly created watchlist
-    const newWatchlist = updatedWatchlists.find(
-      (w) => w.title === newWatchlistTitle
-    );
+    const newWatchlist = updatedWatchlists.find((w) => w.title === newWatchlistTitle);
 
     if (newWatchlist) {
       const watchlistId = newWatchlist.id;
@@ -124,13 +120,12 @@ async function main() {
       console.log("--------------------------------");
 
       // Add Solana to the watchlist
-      const modifiedWatchlist =
-        await client.userManagement.modifyWatchlistAssets({
-          id: watchlistId,
-          watchlistID: watchlistId,
-          action: "add",
-          assetIds: ["c16f5137-def3-4c5c-b3e8-7921f9c8f0d2"], // Solana
-        });
+      const modifiedWatchlist = await client.userManagement.modifyWatchlistAssets({
+        id: watchlistId,
+        watchlistID: watchlistId,
+        action: "add",
+        assetIds: ["c16f5137-def3-4c5c-b3e8-7921f9c8f0d2"], // Solana
+      });
 
       console.log("Watchlist after adding assets:");
       console.log(JSON.stringify(modifiedWatchlist, null, 2));
@@ -141,13 +136,12 @@ async function main() {
       console.log("--------------------------------");
 
       // Remove Ethereum from the watchlist
-      const modifiedWatchlist2 =
-        await client.userManagement.modifyWatchlistAssets({
-          id: watchlistId,
-          watchlistID: watchlistId,
-          action: "remove",
-          assetIds: ["21c795f5-1bfd-40c3-858e-e9d7e820c6d0"], // Ethereum
-        });
+      const modifiedWatchlist2 = await client.userManagement.modifyWatchlistAssets({
+        id: watchlistId,
+        watchlistID: watchlistId,
+        action: "remove",
+        assetIds: ["21c795f5-1bfd-40c3-858e-e9d7e820c6d0"], // Ethereum
+      });
 
       console.log("Watchlist after removing assets:");
       console.log(JSON.stringify(modifiedWatchlist2, null, 2));
@@ -166,9 +160,7 @@ async function main() {
 
       // Verify the watchlist is deleted
       const finalWatchlists = await client.userManagement.listWatchlists();
-      const deletedWatchlist = finalWatchlists.find(
-        (w) => w.id === watchlistId
-      );
+      const deletedWatchlist = finalWatchlists.find((w) => w.id === watchlistId);
 
       if (!deletedWatchlist) {
         console.log("Watchlist successfully deleted.");

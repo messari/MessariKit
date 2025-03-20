@@ -302,14 +302,14 @@ export class MessariClient extends MessariClientBase {
 
       // Check if the response is JSON or text based on Content-Type header
       const contentType = response.headers.get("Content-Type");
-      let responseData;
+      let responseData: { data: T };
 
-      if (contentType && contentType.toLowerCase().includes("application/json")) {
+      if (contentType?.toLowerCase().includes("application/json")) {
         responseData = await response.json();
       } else {
-        responseData = { data: await response.text() };
+        responseData = { data: await response.text() } as { data: T };
       }
-      
+
       this.logger(LogLevel.DEBUG, "request success", { responseData });
 
       // Emit response event
@@ -1022,10 +1022,7 @@ export class MessariClient extends MessariClientBase {
         options,
       }),
 
-    createWatchlist: (
-      params: createWatchlistParameters,
-      options?: RequestOptions
-    ) =>
+    createWatchlist: (params: createWatchlistParameters, options?: RequestOptions) =>
       this.request<createWatchlistResponse>({
         method: createWatchlist.method,
         path: createWatchlist.path(),
@@ -1040,10 +1037,7 @@ export class MessariClient extends MessariClientBase {
         options,
       }),
 
-    updateWatchlist: (
-      params: updateWatchlistParameters,
-      options?: RequestOptions
-    ) =>
+    updateWatchlist: (params: updateWatchlistParameters, options?: RequestOptions) =>
       this.request<updateWatchlistResponse>({
         method: updateWatchlist.method,
         path: updateWatchlist.path({ id: params.id }),
@@ -1051,27 +1045,21 @@ export class MessariClient extends MessariClientBase {
         options,
       }),
 
-    deleteWatchlist: (
-      params: deleteWatchlistParameters,
-      options?: RequestOptions
-    ) =>
+    deleteWatchlist: (params: deleteWatchlistParameters, options?: RequestOptions) =>
       this.request<deleteWatchlistResponse>({
         method: deleteWatchlist.method,
         path: deleteWatchlist.path(params),
         options,
       }),
 
-    modifyWatchlistAssets: (
-      params: modifyWatchlistAssetsParameters,
-      options?: RequestOptions
-    ) =>
+    modifyWatchlistAssets: (params: modifyWatchlistAssetsParameters, options?: RequestOptions) =>
       this.request<modifyWatchlistAssetsResponse>({
         method: modifyWatchlistAssets.method,
         path: modifyWatchlistAssets.path({ id: params.id }),
         body: pick(params, modifyWatchlistAssets.bodyParams),
         options,
       }),
-  };    
+  };
 
   // Recaps is commented out as we don't want to expose it yet
   // public readonly recaps: RecapsAPIInterface = {

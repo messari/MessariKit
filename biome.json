@@ -7,7 +7,12 @@
 	},
 	"files": {
 		"ignoreUnknown": false,
-		"ignore": ["*/node_modules/*", "*/dist/*", "packages/types/*"]
+		"ignore": [
+			"*/node_modules/*",
+			"*/dist/*",
+			"packages/types/*",
+			"packages/api/src/types/*"
+		]
 	},
 	"organizeImports": {
 		"enabled": true
