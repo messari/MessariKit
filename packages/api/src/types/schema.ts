@@ -3,180 +3,196 @@
  * DO NOT EDIT MANUALLY.
  */
 
-import type { components } from "./types";
+import type { components } from './types';
 
 // Export all schema types from components
 
-export type APIError = components["schemas"]["APIError"];
+export type APIError = components['schemas']['APIError'];
 
-export type APIResponse = components["schemas"]["APIResponse"];
+export type APIResponse = components['schemas']['APIResponse'];
 
-export type APIResponseWithMetadata = components["schemas"]["APIResponseWithMetadata"];
+export type APIResponseWithMetadata = components['schemas']['APIResponseWithMetadata'];
 
-export type AcquisitionDeal = components["schemas"]["AcquisitionDeal"];
+export type AcquisitionDeal = components['schemas']['AcquisitionDeal'];
 
-export type AcquisitionDealStatus = components["schemas"]["AcquisitionDealStatus"];
+export type AcquisitionDealStatus = components['schemas']['AcquisitionDealStatus'];
 
-export type Announcement = components["schemas"]["Announcement"];
+export type AllowanceInfo = components['schemas']['AllowanceInfo'];
 
-export type Asset = components["schemas"]["Asset"];
+export type Announcement = components['schemas']['Announcement'];
 
-export type AssetList = components["schemas"]["AssetList"];
+export type Asset = components['schemas']['Asset'];
 
-export type AssetReport = components["schemas"]["AssetReport"];
+export type AssetList = components['schemas']['AssetList'];
 
-export type AssetV2Link = components["schemas"]["AssetV2Link"];
+export type AssetReport = components['schemas']['AssetReport'];
 
-export type AssetV2MarketData = components["schemas"]["AssetV2MarketData"];
+export type AssetV2Link = components['schemas']['AssetV2Link'];
 
-export type Author = components["schemas"]["Author"];
+export type AssetV2MarketData = components['schemas']['AssetV2MarketData'];
 
-export type ChatCompletionMessage = components["schemas"]["ChatCompletionMessage"];
+export type Author = components['schemas']['Author'];
 
-export type ChatCompletionRequest = components["schemas"]["ChatCompletionRequest"];
+export type ChatCompletionMessage = components['schemas']['ChatCompletionMessage'];
 
-export type ChatCompletionResponse = components["schemas"]["ChatCompletionResponse"];
+export type ChatCompletionRequest = components['schemas']['ChatCompletionRequest'];
 
-export type ChatCompletionResponseMetadata = components["schemas"]["ChatCompletionResponseMetadata"];
+export type ChatCompletionResponse = components['schemas']['ChatCompletionResponse'];
 
-export type Document = components["schemas"]["Document"];
+export type ChatCompletionResponseMetadata = components['schemas']['ChatCompletionResponseMetadata'];
 
-export type DocumentList = components["schemas"]["DocumentList"];
+export type CreateWatchlistRequest = components['schemas']['CreateWatchlistRequest'];
 
-export type Entity = components["schemas"]["Entity"];
+export type Document = components['schemas']['Document'];
 
-export type EntityType = components["schemas"]["EntityType"];
+export type DocumentList = components['schemas']['DocumentList'];
 
-export type Event = components["schemas"]["Event"];
+export type Entity = components['schemas']['Entity'];
 
-export type EventHistory = components["schemas"]["EventHistory"];
+export type EntityType = components['schemas']['EntityType'];
 
-export type Exchange = components["schemas"]["Exchange"];
+export type Event = components['schemas']['Event'];
 
-export type ExchangeNewsRecap = components["schemas"]["ExchangeNewsRecap"];
+export type EventHistory = components['schemas']['EventHistory'];
 
-export type ExchangePerformanceRecap = components["schemas"]["ExchangePerformanceRecap"];
+export type Exchange = components['schemas']['Exchange'];
 
-export type ExchangeRankingsNewsRecap = components["schemas"]["ExchangeRankingsNewsRecap"];
+export type ExchangeNewsRecap = components['schemas']['ExchangeNewsRecap'];
 
-export type ExchangeRankingsPerformanceRecap = components["schemas"]["ExchangeRankingsPerformanceRecap"];
+export type ExchangePerformanceRecap = components['schemas']['ExchangePerformanceRecap'];
 
-export type ExchangeRankingsRecap = components["schemas"]["ExchangeRankingsRecap"];
+export type ExchangeRankingsNewsRecap = components['schemas']['ExchangeRankingsNewsRecap'];
 
-export type ExchangeRecap = components["schemas"]["ExchangeRecap"];
+export type ExchangeRankingsPerformanceRecap = components['schemas']['ExchangeRankingsPerformanceRecap'];
 
-export type ExchangeRecapPoint = components["schemas"]["ExchangeRecapPoint"];
+export type ExchangeRankingsRecap = components['schemas']['ExchangeRankingsRecap'];
 
-export type ExtractRequest = components["schemas"]["ExtractRequest"];
+export type ExchangeRecap = components['schemas']['ExchangeRecap'];
 
-export type ExtractResponse = components["schemas"]["ExtractResponse"];
+export type ExchangeRecapPoint = components['schemas']['ExchangeRecapPoint'];
 
-export type ExtractResponseMetadata = components["schemas"]["ExtractResponseMetadata"];
+export type ExtractRequest = components['schemas']['ExtractRequest'];
 
-export type FundingEntity = components["schemas"]["FundingEntity"];
+export type ExtractResponse = components['schemas']['ExtractResponse'];
 
-export type FundingRound = components["schemas"]["FundingRound"];
+export type ExtractResponseMetadata = components['schemas']['ExtractResponseMetadata'];
 
-export type FundingRoundStage = components["schemas"]["FundingRoundStage"];
+export type FundingEntity = components['schemas']['FundingEntity'];
 
-export type FundingRoundType = components["schemas"]["FundingRoundType"];
+export type FundingRound = components['schemas']['FundingRound'];
 
-export type GetAllEventsRequest = components["schemas"]["GetAllEventsRequest"];
+export type FundingRoundStage = components['schemas']['FundingRoundStage'];
 
-export type GetEventResponse = components["schemas"]["GetEventResponse"];
+export type FundingRoundType = components['schemas']['FundingRoundType'];
 
-export type GetPreviewsResponse = components["schemas"]["GetPreviewsResponse"];
+export type GetAllEventsRequest = components['schemas']['GetAllEventsRequest'];
 
-export type GetProjectRecapResponse = components["schemas"]["GetProjectRecapResponse"];
+export type GetEventResponse = components['schemas']['GetEventResponse'];
 
-export type GroupedEntity = components["schemas"]["GroupedEntity"];
+export type GetPreviewsResponse = components['schemas']['GetPreviewsResponse'];
 
-export type IntelResponse = components["schemas"]["IntelResponse"];
+export type GetProjectRecapResponse = components['schemas']['GetProjectRecapResponse'];
 
-export type Investors = components["schemas"]["Investors"];
+export type GroupedEntity = components['schemas']['GroupedEntity'];
 
-export type Market = components["schemas"]["Market"];
+export type IntelResponse = components['schemas']['IntelResponse'];
 
-export type Network = components["schemas"]["Network"];
+export type Investors = components['schemas']['Investors'];
 
-export type NetworkMetrics = components["schemas"]["NetworkMetrics"];
+export type Market = components['schemas']['Market'];
 
-export type NewsAsset = components["schemas"]["NewsAsset"];
+export type ModifyWatchlistAssetsAction = components['schemas']['ModifyWatchlistAssetsAction'];
 
-export type NewsResponse = components["schemas"]["NewsResponse"];
+export type ModifyWatchlistAssetsRequest = components['schemas']['ModifyWatchlistAssetsRequest'];
 
-export type Organization = components["schemas"]["Organization"];
+export type Network = components['schemas']['Network'];
 
-export type PaginationResult = components["schemas"]["PaginationResult"];
+export type NetworkMetrics = components['schemas']['NetworkMetrics'];
 
-export type Person = components["schemas"]["Person"];
+export type NewsAsset = components['schemas']['NewsAsset'];
 
-export type Project = components["schemas"]["Project"];
+export type NewsResponse = components['schemas']['NewsResponse'];
 
-export type ProjectRecapResponse = components["schemas"]["ProjectRecapResponse"];
+export type Organization = components['schemas']['Organization'];
 
-export type PropositionResponse = components["schemas"]["PropositionResponse"];
+export type PaginationResult = components['schemas']['PaginationResult'];
 
-export type RecapSlug = components["schemas"]["RecapSlug"];
+export type Permission = components['schemas']['Permission'];
 
-export type ReportResponse = components["schemas"]["ReportResponse"];
+export type PermissionsResponse = components['schemas']['PermissionsResponse'];
 
-export type ReportSection = components["schemas"]["ReportSection"];
+export type Person = components['schemas']['Person'];
 
-export type ResearchReport = components["schemas"]["ResearchReport"];
+export type Project = components['schemas']['Project'];
 
-export type ResearchResponse = components["schemas"]["ResearchResponse"];
+export type ProjectRecapResponse = components['schemas']['ProjectRecapResponse'];
 
-export type Resource = components["schemas"]["Resource"];
+export type PropositionResponse = components['schemas']['PropositionResponse'];
 
-export type SelectedEntity = components["schemas"]["SelectedEntity"];
+export type RecapSlug = components['schemas']['RecapSlug'];
 
-export type Source = components["schemas"]["Source"];
+export type ReportResponse = components['schemas']['ReportResponse'];
 
-export type SourceList = components["schemas"]["SourceList"];
+export type ReportSection = components['schemas']['ReportSection'];
 
-export type SourceType = components["schemas"]["SourceType"];
+export type ResearchReport = components['schemas']['ResearchReport'];
 
-export type SummaryResponse = components["schemas"]["SummaryResponse"];
+export type ResearchResponse = components['schemas']['ResearchResponse'];
 
-export type Tag = components["schemas"]["Tag"];
+export type Resource = components['schemas']['Resource'];
 
-export type TimeseriesCatalog = components["schemas"]["TimeseriesCatalog"];
+export type SelectedEntity = components['schemas']['SelectedEntity'];
 
-export type TimeseriesData = components["schemas"]["TimeseriesData"];
+export type Source = components['schemas']['Source'];
 
-export type TimeseriesDataset = components["schemas"]["TimeseriesDataset"];
+export type SourceList = components['schemas']['SourceList'];
 
-export type TimeseriesInterval = components["schemas"]["TimeseriesInterval"];
+export type SourceType = components['schemas']['SourceType'];
 
-export type TimeseriesMetadata = components["schemas"]["TimeseriesMetadata"];
+export type SummaryResponse = components['schemas']['SummaryResponse'];
 
-export type TimeseriesPointSchema = components["schemas"]["TimeseriesPointSchema"];
+export type Tag = components['schemas']['Tag'];
 
-export type TokenUnlockAllocation = components["schemas"]["TokenUnlockAllocation"];
+export type TimeseriesCatalog = components['schemas']['TimeseriesCatalog'];
 
-export type TokenUnlockData = components["schemas"]["TokenUnlockData"];
+export type TimeseriesData = components['schemas']['TimeseriesData'];
 
-export type TokenUnlockEvent = components["schemas"]["TokenUnlockEvent"];
+export type TimeseriesDataset = components['schemas']['TimeseriesDataset'];
 
-export type TokenUnlockSupportedAsset = components["schemas"]["TokenUnlockSupportedAsset"];
+export type TimeseriesInterval = components['schemas']['TimeseriesInterval'];
 
-export type TokenUnlockUnlocks = components["schemas"]["TokenUnlockUnlocks"];
+export type TimeseriesMetadata = components['schemas']['TimeseriesMetadata'];
 
-export type TokenUnlockVestingSchedule = components["schemas"]["TokenUnlockVestingSchedule"];
+export type TimeseriesPointSchema = components['schemas']['TimeseriesPointSchema'];
 
-export type V2Asset = components["schemas"]["V2Asset"];
+export type TokenUnlockAllocation = components['schemas']['TokenUnlockAllocation'];
 
-export type V2AssetATH = components["schemas"]["V2AssetATH"];
+export type TokenUnlockData = components['schemas']['TokenUnlockData'];
 
-export type V2AssetAthItem = components["schemas"]["V2AssetAthItem"];
+export type TokenUnlockEvent = components['schemas']['TokenUnlockEvent'];
 
-export type V2AssetEntity = components["schemas"]["V2AssetEntity"];
+export type TokenUnlockSupportedAsset = components['schemas']['TokenUnlockSupportedAsset'];
 
-export type V2AssetListItem = components["schemas"]["V2AssetListItem"];
+export type TokenUnlockUnlocks = components['schemas']['TokenUnlockUnlocks'];
 
-export type V2AssetROI = components["schemas"]["V2AssetROI"];
+export type TokenUnlockVestingSchedule = components['schemas']['TokenUnlockVestingSchedule'];
 
-export type V2AssetRoiItem = components["schemas"]["V2AssetRoiItem"];
+export type UpdateWatchlistRequest = components['schemas']['UpdateWatchlistRequest'];
 
-export type VideoPodcastResponse = components["schemas"]["VideoPodcastResponse"];
+export type V2Asset = components['schemas']['V2Asset'];
+
+export type V2AssetATH = components['schemas']['V2AssetATH'];
+
+export type V2AssetAthItem = components['schemas']['V2AssetAthItem'];
+
+export type V2AssetEntity = components['schemas']['V2AssetEntity'];
+
+export type V2AssetListItem = components['schemas']['V2AssetListItem'];
+
+export type V2AssetROI = components['schemas']['V2AssetROI'];
+
+export type V2AssetRoiItem = components['schemas']['V2AssetRoiItem'];
+
+export type VideoPodcastResponse = components['schemas']['VideoPodcastResponse'];
+
+export type Watchlist = components['schemas']['Watchlist'];

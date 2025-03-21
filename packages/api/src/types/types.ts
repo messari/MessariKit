@@ -3,6 +3,7 @@
  * Do not make direct changes to the file.
  */
 
+
 export type paths = {
   "/ai-digest/api/v1/exchange-rankings-recap": {
     /**
@@ -329,6 +330,56 @@ export type paths = {
      */
     get: operations["getTokenUnlockVestingSchedule"];
   };
+  "/user-management/v1/api/credits/allowance": {
+    /**
+     * Get a team's current credit allowance
+     * @description Get a team's current credit allowance
+     */
+    get: operations["getTeamAllowance"];
+  };
+  "/user-management/v1/api/permissions": {
+    /**
+     * Get all permissions with active status
+     * @description Returns all available permissions with flags indicating which ones are granted to the current user
+     */
+    get: operations["getPermissions"];
+  };
+  "/user-management/v1/watchlists": {
+    /**
+     * List user's watchlists
+     * @description Get all watchlists for the authenticated user
+     */
+    get: operations["listWatchlists"];
+    /**
+     * Create a new watchlist
+     * @description Create a new watchlist for the authenticated user
+     */
+    post: operations["createWatchlist"];
+  };
+  "/user-management/v1/watchlists/{id}": {
+    /**
+     * Get a watchlist
+     * @description Get a specific watchlist by ID for the authenticated user
+     */
+    get: operations["getWatchlist"];
+    /**
+     * Delete a watchlist
+     * @description Delete a specific watchlist by ID for the authenticated user
+     */
+    delete: operations["deleteWatchlist"];
+    /**
+     * Update a watchlist
+     * @description Update a specific watchlist by ID for the authenticated user
+     */
+    patch: operations["updateWatchlist"];
+  };
+  "/user-management/v1/watchlists/{id}/assets": {
+    /**
+     * Modify watchlist assets
+     * @description Modify the assets in a specific watchlist by ID for the authenticated user
+     */
+    patch: operations["modifyWatchlistAssets"];
+  };
 };
 
 export type webhooks = Record<string, never>;
@@ -362,6 +413,15 @@ export type components = {
      * @enum {string}
      */
     AcquisitionDealStatus: "Announced" | "Completed" | "Canceled";
+    AllowanceInfo: {
+      creditsAllocated: number;
+      endDate: string;
+      id: string;
+      isActive: boolean;
+      remainingCredits: number;
+      startDate: string;
+      teamId: number;
+    };
     /** @description Announcement details (to be defined) */
     Announcement: Record<string, never>;
     APIError: {
@@ -541,6 +601,10 @@ export type components = {
       /** @description Current status of the chat completion */
       status: string;
     };
+    CreateWatchlistRequest: {
+      assetIds: string[];
+      title: string;
+    };
     Document: {
       /** @description Assets mentioned in the document */
       assets?: components["schemas"]["NewsAsset"][];
@@ -584,20 +648,7 @@ export type components = {
      * @description Type of entity being extracted or referenced
      * @enum {string}
      */
-    EntityType:
-      | "acquired_entity"
-      | "acquiring_entity"
-      | "asset"
-      | "x_user"
-      | "funded_entity"
-      | "investor"
-      | "network"
-      | "person"
-      | "exchange"
-      | "organization"
-      | "project"
-      | "protocol"
-      | "nft_collection";
+    EntityType: "acquired_entity" | "acquiring_entity" | "asset" | "x_user" | "funded_entity" | "investor" | "network" | "person" | "exchange" | "organization" | "project" | "protocol" | "nft_collection";
     Event: {
       /** @description Block number when the event activates */
       activationBlock?: number | null;
@@ -672,16 +723,6 @@ export type components = {
     ExchangeNewsRecap: {
       id?: string;
       news?: {
-        id?: string;
-        publishDate?: string;
-        sourceId?: string;
-        sourceName?: string;
-        title?: string;
-        url?: string;
-      }[];
-      summaries?: {
-        _category?: number;
-        references?: {
           id?: string;
           publishDate?: string;
           sourceId?: string;
@@ -689,8 +730,18 @@ export type components = {
           title?: string;
           url?: string;
         }[];
-        summary?: string;
-      }[];
+      summaries?: {
+          _category?: number;
+          references?: {
+              id?: string;
+              publishDate?: string;
+              sourceId?: string;
+              sourceName?: string;
+              title?: string;
+              url?: string;
+            }[];
+          summary?: string;
+        }[];
     };
     /** @description Performance recap for exchanges */
     ExchangePerformanceRecap: {
@@ -712,16 +763,6 @@ export type components = {
     ExchangeRankingsNewsRecap: {
       id?: string;
       news?: {
-        id?: string;
-        publishDate?: string;
-        sourceId?: string;
-        sourceName?: string;
-        title?: string;
-        url?: string;
-      }[];
-      summaries?: {
-        _category?: number;
-        references?: {
           id?: string;
           publishDate?: string;
           sourceId?: string;
@@ -729,8 +770,18 @@ export type components = {
           title?: string;
           url?: string;
         }[];
-        summary?: string;
-      }[];
+      summaries?: {
+          _category?: number;
+          references?: {
+              id?: string;
+              publishDate?: string;
+              sourceId?: string;
+              sourceName?: string;
+              title?: string;
+              url?: string;
+            }[];
+          summary?: string;
+        }[];
       summary?: string;
     };
     /** @description Performance recap for exchange rankings */
@@ -738,19 +789,19 @@ export type components = {
       data?: {
         /** @description List of top exchanges */
         topExchanges?: {
-          id?: string;
-          name?: string;
-          project_id?: string;
-          slug?: string;
-          type?: string;
-        }[];
+            id?: string;
+            name?: string;
+            project_id?: string;
+            slug?: string;
+            type?: string;
+          }[];
         /** @description List of top listed tokens */
         topListedTokens?: {
-          assetId?: string;
-          listedCount?: number;
-          name?: string;
-          symbol?: string;
-        }[];
+            assetId?: string;
+            listedCount?: number;
+            name?: string;
+            symbol?: string;
+          }[];
         /** @description Volume of top listed tokens */
         topListedTokenVolume?: number;
         /** @description Total spot trading volumes */
@@ -809,13 +860,13 @@ export type components = {
       date?: string;
       endDate?: string;
       references?: {
-        id?: string;
-        publishDate?: string;
-        sourceId?: string;
-        sourceName?: string;
-        title?: string;
-        url?: string;
-      }[];
+          id?: string;
+          publishDate?: string;
+          sourceId?: string;
+          sourceName?: string;
+          title?: string;
+          url?: string;
+        }[];
       startDate?: string;
       summary?: string;
       type?: string;
@@ -874,37 +925,7 @@ export type components = {
      * @description Type of the funding round
      * @enum {string}
      */
-    FundingRoundType:
-      | "Accelerator"
-      | "Debt Financing"
-      | "Extended Pre Seed"
-      | "Extended Seed"
-      | "Extended Series A"
-      | "Extended Series B"
-      | "Extended Series C"
-      | "Extended Series D"
-      | "Grant"
-      | "ICO"
-      | "IPO"
-      | "Post IPO"
-      | "Post IPO Debt"
-      | "Pre Seed"
-      | "Pre Series A"
-      | "Pre Series B"
-      | "Private Token Sale"
-      | "Public Token Sale"
-      | "Seed"
-      | "Series A"
-      | "Series B"
-      | "Series C"
-      | "Series D"
-      | "Series E"
-      | "Series F"
-      | "Series G"
-      | "Series H"
-      | "Strategic"
-      | "Treasury Diversification"
-      | "Undisclosed";
+    FundingRoundType: "Accelerator" | "Debt Financing" | "Extended Pre Seed" | "Extended Seed" | "Extended Series A" | "Extended Series B" | "Extended Series C" | "Extended Series D" | "Grant" | "ICO" | "IPO" | "Post IPO" | "Post IPO Debt" | "Pre Seed" | "Pre Series A" | "Pre Series B" | "Private Token Sale" | "Public Token Sale" | "Seed" | "Series A" | "Series B" | "Series C" | "Series D" | "Series E" | "Series F" | "Series G" | "Series H" | "Strategic" | "Treasury Diversification" | "Undisclosed";
     GetAllEventsRequest: {
       /** @description Filter by categories */
       category?: string[];
@@ -965,9 +986,9 @@ export type components = {
     /** @description Intel information response */
     IntelResponse: {
       metadata?: {
-        eventId?: string;
-        eventName?: string;
-      }[];
+          eventId?: string;
+          eventName?: string;
+        }[];
       summary?: string;
     };
     Investors: {
@@ -1024,6 +1045,13 @@ export type components = {
       quoteAssetSector?: string;
       sectors?: string[];
     };
+    /** @enum {string} */
+    ModifyWatchlistAssetsAction: "add" | "remove";
+    ModifyWatchlistAssetsRequest: {
+      action: components["schemas"]["ModifyWatchlistAssetsAction"];
+      assetIds: string[];
+      watchlistID: string;
+    };
     Network: {
       /** Format: uuid */
       id?: string;
@@ -1079,13 +1107,13 @@ export type components = {
     /** @description News information response */
     NewsResponse: {
       metadata?: {
-        documentId?: string;
-        documentName?: string;
-        documentUrl?: string;
-        sourceId?: string;
-        sourceName?: string;
-        sourceType?: string;
-      }[];
+          documentId?: string;
+          documentName?: string;
+          documentUrl?: string;
+          sourceId?: string;
+          sourceName?: string;
+          sourceType?: string;
+        }[];
       summary?: string;
     };
     Organization: {
@@ -1129,6 +1157,18 @@ export type components = {
        * @example 100
        */
       total?: number;
+    };
+    Permission: {
+      /** @description Indicates whether the permission is granted to the user */
+      active: boolean;
+      name: string;
+      permissionSlug: string;
+    };
+    PermissionsResponse: {
+      expiresAt: string;
+      hasAllAccess: boolean;
+      hasFullMarketDataGranularity: boolean;
+      permissions: components["schemas"]["Permission"][];
     };
     /** @description Person details (to be defined) */
     Person: Record<string, never>;
@@ -1194,9 +1234,9 @@ export type components = {
     /** @description Proposition information response */
     PropositionResponse: {
       metadata?: {
-        propositionId?: string;
-        title?: string;
-      }[];
+          propositionId?: string;
+          title?: string;
+        }[];
       summary?: string;
     };
     /**
@@ -1293,9 +1333,9 @@ export type components = {
     /** @description Research information response */
     ResearchResponse: {
       metadata?: {
-        slug?: string;
-        title?: string;
-      }[];
+          slug?: string;
+          title?: string;
+        }[];
       summary?: string;
     };
     Resource: {
@@ -1311,9 +1351,9 @@ export type components = {
       confidenceScore?: string;
       /** @description Details of the entity */
       details?: {
-        id?: string;
-        type?: string;
-      }[];
+          id?: string;
+          type?: string;
+        }[];
       /** @description Name of the entity */
       name?: string;
       relevanceScore?: string;
@@ -1386,21 +1426,21 @@ export type components = {
     TokenUnlockAllocation: {
       allocationRecipientCount?: number;
       allocations?: {
-        allocationRecipient?: string;
-        assumptions?: string;
-        cumulativeUnlockedNative?: number;
-        cumulativeUnlockedUSD?: number;
-        description?: string;
-        percentOfUnlocksCompleted?: number;
-        sources?: {
-          source?: string;
-          sourceType?: string;
+          allocationRecipient?: string;
+          assumptions?: string;
+          cumulativeUnlockedNative?: number;
+          cumulativeUnlockedUSD?: number;
+          description?: string;
+          percentOfUnlocksCompleted?: number;
+          sources?: {
+              source?: string;
+              sourceType?: string;
+            }[];
+          totalAllocationNative?: number;
+          totalAllocationUSD?: number;
+          unlocksRemainingNative?: number;
+          unlocksRemainingUSD?: number;
         }[];
-        totalAllocationNative?: number;
-        totalAllocationUSD?: number;
-        unlocksRemainingNative?: number;
-        unlocksRemainingUSD?: number;
-      }[];
       asset?: {
         id?: string;
         name?: string;
@@ -1445,20 +1485,28 @@ export type components = {
         symbol?: string;
       };
       unlockEvents?: {
-        cliff?: {
-          allocations?: {
-            allocationRecipient?: string;
+          cliff?: {
+            allocations?: {
+                allocationRecipient?: string;
+                amountNative?: number;
+                amountUSD?: number;
+                percentOfTotalAllocation?: number;
+              }[];
             amountNative?: number;
             amountUSD?: number;
             percentOfTotalAllocation?: number;
-          }[];
-          amountNative?: number;
-          amountUSD?: number;
-          percentOfTotalAllocation?: number;
-        };
-        dailyLinearRateChange?: {
-          allocations?: {
-            allocationRecipient?: string;
+          };
+          dailyLinearRateChange?: {
+            allocations?: {
+                allocationRecipient?: string;
+                dailyAmountNative?: number;
+                dailyAmountUSD?: number;
+                nextDailyAmountNative?: number;
+                nextDailyAmountUSD?: number;
+                nextPercentOfTotalAllocation?: number;
+                percentChangeOfRate?: number;
+                percentOfTotalAllocation?: number;
+              }[];
             dailyAmountNative?: number;
             dailyAmountUSD?: number;
             nextDailyAmountNative?: number;
@@ -1466,17 +1514,9 @@ export type components = {
             nextPercentOfTotalAllocation?: number;
             percentChangeOfRate?: number;
             percentOfTotalAllocation?: number;
-          }[];
-          dailyAmountNative?: number;
-          dailyAmountUSD?: number;
-          nextDailyAmountNative?: number;
-          nextDailyAmountUSD?: number;
-          nextPercentOfTotalAllocation?: number;
-          percentChangeOfRate?: number;
-          percentOfTotalAllocation?: number;
-        };
-        timestamp?: string;
-      }[];
+          };
+          timestamp?: string;
+        }[];
     };
     TokenUnlockSupportedAsset: {
       category?: string;
@@ -1493,13 +1533,13 @@ export type components = {
     };
     TokenUnlockUnlocks: {
       allocations?: {
-        allocationRecipient?: string;
-        dailySnapshots?: {
-          timestamp?: string;
-          unlockedInPeriodNative?: number;
-          unlockedInPeriodUSD?: number;
+          allocationRecipient?: string;
+          dailySnapshots?: {
+              timestamp?: string;
+              unlockedInPeriodNative?: number;
+              unlockedInPeriodUSD?: number;
+            }[];
         }[];
-      }[];
       asset?: {
         id?: string;
         name?: string;
@@ -1513,23 +1553,23 @@ export type components = {
       projectedEndDate?: string;
       startDate?: string;
       totalSnapshots?: {
-        timestamp?: string;
-        unlockedInPeriodNative?: number;
-        unlockedInPeriodUSD?: number;
-      }[];
+          timestamp?: string;
+          unlockedInPeriodNative?: number;
+          unlockedInPeriodUSD?: number;
+        }[];
     };
     TokenUnlockVestingSchedule: {
       allocations?: {
-        allocationRecipient?: string;
-        dailySnapshots?: {
-          cumulativeUnlockedNative?: number;
-          cumulativeUnlockedUSD?: number;
-          percentOfUnlocksCompleted?: number;
-          timestamp?: string;
-          unlocksRemainingNative?: number;
-          unlocksRemainingUSD?: number;
+          allocationRecipient?: string;
+          dailySnapshots?: {
+              cumulativeUnlockedNative?: number;
+              cumulativeUnlockedUSD?: number;
+              percentOfUnlocksCompleted?: number;
+              timestamp?: string;
+              unlocksRemainingNative?: number;
+              unlocksRemainingUSD?: number;
+            }[];
         }[];
-      }[];
       asset?: {
         id?: string;
         name?: string;
@@ -1541,13 +1581,20 @@ export type components = {
       projectedEndDate?: string;
       startTime?: string;
       totalDailySnapshots?: {
-        cumulativeUnlockedNative?: number;
-        cumulativeUnlockedUSD?: number;
-        percentOfUnlocksCompleted?: number;
-        timestamp?: string;
-        unlocksRemainingNative?: number;
-        unlocksRemainingUSD?: number;
-      }[];
+          cumulativeUnlockedNative?: number;
+          cumulativeUnlockedUSD?: number;
+          percentOfUnlocksCompleted?: number;
+          timestamp?: string;
+          unlocksRemainingNative?: number;
+          unlocksRemainingUSD?: number;
+        }[];
+    };
+    UpdateWatchlistRequest: {
+      /** @description Optional: if not provided, the watchlist assets will not be updated. But if empty, all assets will be removed. */
+      assetIds?: string[];
+      /** @description Optional: if not provided, the watchlist title will not be updated */
+      title?: string;
+      watchlistID: string;
     };
     V2Asset: components["schemas"]["V2AssetEntity"] & {
       /** @description All-time high data for the asset */
@@ -1753,13 +1800,20 @@ export type components = {
     /** @description Video and podcast ranking information */
     VideoPodcastResponse: {
       summary?: {
-        id?: string;
-        sourceID?: string;
-        sourceName?: string;
-        summary?: string;
-        title?: string;
-        url?: string;
-      }[];
+          id?: string;
+          sourceID?: string;
+          sourceName?: string;
+          summary?: string;
+          title?: string;
+          url?: string;
+        }[];
+    };
+    Watchlist: {
+      assetIds: string[];
+      createdAt: string;
+      id: string;
+      title: string;
+      updatedAt: string;
     };
   };
   responses: {
@@ -1789,6 +1843,7 @@ export type $defs = Record<string, never>;
 export type external = Record<string, never>;
 
 export type operations = {
+
   /**
    * Get Exchange Rankings Recap
    * @description Gets daily recap for the exchange rankings page
@@ -2208,37 +2263,7 @@ export type operations = {
         /** @description Comma-separated list of investor (persons, projects, orgs) IDs who invested in the funding rounds */
         investorId?: string;
         /** @description Comma-separated list of funding round types to filter by */
-        type?:
-          | "Accelerator"
-          | "Debt Financing"
-          | "Extended Pre Seed"
-          | "Extended Seed"
-          | "Extended Series A"
-          | "Extended Series B"
-          | "Extended Series C"
-          | "Extended Series D"
-          | "Grant"
-          | "ICO"
-          | "IPO"
-          | "Post IPO"
-          | "Post IPO Debt"
-          | "Pre Seed"
-          | "Pre Series A"
-          | "Pre Series B"
-          | "Private Token Sale"
-          | "Public Token Sale"
-          | "Seed"
-          | "Series A"
-          | "Series B"
-          | "Series C"
-          | "Series D"
-          | "Series E"
-          | "Series F"
-          | "Series G"
-          | "Series H"
-          | "Strategic"
-          | "Treasury Diversification"
-          | "Undisclosed";
+        type?: "Accelerator" | "Debt Financing" | "Extended Pre Seed" | "Extended Seed" | "Extended Series A" | "Extended Series B" | "Extended Series C" | "Extended Series D" | "Grant" | "ICO" | "IPO" | "Post IPO" | "Post IPO Debt" | "Pre Seed" | "Pre Series A" | "Pre Series B" | "Private Token Sale" | "Public Token Sale" | "Seed" | "Series A" | "Series B" | "Series C" | "Series D" | "Series E" | "Series F" | "Series G" | "Series H" | "Strategic" | "Treasury Diversification" | "Undisclosed";
         /** @description Comma-separated list of funding round stages to filter by */
         stage?: "Seed" | "Early Stage" | "Late Stage" | "Public Equity Offering" | "Post Public Equity" | "Miscellaneous";
         /** @description Filter by maximum amount raised in USD */
@@ -2293,37 +2318,7 @@ export type operations = {
         /** @description Comma-separated list of investor (persons, projects, orgs) IDs who invested in the funding rounds */
         investorId?: string;
         /** @description Comma-separated list of funding round types to filter by */
-        type?:
-          | "Accelerator"
-          | "Debt Financing"
-          | "Extended Pre Seed"
-          | "Extended Seed"
-          | "Extended Series A"
-          | "Extended Series B"
-          | "Extended Series C"
-          | "Extended Series D"
-          | "Grant"
-          | "ICO"
-          | "IPO"
-          | "Post IPO"
-          | "Post IPO Debt"
-          | "Pre Seed"
-          | "Pre Series A"
-          | "Pre Series B"
-          | "Private Token Sale"
-          | "Public Token Sale"
-          | "Seed"
-          | "Series A"
-          | "Series B"
-          | "Series C"
-          | "Series D"
-          | "Series E"
-          | "Series F"
-          | "Series G"
-          | "Series H"
-          | "Strategic"
-          | "Treasury Diversification"
-          | "Undisclosed";
+        type?: "Accelerator" | "Debt Financing" | "Extended Pre Seed" | "Extended Seed" | "Extended Series A" | "Extended Series B" | "Extended Series C" | "Extended Series D" | "Grant" | "ICO" | "IPO" | "Post IPO" | "Post IPO Debt" | "Pre Seed" | "Pre Series A" | "Pre Series B" | "Private Token Sale" | "Public Token Sale" | "Seed" | "Series A" | "Series B" | "Series C" | "Series D" | "Series E" | "Series F" | "Series G" | "Series H" | "Strategic" | "Treasury Diversification" | "Undisclosed";
         /** @description Comma-separated list of funding round stages to filter by */
         stage?: "Seed" | "Early Stage" | "Late Stage" | "Public Equity Offering" | "Post Public Equity" | "Miscellaneous";
         /** @description Filter by maximum amount raised in USD */
@@ -3700,6 +3695,312 @@ export type operations = {
         };
       };
       /** @description Server error response */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+    };
+  };
+  /**
+   * Get a team's current credit allowance
+   * @description Get a team's current credit allowance
+   */
+  getTeamAllowance: {
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["AllowanceInfo"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+    };
+  };
+  /**
+   * Get all permissions with active status
+   * @description Returns all available permissions with flags indicating which ones are granted to the current user
+   */
+  getPermissions: {
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["PermissionsResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Bad Request */
+      401: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Bad Request */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+    };
+  };
+  /**
+   * List user's watchlists
+   * @description Get all watchlists for the authenticated user
+   */
+  listWatchlists: {
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["APIResponse"] & {
+            data?: components["schemas"]["Watchlist"][];
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+    };
+  };
+  /**
+   * Create a new watchlist
+   * @description Create a new watchlist for the authenticated user
+   */
+  createWatchlist: {
+    /** @description Create watchlist request */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateWatchlistRequest"];
+      };
+    };
+    responses: {
+      /** @description Created */
+      200: {
+        content: {
+          "application/json": components["schemas"]["APIResponse"] & {
+            data?: components["schemas"]["Watchlist"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Bad Request */
+      403: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Bad Request */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+    };
+  };
+  /**
+   * Get a watchlist
+   * @description Get a specific watchlist by ID for the authenticated user
+   */
+  getWatchlist: {
+    parameters: {
+      path: {
+        /** @description Watchlist ID */
+        id: string;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["APIResponse"] & {
+            data?: components["schemas"]["Watchlist"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Bad Request */
+      404: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Bad Request */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+    };
+  };
+  /**
+   * Delete a watchlist
+   * @description Delete a specific watchlist by ID for the authenticated user
+   */
+  deleteWatchlist: {
+    parameters: {
+      path: {
+        /** @description Watchlist ID */
+        id: string;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: never;
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Bad Request */
+      403: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Bad Request */
+      404: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Bad Request */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+    };
+  };
+  /**
+   * Update a watchlist
+   * @description Update a specific watchlist by ID for the authenticated user
+   */
+  updateWatchlist: {
+    parameters: {
+      path: {
+        /** @description Watchlist ID */
+        id: string;
+      };
+    };
+    /** @description Update watchlist request */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateWatchlistRequest"];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["APIResponse"] & {
+            data?: components["schemas"]["Watchlist"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Bad Request */
+      403: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Bad Request */
+      404: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Bad Request */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+    };
+  };
+  /**
+   * Modify watchlist assets
+   * @description Modify the assets in a specific watchlist by ID for the authenticated user
+   */
+  modifyWatchlistAssets: {
+    parameters: {
+      path: {
+        /** @description Watchlist ID */
+        id: string;
+      };
+    };
+    /** @description Modify watchlist assets request */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ModifyWatchlistAssetsRequest"];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["APIResponse"] & {
+            data?: components["schemas"]["Watchlist"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Bad Request */
+      403: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Bad Request */
+      404: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Bad Request */
       500: {
         content: {
           "application/json": components["schemas"]["APIError"];
