@@ -113,6 +113,90 @@ export type paths = {
      */
     get: operations["getEventAndHistory"];
   };
+  "/metrics/v1/exchanges": {
+    /**
+     * List Exchanges
+     * @description Get a list of exchanges with metadata and associated metrics snapshot.
+     */
+    get: operations["getExchanges"];
+  };
+  "/metrics/v1/exchanges/{entityIdentifier}/metrics/{datasetSlug}/time-series/{granularity}": {
+    /**
+     * Get Exchange Timeseries Metrics
+     * @description Fetch timeseries metrics for a specific exchange.
+     */
+    get: operations["getExchangeTimeseries"];
+  };
+  "/metrics/v1/exchanges/{exchangeIdentifier}": {
+    /**
+     * Get Exchange Details
+     * @description Get detailed information for a specific exchange.
+     */
+    get: operations["getExchange"];
+  };
+  "/metrics/v1/exchanges/metrics": {
+    /**
+     * List Exchange Metrics
+     * @description Returns a list of timeseries metrics available for exchanges.
+     */
+    get: operations["getExchangeMetrics"];
+  };
+  "/metrics/v1/markets": {
+    /**
+     * List Markets
+     * @description Retrieves a list of markets. Results can be filtered by exchange, quote asset, base asset and 24h volume
+     */
+    get: operations["getMarkets"];
+  };
+  "/metrics/v1/markets/{entityIdentifier}/metrics/{datasetSlug}/time-series/{granularity}": {
+    /**
+     * Get Market Timeseries Metrics
+     * @description Fetch timeseries metrics for a specific market.
+     */
+    get: operations["getMarketTimeseries"];
+  };
+  "/metrics/v1/markets/{marketIdentifier}": {
+    /**
+     * Get Market Details
+     * @description Fetches the data for a single market based on the marketIdentifier provided
+     */
+    get: operations["getMarket"];
+  };
+  "/metrics/v1/markets/metrics": {
+    /**
+     * List Market Metrics
+     * @description Returns a list of timeseries metrics available for markets.
+     */
+    get: operations["getMarketMetrics"];
+  };
+  "/metrics/v1/networks": {
+    /**
+     * List Networks
+     * @description List of networks, metadata, and associated onchain metrics snapshot.
+     */
+    get: operations["getNetworks"];
+  };
+  "/metrics/v1/networks/{entityIdentifier}/metrics/{datasetSlug}/time-series/{granularity}": {
+    /**
+     * Get Network Timeseries Metrics
+     * @description Fetch timeseries metrics for a specific network.
+     */
+    get: operations["getNetworkTimeseries"];
+  };
+  "/metrics/v1/networks/{networkIdentifier}": {
+    /**
+     * Get Network Details
+     * @description Returns a single network based on the identifier
+     */
+    get: operations["getNetwork"];
+  };
+  "/metrics/v1/networks/metrics": {
+    /**
+     * List Network Metrics
+     * @description Returns a list of timeseries metrics available for networks.
+     */
+    get: operations["getNetworkMetrics"];
+  };
   "/metrics/v2/assets": {
     /**
      * Get Asset List (V2)
@@ -564,6 +648,26 @@ export type components = {
       /** @description Details about the update */
       updateDetails?: string | null;
     };
+    Exchange: {
+      country?: string;
+      globalRank30D?: number;
+      /** Format: uuid */
+      id: string;
+      metrics: {
+        assetsCount?: number;
+        marketsCount?: number;
+        trades24Hour?: number;
+        /** Format: float */
+        volume24Hour?: number;
+      };
+      name: string;
+      region?: string;
+      relatedExchangeIDs?: string[];
+      slug: string;
+      type: string;
+      typeRank30D?: number;
+      yearEstablished?: number;
+    };
     /** @description News recap for exchanges */
     ExchangeNewsRecap: {
       id?: string;
@@ -875,6 +979,80 @@ export type components = {
       persons?: components["schemas"]["Person"][];
       /** @description List of projects that invested */
       projects?: components["schemas"]["Project"][];
+    };
+    Market: {
+      baseAsset?: {
+        /** Format: uuid */
+        id?: string;
+        name?: string;
+        slug?: string;
+        symbol?: string;
+      };
+      baseAssetSector?: string;
+      exchange?: {
+        /** Format: uuid */
+        id?: string;
+        name?: string;
+        slug?: string;
+      };
+      /** Format: date-time */
+      firstTradeAt?: string;
+      id?: string;
+      isNewMarket?: boolean;
+      isRecentlyListed?: boolean;
+      /** Format: date-time */
+      lastTradeAt?: string;
+      liveness?: string;
+      metrics?: {
+        exchangeVolumePercentage24h?: number;
+        latestPrice24hClose?: number;
+        latestPrice24hHigh?: number;
+        latestPrice24hLow?: number;
+        latestPrice24hOpen?: number;
+        premiumDiscount?: number;
+        tradeCount24h?: number;
+        volume24h?: number;
+      };
+      network?: Record<string, never>;
+      quoteAsset?: {
+        /** Format: uuid */
+        id?: string;
+        name?: string;
+        slug?: string;
+        symbol?: string;
+      };
+      quoteAssetSector?: string;
+      sectors?: string[];
+    };
+    Network: {
+      /** Format: uuid */
+      id?: string;
+      metrics?: {
+        addresses?: {
+          activeAddresses?: number;
+          newAddresses?: number;
+          returningAddresses?: number;
+        };
+        contracts?: {
+          activeContracts?: number;
+          contractCallGasPayers?: number;
+          contractDeployers?: number;
+          gasSpenders?: number;
+          newContractDeployers?: number;
+          newContractsCalled?: number;
+          newContractsDeployed?: number;
+          returningContractsCalled?: number;
+          totalContractsCalled?: number;
+          uniqueContractCallers?: number;
+        };
+        transactions?: {
+          successfulTransactions?: number;
+          totalTransactions?: number;
+          unsuccessfulTransactions?: number;
+        };
+      };
+      name?: string;
+      slug?: string;
     };
     /** @description Network metrics data */
     NetworkMetrics: {
@@ -1585,6 +1763,9 @@ export type components = {
     };
   };
   responses: {
+    APIError: {
+      content: never;
+    };
     /** @description Standard error response */
     ErrorResponse: {
       content: never;
@@ -2295,6 +2476,468 @@ export type operations = {
           "application/json": components["schemas"]["APIResponseWithMetadata"] & {
             data?: components["schemas"]["GetEventResponse"];
           };
+        };
+      };
+      /** @description Server error response */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+    };
+  };
+  /**
+   * List Exchanges
+   * @description Get a list of exchanges with metadata and associated metrics snapshot.
+   */
+  getExchanges: {
+    parameters: {
+      query?: {
+        /** @description The type of exchange "centralized" or "decentralized" */
+        type?: string;
+        typeRankCutoff?: string;
+        /** @description Page number from which to start fetching results */
+        page?: number;
+        /** @description Max number of results to return per page */
+        pageSize?: number;
+      };
+      header: {
+        "x-messari-api-key": components["parameters"]["apiKey"];
+      };
+    };
+    responses: {
+      /** @description Successful response */
+      200: {
+        content: {
+          "application/json": components["schemas"]["APIResponseWithMetadata"] & {
+            data?: components["schemas"]["Exchange"][];
+          };
+        };
+      };
+      400: components["responses"]["APIError"];
+      500: components["responses"]["APIError"];
+    };
+  };
+  /**
+   * Get Exchange Timeseries Metrics
+   * @description Fetch timeseries metrics for a specific exchange.
+   */
+  getExchangeTimeseries: {
+    parameters: {
+      query: {
+        /** @description Start time for the data range (ISO 8601 format) */
+        start: string;
+        /** @description End time for the data range (ISO 8601 format) */
+        end: string;
+      };
+      header: {
+        "x-messari-api-key": components["parameters"]["apiKey"];
+      };
+      path: {
+        /** @description Exchange identifier (slug) */
+        entityIdentifier: string;
+        /** @description Slug of the dataset to retrieve data for */
+        datasetSlug: string;
+        /** @description Time granularity for the data points */
+        granularity: components["schemas"]["TimeseriesInterval"];
+      };
+    };
+    responses: {
+      /** @description Successful response */
+      200: {
+        content: {
+          "application/json": components["schemas"]["APIResponseWithMetadata"] & {
+            data?: components["schemas"]["TimeseriesData"];
+            metadata?: components["schemas"]["TimeseriesMetadata"];
+          };
+        };
+      };
+      /** @description Client error response */
+      400: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Forbidden - Enterprise access required */
+      403: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Server error response */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+    };
+  };
+  /**
+   * Get Exchange Details
+   * @description Get detailed information for a specific exchange.
+   */
+  getExchange: {
+    parameters: {
+      header: {
+        "x-messari-api-key": components["parameters"]["apiKey"];
+      };
+      path: {
+        /** @description Exchange identifier (slug) */
+        exchangeIdentifier: string;
+      };
+    };
+    responses: {
+      /** @description Successful response */
+      200: {
+        content: {
+          "application/json": components["schemas"]["APIResponseWithMetadata"] & {
+            data?: components["schemas"]["Exchange"];
+          };
+        };
+      };
+      400: components["responses"]["APIError"];
+      500: components["responses"]["APIError"];
+    };
+  };
+  /**
+   * List Exchange Metrics
+   * @description Returns a list of timeseries metrics available for exchanges.
+   */
+  getExchangeMetrics: {
+    parameters: {
+      header: {
+        "x-messari-api-key": components["parameters"]["apiKey"];
+      };
+    };
+    responses: {
+      /** @description Successful response */
+      200: {
+        content: {
+          "application/json": components["schemas"]["APIResponse"] & {
+            data?: components["schemas"]["TimeseriesCatalog"];
+          };
+        };
+      };
+      /** @description Client error response */
+      400: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Forbidden - Enterprise access required */
+      403: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Server error response */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+    };
+  };
+  /**
+   * List Markets
+   * @description Retrieves a list of markets. Results can be filtered by exchange, quote asset, base asset and 24h volume
+   */
+  getMarkets: {
+    parameters: {
+      query?: {
+        /** @description Filter by exchange ID */
+        exchangeId?: string;
+        /** @description Filter by exchange slug */
+        exchangeSlug?: string;
+        /** @description Filter by quote asset ID */
+        quoteAssetId?: string;
+        /** @description Filter by quote asset slug */
+        quoteAssetSlug?: string;
+        /** @description Filter by base asset ID */
+        baseAssetId?: string;
+        /** @description Filter by base asset slug */
+        baseAssetSlug?: string;
+        /** @description Filter by minimum 24h volume */
+        volume24hAbove?: string;
+        /** @description Filter by maximum 24h volume */
+        volume24hBelow?: string;
+      };
+      header: {
+        "x-messari-api-key": components["parameters"]["apiKey"];
+      };
+    };
+    responses: {
+      /** @description Successful response */
+      200: {
+        content: {
+          "application/json": components["schemas"]["APIResponseWithMetadata"] & {
+            data?: components["schemas"]["Market"][];
+          };
+        };
+      };
+      400: components["responses"]["APIError"];
+      500: components["responses"]["APIError"];
+    };
+  };
+  /**
+   * Get Market Timeseries Metrics
+   * @description Fetch timeseries metrics for a specific market.
+   */
+  getMarketTimeseries: {
+    parameters: {
+      query: {
+        /** @description Start time for the data range (ISO 8601 format) */
+        start: string;
+        /** @description End time for the data range (ISO 8601 format) */
+        end: string;
+      };
+      header: {
+        "x-messari-api-key": components["parameters"]["apiKey"];
+      };
+      path: {
+        /** @description Market identifier (slug) */
+        entityIdentifier: string;
+        /** @description Slug of the dataset to retrieve data for */
+        datasetSlug: string;
+        /** @description Time granularity for the data points */
+        granularity: components["schemas"]["TimeseriesInterval"];
+      };
+    };
+    responses: {
+      /** @description Successful response */
+      200: {
+        content: {
+          "application/json": components["schemas"]["APIResponseWithMetadata"] & {
+            data?: components["schemas"]["TimeseriesData"];
+            metadata?: components["schemas"]["TimeseriesMetadata"];
+          };
+        };
+      };
+      /** @description Client error response */
+      400: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Forbidden - Enterprise access required */
+      403: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Server error response */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+    };
+  };
+  /**
+   * Get Market Details
+   * @description Fetches the data for a single market based on the marketIdentifier provided
+   */
+  getMarket: {
+    parameters: {
+      header: {
+        "x-messari-api-key": components["parameters"]["apiKey"];
+      };
+      path: {
+        /** @description Market identifier */
+        marketIdentifier: string;
+      };
+    };
+    responses: {
+      /** @description Successful response */
+      200: {
+        content: {
+          "application/json": components["schemas"]["APIResponse"] & {
+            data?: components["schemas"]["Market"];
+          };
+        };
+      };
+      400: components["responses"]["APIError"];
+      500: components["responses"]["APIError"];
+    };
+  };
+  /**
+   * List Market Metrics
+   * @description Returns a list of timeseries metrics available for markets.
+   */
+  getMarketMetrics: {
+    parameters: {
+      header: {
+        "x-messari-api-key": components["parameters"]["apiKey"];
+      };
+    };
+    responses: {
+      /** @description Successful response */
+      200: {
+        content: {
+          "application/json": components["schemas"]["APIResponse"] & {
+            data?: components["schemas"]["TimeseriesCatalog"];
+          };
+        };
+      };
+      /** @description Client error response */
+      400: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Forbidden - Enterprise access required */
+      403: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Server error response */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+    };
+  };
+  /**
+   * List Networks
+   * @description List of networks, metadata, and associated onchain metrics snapshot.
+   */
+  getNetworks: {
+    parameters: {
+      query?: {
+        /** @description Page number from which to start fetching results */
+        page?: number;
+        /** @description Max number of results to return per page */
+        pageSize?: number;
+      };
+      header: {
+        "x-messari-api-key": components["parameters"]["apiKey"];
+      };
+    };
+    responses: {
+      /** @description Successful response */
+      200: {
+        content: {
+          "application/json": components["schemas"]["APIResponseWithMetadata"] & {
+            data?: components["schemas"]["Network"][];
+          };
+        };
+      };
+      400: components["responses"]["APIError"];
+      500: components["responses"]["APIError"];
+    };
+  };
+  /**
+   * Get Network Timeseries Metrics
+   * @description Fetch timeseries metrics for a specific network.
+   */
+  getNetworkTimeseries: {
+    parameters: {
+      query: {
+        /** @description Start time for the data range (ISO 8601 format) */
+        start: string;
+        /** @description End time for the data range (ISO 8601 format) */
+        end: string;
+      };
+      header: {
+        "x-messari-api-key": components["parameters"]["apiKey"];
+      };
+      path: {
+        /** @description Exchange identifier (slug) */
+        entityIdentifier: string;
+        /** @description Slug of the dataset to retrieve data for */
+        datasetSlug: string;
+        /** @description Time granularity for the data points */
+        granularity: components["schemas"]["TimeseriesInterval"];
+      };
+    };
+    responses: {
+      /** @description Successful response */
+      200: {
+        content: {
+          "application/json": components["schemas"]["APIResponseWithMetadata"] & {
+            data?: components["schemas"]["TimeseriesData"];
+            metadata?: components["schemas"]["TimeseriesMetadata"];
+          };
+        };
+      };
+      /** @description Client error response */
+      400: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Forbidden - Enterprise access required */
+      403: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Server error response */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+    };
+  };
+  /**
+   * Get Network Details
+   * @description Returns a single network based on the identifier
+   */
+  getNetwork: {
+    parameters: {
+      header: {
+        "x-messari-api-key": components["parameters"]["apiKey"];
+      };
+      path: {
+        /** @description Network identifier (ID or slug) */
+        networkIdentifier: string;
+      };
+    };
+    responses: {
+      /** @description Successful response */
+      200: {
+        content: {
+          "application/json": components["schemas"]["APIResponse"] & {
+            data?: components["schemas"]["Network"];
+          };
+        };
+      };
+      400: components["responses"]["APIError"];
+      500: components["responses"]["APIError"];
+    };
+  };
+  /**
+   * List Network Metrics
+   * @description Returns a list of timeseries metrics available for networks.
+   */
+  getNetworkMetrics: {
+    parameters: {
+      header: {
+        "x-messari-api-key": components["parameters"]["apiKey"];
+      };
+    };
+    responses: {
+      /** @description Successful response */
+      200: {
+        content: {
+          "application/json": components["schemas"]["APIResponse"] & {
+            data?: components["schemas"]["TimeseriesCatalog"];
+          };
+        };
+      };
+      /** @description Client error response */
+      400: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Forbidden - Enterprise access required */
+      403: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
         };
       };
       /** @description Server error response */

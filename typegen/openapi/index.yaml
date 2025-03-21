@@ -72,6 +72,36 @@ paths:
   /metrics/v2/assets/roi:
     $ref: './services/asset/openapi.yaml#/paths/~1metrics~1v2~1assets~1roi'
 
+  # Metrics v1 Exchanges, Markets, Networks
+  /metrics/v1/exchanges:
+    $ref: './services/asset/openapi.yaml#/paths/~1metrics~1v1~1exchanges'
+  /metrics/v1/exchanges/{exchangeIdentifier}:
+    $ref: './services/asset/openapi.yaml#/paths/~1metrics~1v1~1exchanges~1{exchangeIdentifier}'
+  /metrics/v1/exchanges/metrics:
+    $ref: './services/asset/openapi.yaml#/paths/~1metrics~1v1~1exchanges~1metrics'
+  /metrics/v1/exchanges/{entityIdentifier}/metrics/{datasetSlug}/time-series/{granularity}:
+    $ref: './services/asset/openapi.yaml#/paths/~1metrics~1v1~1exchanges~1{entityIdentifier}~1metrics~1{datasetSlug}~1time-series~1{granularity}'
+
+  /metrics/v1/markets:
+    $ref: './services/asset/openapi.yaml#/paths/~1metrics~1v1~1markets'
+  /metrics/v1/markets/{marketIdentifier}:
+    $ref: './services/asset/openapi.yaml#/paths/~1metrics~1v1~1markets~1{marketIdentifier}'
+  /metrics/v1/markets/metrics:
+    $ref: './services/asset/openapi.yaml#/paths/~1metrics~1v1~1markets~1metrics'
+  /metrics/v1/markets/{entityIdentifier}/metrics/{datasetSlug}/time-series/{granularity}:
+    $ref: './services/asset/openapi.yaml#/paths/~1metrics~1v1~1markets~1{entityIdentifier}~1metrics~1{datasetSlug}~1time-series~1{granularity}'
+
+  /metrics/v1/networks:
+    $ref: './services/asset/openapi.yaml#/paths/~1metrics~1v1~1networks'
+  /metrics/v1/networks/{networkIdentifier}:
+    $ref: './services/asset/openapi.yaml#/paths/~1metrics~1v1~1networks~1{networkIdentifier}'
+  /metrics/v1/networks/metrics:
+    $ref: './services/asset/openapi.yaml#/paths/~1metrics~1v1~1networks~1metrics'
+  /metrics/v1/networks/{entityIdentifier}/metrics/{datasetSlug}/time-series/{granularity}:
+    $ref: './services/asset/openapi.yaml#/paths/~1metrics~1v1~1networks~1{entityIdentifier}~1metrics~1{datasetSlug}~1time-series~1{granularity}'
+  
+
+
   # Intel Service Paths
   /intel/v1/events:
     $ref: "./services/intel/openapi.yaml#/paths/~1intel~1v1~1events"

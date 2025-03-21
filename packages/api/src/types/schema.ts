@@ -51,6 +51,8 @@ export type Event = components["schemas"]["Event"];
 
 export type EventHistory = components["schemas"]["EventHistory"];
 
+export type Exchange = components["schemas"]["Exchange"];
+
 export type ExchangeNewsRecap = components["schemas"]["ExchangeNewsRecap"];
 
 export type ExchangePerformanceRecap = components["schemas"]["ExchangePerformanceRecap"];
@@ -92,6 +94,10 @@ export type GroupedEntity = components["schemas"]["GroupedEntity"];
 export type IntelResponse = components["schemas"]["IntelResponse"];
 
 export type Investors = components["schemas"]["Investors"];
+
+export type Market = components["schemas"]["Market"];
+
+export type Network = components["schemas"]["Network"];
 
 export type NetworkMetrics = components["schemas"]["NetworkMetrics"];
 
