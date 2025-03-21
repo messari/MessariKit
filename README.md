@@ -51,6 +51,21 @@ For the full list of APIs, see the [API Reference Docs](https://docs.messari.io/
 | Asset | Asset Metrics | `/metrics/v2/assets/metrics` | ✅ |
 | Asset | Asset Price Time Series | `/metrics/v2/assets/{assetId}/metrics/price/time-series/{granularity}` | ✅ |
 | |
+| Exchanges | Exchanges | `/metrics/v1/exchanges` | ✅ |
+| Exchanges | Exchange Details | `/metrics/v1/exchanges/{exchangeIdentifier}` | ✅ |
+| Exchanges | Exchange Metrics | `/metrics/v1/exchanges/metrics` | ✅ |
+| Exchanges | Exchange Timeseries | `/metrics/v1/exchanges/{entityIdentifier}/metrics/{datasetSlug}/time-series/{granularity}` | ✅ |
+| |
+| Markets | Markets | `/metrics/v1/markets` | ✅ |
+| Markets | Market Details | `/metrics/v1/markets/{marketIdentifier}` | ✅ |
+| Markets | Market Metrics | `/metrics/v1/markets/metrics` | ✅ |
+| Markets | Market Timeseries | `/metrics/v1/markets/{entityIdentifier}/metrics/{datasetSlug}/time-series/{granularity}` | ✅ |
+| |
+| Networks | Networks | `/metrics/v1/networks` | ✅ |
+| Networks | Network Details | `/metrics/v1/networks/{networkIdentifier}` | ✅ |
+| Networks | Network Metrics | `/metrics/v1/networks/metrics` | ✅ |
+| Networks | Network Timeseries | `/metrics/v1/networks/{entityIdentifier}/metrics/{datasetSlug}/time-series/{granularity}` | ✅ |
+| |
 | Intel | Events | `/intel/v1/events` | 🚧 |
 | Intel | Events By ID | `/intel/v1/events/{eventId}` | 🚧 |
 | Intel | Intel Assets | `/intel/v1/assets` | 🚧 |
