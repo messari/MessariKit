@@ -1,5 +1,4 @@
 import { MessariClient } from "@messari/sdk";
-import { modifyWatchlistAssets } from "@messari/sdk/dist/types";
 import dotenv from "dotenv";
 
 // Load environment variables from .env file
@@ -68,7 +67,7 @@ async function main() {
     const newWatchlistTitle = `Test Watchlist - ${new Date().toISOString()}`;
 
     // Include Bitcoin and Ethereum by default
-    await client.userManagement.createWatchlist({
+    const newWatchlist = await client.userManagement.createWatchlist({
       title: newWatchlistTitle,
       assetIds: [
         "1e31218a-e44e-4285-820c-8282ee222035", // Bitcoin
@@ -76,99 +75,78 @@ async function main() {
       ],
     });
 
+    const watchlistId = newWatchlist.id;
     console.log(`Created new watchlist: "${newWatchlistTitle}"`);
+    console.log("Watchlist Details:");
+    console.log(JSON.stringify(newWatchlist, null, 2));
 
-    // Get the updated list of watchlists
-    const updatedWatchlists = await client.userManagement.listWatchlists();
+    // Example 4: Update a Watchlist
+    console.log("\n--------------------------------");
+    console.log(`Update Watchlist (ID: ${watchlistId})`);
+    console.log("--------------------------------");
 
-    // Find the newly created watchlist
-    const newWatchlist = updatedWatchlists.find((w) => w.title === newWatchlistTitle);
+    const updatedTitle = `Updated Watchlist - ${new Date().toISOString()}`;
+    const updatedWatchlist = await client.userManagement.updateWatchlist({
+      id: watchlistId,
+      watchlistID: watchlistId,
+      title: updatedTitle,
+    });
 
-    if (newWatchlist) {
-      const watchlistId = newWatchlist.id;
+    console.log("Updated Watchlist:");
+    console.log(JSON.stringify(updatedWatchlist, null, 2));
 
-      // Example 4: Get a Specific Watchlist
-      console.log("\n--------------------------------");
-      console.log(`Get Watchlist (ID: ${watchlistId})`);
-      console.log("--------------------------------");
+    // Example 6: Modify Watchlist Assets (Add)
+    console.log("\n--------------------------------");
+    console.log(`Add Assets to Watchlist (ID: ${watchlistId})`);
+    console.log("--------------------------------");
 
-      const watchlist = await client.userManagement.getWatchlist({
-        id: watchlistId,
-      });
+    // Add Solana to the watchlist
+    const modifiedWatchlist = await client.userManagement.modifyWatchlistAssets({
+      id: watchlistId,
+      watchlistID: watchlistId,
+      action: "add",
+      assetIds: ["c16f5137-def3-4c5c-b3e8-7921f9c8f0d2"], // Solana
+    });
 
-      console.log("Watchlist Details:");
-      console.log(JSON.stringify(watchlist, null, 2));
+    console.log("Watchlist after adding assets:");
+    console.log(JSON.stringify(modifiedWatchlist, null, 2));
 
-      // Example 5: Update a Watchlist
-      console.log("\n--------------------------------");
-      console.log(`Update Watchlist (ID: ${watchlistId})`);
-      console.log("--------------------------------");
+    // Example 7: Modify Watchlist Assets (Remove)
+    console.log("\n--------------------------------");
+    console.log(`Remove Assets from Watchlist (ID: ${watchlistId})`);
+    console.log("--------------------------------");
 
-      const updatedTitle = `Updated Watchlist - ${new Date().toISOString()}`;
-      const updatedWatchlist = await client.userManagement.updateWatchlist({
-        id: watchlistId,
-        watchlistID: watchlistId,
-        title: updatedTitle,
-      });
+    // Remove Ethereum from the watchlist
+    const modifiedWatchlist2 = await client.userManagement.modifyWatchlistAssets({
+      id: watchlistId,
+      watchlistID: watchlistId,
+      action: "remove",
+      assetIds: ["21c795f5-1bfd-40c3-858e-e9d7e820c6d0"], // Ethereum
+    });
 
-      console.log("Updated Watchlist:");
-      console.log(JSON.stringify(updatedWatchlist, null, 2));
+    console.log("Watchlist after removing assets:");
+    console.log(JSON.stringify(modifiedWatchlist2, null, 2));
 
-      // Example 6: Modify Watchlist Assets (Add)
-      console.log("\n--------------------------------");
-      console.log(`Add Assets to Watchlist (ID: ${watchlistId})`);
-      console.log("--------------------------------");
+    // Example 8: Delete a Watchlist
+    console.log("\n--------------------------------");
+    console.log(`Delete Watchlist (ID: ${watchlistId})`);
+    console.log("--------------------------------");
 
-      // Add Solana to the watchlist
-      const modifiedWatchlist = await client.userManagement.modifyWatchlistAssets({
-        id: watchlistId,
-        watchlistID: watchlistId,
-        action: "add",
-        assetIds: ["c16f5137-def3-4c5c-b3e8-7921f9c8f0d2"], // Solana
-      });
+    const deleteResult = await client.userManagement.deleteWatchlist({
+      id: watchlistId,
+    });
 
-      console.log("Watchlist after adding assets:");
-      console.log(JSON.stringify(modifiedWatchlist, null, 2));
+    console.log("Delete Result:");
+    console.log(JSON.stringify(deleteResult, null, 2));
 
-      // Example 7: Modify Watchlist Assets (Remove)
-      console.log("\n--------------------------------");
-      console.log(`Remove Assets from Watchlist (ID: ${watchlistId})`);
-      console.log("--------------------------------");
+    // Verify the watchlist is deleted
+    const finalWatchlists = await client.userManagement.listWatchlists();
+    const deletedWatchlist = finalWatchlists.find((w) => w.id === watchlistId);
 
-      // Remove Ethereum from the watchlist
-      const modifiedWatchlist2 = await client.userManagement.modifyWatchlistAssets({
-        id: watchlistId,
-        watchlistID: watchlistId,
-        action: "remove",
-        assetIds: ["21c795f5-1bfd-40c3-858e-e9d7e820c6d0"], // Ethereum
-      });
-
-      console.log("Watchlist after removing assets:");
-      console.log(JSON.stringify(modifiedWatchlist2, null, 2));
-
-      // Example 8: Delete a Watchlist
-      console.log("\n--------------------------------");
-      console.log(`Delete Watchlist (ID: ${watchlistId})`);
-      console.log("--------------------------------");
-
-      const deleteResult = await client.userManagement.deleteWatchlist({
-        id: watchlistId,
-      });
-
-      console.log("Delete Result:");
-      console.log(JSON.stringify(deleteResult, null, 2));
-
-      // Verify the watchlist is deleted
-      const finalWatchlists = await client.userManagement.listWatchlists();
-      const deletedWatchlist = finalWatchlists.find((w) => w.id === watchlistId);
-
-      if (!deletedWatchlist) {
-        console.log("Watchlist successfully deleted.");
-      } else {
-        console.log("Watchlist still exists after deletion attempt.");
-      }
+    if (!deletedWatchlist) {
+      console.log("Watchlist successfully deleted.");
     } else {
-      console.log("Could not find the newly created watchlist.");
+      console.log("Watchlist still exists after deletion attempt.");
     }
   } catch (error) {
     console.error("Error in watchlist operations:", error);

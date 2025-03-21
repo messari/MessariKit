@@ -264,7 +264,7 @@ paths:
         description: Create watchlist request
         required: true
       responses:
-        "201":
+        "200":
           content:
             application/json:
               schema:

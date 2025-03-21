@@ -557,7 +557,7 @@ export const listWatchlists = {
 } as const;
 
 
-export type createWatchlistResponse = void;
+export type createWatchlistResponse = components['schemas']['Watchlist'];
 export type createWatchlistError = components['schemas']['APIError'];
 
 export type createWatchlistParameters = components['schemas']['CreateWatchlistRequest'];

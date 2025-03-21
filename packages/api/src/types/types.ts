@@ -3152,7 +3152,7 @@ export type operations = {
     };
     responses: {
       /** @description Created */
-      201: {
+      200: {
         content: {
           "application/json": components["schemas"]["APIResponse"] & {
             data?: components["schemas"]["Watchlist"];
