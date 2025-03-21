@@ -152,6 +152,186 @@ export const getAssetsV2ROI = {
 } as const;
 
 
+export type getExchangesResponse = components['schemas']['Exchange'][];
+export type getExchangesError = components['schemas']['APIError'];
+
+export type getExchangesParameters = { type?: string; typeRankCutoff?: string; page?: number; pageSize?: number };
+
+
+export const getExchanges = {
+  method: 'GET' as const,
+  pathParams: [] as const,
+  queryParams: ['type', 'typeRankCutoff', 'page', 'pageSize'] as const,
+  bodyParams: [] as const,
+  path: () => '/metrics/v1/exchanges'
+} as const;
+
+
+export type getExchangeResponse = components['schemas']['Exchange'];
+export type getExchangeError = components['schemas']['APIError'];
+
+export type getExchangeParameters = { exchangeIdentifier: string };
+
+
+export const getExchange = {
+  method: 'GET' as const,
+  pathParams: ['exchangeIdentifier'] as const,
+  queryParams: [] as const,
+  bodyParams: [] as const,
+  path: (p: PathParams) => `/metrics/v1/exchanges/${p.exchangeIdentifier}`
+} as const;
+
+
+export type getExchangeMetricsResponse = components['schemas']['TimeseriesCatalog'];
+export type getExchangeMetricsError = components['schemas']['APIError'];
+
+export type getExchangeMetricsParameters = null;
+
+
+export const getExchangeMetrics = {
+  method: 'GET' as const,
+  pathParams: [] as const,
+  queryParams: [] as const,
+  bodyParams: [] as const,
+  path: () => '/metrics/v1/exchanges/metrics'
+} as const;
+
+
+export type getExchangeTimeseriesResponse = components['schemas']['TimeseriesData'];
+export type getExchangeTimeseriesError = components['schemas']['APIError'];
+
+export type getExchangeTimeseriesParameters = { start: string; end: string } & { entityIdentifier: string; datasetSlug: string; granularity: string };
+
+
+export const getExchangeTimeseries = {
+  method: 'GET' as const,
+  pathParams: ['entityIdentifier', 'datasetSlug', 'granularity'] as const,
+  queryParams: ['start', 'end'] as const,
+  bodyParams: [] as const,
+  path: (p: PathParams) => `/metrics/v1/exchanges/${p.entityIdentifier}/metrics/${p.datasetSlug}/time-series/${p.granularity}`
+} as const;
+
+
+export type getMarketsResponse = components['schemas']['Market'][];
+export type getMarketsError = components['schemas']['APIError'];
+
+export type getMarketsParameters = { exchangeId?: string; exchangeSlug?: string; quoteAssetId?: string; quoteAssetSlug?: string; baseAssetId?: string; baseAssetSlug?: string; volume24hAbove?: string; volume24hBelow?: string };
+
+
+export const getMarkets = {
+  method: 'GET' as const,
+  pathParams: [] as const,
+  queryParams: ['exchangeId', 'exchangeSlug', 'quoteAssetId', 'quoteAssetSlug', 'baseAssetId', 'baseAssetSlug', 'volume24hAbove', 'volume24hBelow'] as const,
+  bodyParams: [] as const,
+  path: () => '/metrics/v1/markets'
+} as const;
+
+
+export type getMarketResponse = components['schemas']['Market'];
+export type getMarketError = components['schemas']['APIError'];
+
+export type getMarketParameters = { marketIdentifier: string };
+
+
+export const getMarket = {
+  method: 'GET' as const,
+  pathParams: ['marketIdentifier'] as const,
+  queryParams: [] as const,
+  bodyParams: [] as const,
+  path: (p: PathParams) => `/metrics/v1/markets/${p.marketIdentifier}`
+} as const;
+
+
+export type getMarketMetricsResponse = components['schemas']['TimeseriesCatalog'];
+export type getMarketMetricsError = components['schemas']['APIError'];
+
+export type getMarketMetricsParameters = null;
+
+
+export const getMarketMetrics = {
+  method: 'GET' as const,
+  pathParams: [] as const,
+  queryParams: [] as const,
+  bodyParams: [] as const,
+  path: () => '/metrics/v1/markets/metrics'
+} as const;
+
+
+export type getMarketTimeseriesResponse = components['schemas']['TimeseriesData'];
+export type getMarketTimeseriesError = components['schemas']['APIError'];
+
+export type getMarketTimeseriesParameters = { start: string; end: string } & { entityIdentifier: string; datasetSlug: string; granularity: string };
+
+
+export const getMarketTimeseries = {
+  method: 'GET' as const,
+  pathParams: ['entityIdentifier', 'datasetSlug', 'granularity'] as const,
+  queryParams: ['start', 'end'] as const,
+  bodyParams: [] as const,
+  path: (p: PathParams) => `/metrics/v1/markets/${p.entityIdentifier}/metrics/${p.datasetSlug}/time-series/${p.granularity}`
+} as const;
+
+
+export type getNetworksResponse = components['schemas']['Network'][];
+export type getNetworksError = components['schemas']['APIError'];
+
+export type getNetworksParameters = { page?: number; pageSize?: number };
+
+
+export const getNetworks = {
+  method: 'GET' as const,
+  pathParams: [] as const,
+  queryParams: ['page', 'pageSize'] as const,
+  bodyParams: [] as const,
+  path: () => '/metrics/v1/networks'
+} as const;
+
+
+export type getNetworkResponse = components['schemas']['Network'];
+export type getNetworkError = components['schemas']['APIError'];
+
+export type getNetworkParameters = { networkIdentifier: string };
+
+
+export const getNetwork = {
+  method: 'GET' as const,
+  pathParams: ['networkIdentifier'] as const,
+  queryParams: [] as const,
+  bodyParams: [] as const,
+  path: (p: PathParams) => `/metrics/v1/networks/${p.networkIdentifier}`
+} as const;
+
+
+export type getNetworkMetricsResponse = components['schemas']['TimeseriesCatalog'];
+export type getNetworkMetricsError = components['schemas']['APIError'];
+
+export type getNetworkMetricsParameters = null;
+
+
+export const getNetworkMetrics = {
+  method: 'GET' as const,
+  pathParams: [] as const,
+  queryParams: [] as const,
+  bodyParams: [] as const,
+  path: () => '/metrics/v1/networks/metrics'
+} as const;
+
+
+export type getNetworkTimeseriesResponse = components['schemas']['TimeseriesData'];
+export type getNetworkTimeseriesError = components['schemas']['APIError'];
+
+export type getNetworkTimeseriesParameters = { start: string; end: string } & { entityIdentifier: string; datasetSlug: string; granularity: string };
+
+
+export const getNetworkTimeseries = {
+  method: 'GET' as const,
+  pathParams: ['entityIdentifier', 'datasetSlug', 'granularity'] as const,
+  queryParams: ['start', 'end'] as const,
+  bodyParams: [] as const,
+  path: (p: PathParams) => `/metrics/v1/networks/${p.entityIdentifier}/metrics/${p.datasetSlug}/time-series/${p.granularity}`
+} as const;
+
+
 export type getAllEventsResponse = APIResponseWithMetadata<components['schemas']['Event'][], components['schemas']['PaginationResult']>;
 export type getAllEventsError = components['schemas']['APIError'];
 

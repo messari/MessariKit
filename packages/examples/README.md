@@ -22,3 +22,15 @@ To run the examples, select the example from [package.json](package.json) and ru
 #### Asset Examples
 
 `npm run start:asset`
+
+#### Exchanges Examples
+
+`npm run start:exchanges`
+
+#### Markets Examples
+
+`npm run start:markets`
+
+#### Networks Examples
+
+`npm run start:networks`

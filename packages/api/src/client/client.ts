@@ -30,6 +30,18 @@ import {
   getAssetsV2ROI,
   getAssetTimeseries,
   getAssetTimeseriesWithGranularity,
+  getExchanges,
+  getExchange,
+  getExchangeMetrics,
+  getExchangeTimeseries,
+  getNetworkTimeseries,
+  getNetworkMetrics,
+  getMarketMetrics,
+  getMarketTimeseries,
+  getNetworks,
+  getNetwork,
+  getMarkets,
+  getMarket,
   modifyWatchlistAssets,
   deleteWatchlist,
   listWatchlists,
@@ -100,6 +112,27 @@ import type {
   getAssetTimeseriesWithGranularityParameters,
   getAssetTimeseriesWithGranularityResponse,
   TimeseriesMetadata,
+  getExchangesParameters,
+  getExchangesResponse,
+  getExchangeResponse,
+  getExchangeParameters,
+  getExchangeTimeseriesResponse,
+  getExchangeTimeseriesParameters,
+  getExchangeMetricsResponse,
+  getNetworkMetricsResponse,
+  getNetworkTimeseriesParameters,
+  getNetworkTimeseriesResponse,
+  getMarketMetricsResponse,
+  getMarketTimeseriesParameters,
+  getMarketTimeseriesResponse,
+  getNetworksResponse,
+  getNetworksParameters,
+  getNetworkResponse,
+  getNetworkParameters,
+  getMarketsParameters,
+  getMarketsResponse,
+  getMarketResponse,
+  getMarketParameters,
   modifyWatchlistAssetsResponse,
   modifyWatchlistAssetsParameters,
   deleteWatchlistResponse,
@@ -139,6 +172,9 @@ import type {
   RecapsAPIInterface,
   ResearchInterface,
   TokenUnlocksInterface,
+  ExchangesInterface,
+  NetworksInterface,
+  MarketsInterface,
   UserManagementInterface,
 } from "./base";
 import { MessariClientBase } from "./base";
@@ -715,6 +751,114 @@ export class MessariClient extends MessariClientBase {
         method: getAssetTimeseriesWithGranularity.method,
         path: getAssetTimeseriesWithGranularity.path(params),
         queryParams: pick(params, getAssetTimeseriesWithGranularity.queryParams),
+        options,
+      });
+    },
+  };
+
+  public readonly exchanges: ExchangesInterface = {
+    getExchanges: async (params: getExchangesParameters = {}, options?: RequestOptions) => {
+      return this.requestWithMetadata<getExchangesResponse, PaginationMetadata>({
+        method: getExchanges.method,
+        path: getExchanges.path(),
+        queryParams: pick(params, getExchanges.queryParams),
+        options,
+      });
+    },
+
+    getExchangeById: async (params: getExchangeParameters, options?: RequestOptions) => {
+      return this.requestWithMetadata<getExchangeResponse, PaginationMetadata>({
+        method: getExchange.method,
+        path: getExchange.path(params),
+        options,
+      });
+    },
+
+    getExchangeMetrics: async (options?: RequestOptions) => {
+      return this.requestWithMetadata<getExchangeMetricsResponse, PaginationMetadata>({
+        method: getExchangeMetrics.method,
+        path: getExchangeMetrics.path(),
+        options,
+      });
+    },
+
+    getExchangeTimeseries: async (params: getExchangeTimeseriesParameters, options?: RequestOptions) => {
+      return this.requestWithMetadata<getExchangeTimeseriesResponse, TimeseriesMetadata>({
+        method: getExchangeTimeseries.method,
+        path: getExchangeTimeseries.path(params),
+        queryParams: pick(params, getExchangeTimeseries.queryParams),
+        options,
+      });
+    },
+  };
+
+  public readonly networks: NetworksInterface = {
+    getNetworks: async (params: getNetworksParameters = {}, options?: RequestOptions) => {
+      return this.requestWithMetadata<getNetworksResponse, PaginationMetadata>({
+        method: getNetworks.method,
+        path: getNetworks.path(),
+        queryParams: pick(params, getNetworks.queryParams),
+        options,
+      });
+    },
+
+    getNetworkById: async (params: getNetworkParameters, options?: RequestOptions) => {
+      return this.requestWithMetadata<getNetworkResponse, PaginationMetadata>({
+        method: getNetwork.method,
+        path: getNetwork.path(params),
+        options,
+      });
+    },
+
+    getNetworkMetrics: async (options?: RequestOptions) => {
+      return this.requestWithMetadata<getNetworkMetricsResponse, PaginationMetadata>({
+        method: getNetworkMetrics.method,
+        path: getNetworkMetrics.path(),
+        options,
+      });
+    },
+
+    getNetworkTimeseries: async (params: getNetworkTimeseriesParameters, options?: RequestOptions) => {
+      return this.requestWithMetadata<getNetworkTimeseriesResponse, TimeseriesMetadata>({
+        method: getNetworkTimeseries.method,
+        path: getNetworkTimeseries.path(params),
+        queryParams: pick(params, getNetworkTimeseries.queryParams),
+        options,
+      });
+    },
+  };
+
+  public readonly markets: MarketsInterface = {
+    getMarkets: async (params: getMarketsParameters = {}, options?: RequestOptions) => {
+      return this.requestWithMetadata<getMarketsResponse, PaginationMetadata>({
+        method: getMarkets.method,
+        path: getMarkets.path(),
+        queryParams: pick(params, getMarkets.queryParams),
+        options,
+      });
+    },
+
+    getMarketById: async (params: getMarketParameters, options?: RequestOptions) => {
+      return this.requestWithMetadata<getMarketResponse, PaginationMetadata>({
+        method: getMarket.method,
+        path: getMarket.path(params),
+        options,
+      });
+    },
+
+    getMarketMetrics: async (options?: RequestOptions) => {
+      return this.requestWithMetadata<getMarketMetricsResponse, PaginationMetadata>({
+        method: getMarketMetrics.method,
+        path: getMarketMetrics.path(),
+        options,
+      });
+    },
+
+    getMarketTimeseries: async (params: getMarketTimeseriesParameters, options?: RequestOptions) => {
+      return this.requestWithMetadata<getMarketTimeseriesResponse, TimeseriesMetadata>({
+        method: getMarketTimeseries.method,
+        path: getMarketTimeseries.path(params),
+        queryParams: pick(params, getMarketTimeseries.queryParams),
         options,
       });
     },

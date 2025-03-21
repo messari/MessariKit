@@ -542,6 +542,623 @@ paths:
               schema:
                 $ref: '../../common/components.yaml#/components/schemas/APIError'
 
+  /metrics/v1/exchanges:
+    get:
+      operationId: getExchanges
+      summary: List Exchanges
+      description: |
+        Get a list of exchanges with metadata and associated metrics snapshot.
+      tags:
+        - Exchange
+      security:
+        - apiKey: []
+      parameters:
+        - $ref: '../../common/parameters.yaml#/components/parameters/apiKey'
+        - name: type
+          in: query
+          description: The type of exchange "centralized" or "decentralized"
+          schema:
+            type: string
+            default: centralized
+        - name: typeRankCutoff
+          in: query
+          schema:
+            type: string
+            default: '10'
+        - name: page
+          in: query
+          description: Page number from which to start fetching results
+          schema:
+            type: integer
+            format: int32
+        - name: pageSize
+          in: query
+          description: Max number of results to return per page
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../../common/components.yaml#/components/schemas/APIResponseWithMetadata'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Exchange'
+        '400':
+          $ref: '../../common/components.yaml#/components/schemas/APIError'
+        '500':
+          $ref: '../../common/components.yaml#/components/schemas/APIError'
+
+  /metrics/v1/exchanges/{exchangeIdentifier}:
+    get:
+      operationId: getExchange
+      summary: Get Exchange Details
+      description: Get detailed information for a specific exchange.
+      tags:
+        - Exchange
+      security:
+        - apiKey: []
+      parameters:
+        - $ref: '../../common/parameters.yaml#/components/parameters/apiKey'
+        - name: exchangeIdentifier
+          in: path
+          required: true
+          description: Exchange identifier (slug)
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../../common/components.yaml#/components/schemas/APIResponseWithMetadata'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Exchange'
+        '400':
+          $ref: '../../common/components.yaml#/components/schemas/APIError'
+        '500':
+          $ref: '../../common/components.yaml#/components/schemas/APIError'
+
+  /metrics/v1/exchanges/metrics:
+    get:
+      operationId: getExchangeMetrics
+      summary: List Exchange Metrics
+      description: Returns a list of timeseries metrics available for exchanges.
+      tags:
+        - Exchange
+      parameters:
+        - $ref: '../../common/parameters.yaml#/components/parameters/apiKey'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../../common/components.yaml#/components/schemas/APIResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/TimeseriesCatalog'
+        '400':
+          description: Client error response
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+        '403':
+          description: Forbidden - Enterprise access required
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+        '500':
+          description: Server error response
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+
+  /metrics/v1/exchanges/{entityIdentifier}/metrics/{datasetSlug}/time-series/{granularity}:
+    get:
+      operationId: getExchangeTimeseries
+      summary: Get Exchange Timeseries Metrics
+      description: Fetch timeseries metrics for a specific exchange.
+      tags:
+        - Exchange
+      security:
+        - apiKey: []
+      parameters:
+        - $ref: '../../common/parameters.yaml#/components/parameters/apiKey'
+        - name: entityIdentifier
+          in: path
+          required: true
+          description: Exchange identifier (slug)
+          schema:
+            type: string
+        - name: datasetSlug
+          in: path
+          required: true
+          description: Slug of the dataset to retrieve data for
+          schema:
+            type: string
+        - name: granularity
+          in: path
+          required: true
+          description: Time granularity for the data points
+          schema:
+            $ref: '#/components/schemas/TimeseriesInterval'
+        - name: start
+          in: query
+          required: true
+          description: Start time for the data range (ISO 8601 format)
+          schema:
+            type: string
+            format: date-time
+        - name: end
+          in: query
+          required: true
+          description: End time for the data range (ISO 8601 format)
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../../common/components.yaml#/components/schemas/APIResponseWithMetadata'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/TimeseriesData'
+                      metadata:
+                        $ref: '#/components/schemas/TimeseriesMetadata'
+        '400':
+          description: Client error response
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+        '403':
+          description: Forbidden - Enterprise access required
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+        '500':
+          description: Server error response
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+
+  /metrics/v1/markets:
+    get:
+      operationId: getMarkets
+      summary: List Markets
+      description: Retrieves a list of markets. Results can be filtered by exchange, quote asset, base asset and 24h volume
+      tags:
+        - Markets
+      security:
+        - apiKey: []
+      parameters:
+        - $ref: '../../common/parameters.yaml#/components/parameters/apiKey'
+        - name: exchangeId
+          in: query
+          description: Filter by exchange ID
+          schema:
+            type: string
+        - name: exchangeSlug
+          in: query
+          description: Filter by exchange slug
+          schema:
+            type: string
+        - name: quoteAssetId
+          in: query
+          description: Filter by quote asset ID
+          schema:
+            type: string
+        - name: quoteAssetSlug
+          in: query
+          description: Filter by quote asset slug
+          schema:
+            type: string
+        - name: baseAssetId
+          in: query
+          description: Filter by base asset ID
+          schema:
+            type: string
+        - name: baseAssetSlug
+          in: query
+          description: Filter by base asset slug
+          schema:
+            type: string
+        - name: volume24hAbove
+          in: query
+          description: Filter by minimum 24h volume
+          schema:
+            type: string
+        - name: volume24hBelow
+          in: query
+          description: Filter by maximum 24h volume
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../../common/components.yaml#/components/schemas/APIResponseWithMetadata'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Market'
+        '400':
+          $ref: '../../common/components.yaml#/components/schemas/APIError'
+        '500':
+          $ref: '../../common/components.yaml#/components/schemas/APIError'
+
+  /metrics/v1/markets/{marketIdentifier}:
+    get:
+      operationId: getMarket
+      summary: Get Market Details
+      description: Fetches the data for a single market based on the marketIdentifier provided
+      tags:
+        - Markets
+      security:
+        - apiKey: []
+      parameters:
+        - $ref: '../../common/parameters.yaml#/components/parameters/apiKey'
+        - name: marketIdentifier
+          in: path
+          required: true
+          description: Market identifier
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../../common/components.yaml#/components/schemas/APIResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Market'
+        '400':
+          $ref: '../../common/components.yaml#/components/schemas/APIError'
+        '500':
+          $ref: '../../common/components.yaml#/components/schemas/APIError'
+
+  /metrics/v1/markets/metrics:
+    get:
+      operationId: getMarketMetrics
+      summary: List Market Metrics
+      description: Returns a list of timeseries metrics available for markets.
+      tags:
+        - Markets
+      parameters:
+        - $ref: '../../common/parameters.yaml#/components/parameters/apiKey'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../../common/components.yaml#/components/schemas/APIResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/TimeseriesCatalog'
+        '400':
+          description: Client error response
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+        '403':
+          description: Forbidden - Enterprise access required
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+        '500':
+          description: Server error response
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+
+  /metrics/v1/markets/{entityIdentifier}/metrics/{datasetSlug}/time-series/{granularity}:
+    get:
+      operationId: getMarketTimeseries
+      summary: Get Market Timeseries Metrics
+      description: Fetch timeseries metrics for a specific market.
+      tags:
+        - Markets
+      security:
+        - apiKey: []
+      parameters:
+        - $ref: '../../common/parameters.yaml#/components/parameters/apiKey'
+        - name: entityIdentifier
+          in: path
+          required: true
+          description: Market identifier (slug)
+          schema:
+            type: string
+        - name: datasetSlug
+          in: path
+          required: true
+          description: Slug of the dataset to retrieve data for
+          schema:
+            type: string
+        - name: granularity
+          in: path
+          required: true
+          description: Time granularity for the data points
+          schema:
+            $ref: '#/components/schemas/TimeseriesInterval'
+        - name: start
+          in: query
+          required: true
+          description: Start time for the data range (ISO 8601 format)
+          schema:
+            type: string
+            format: date-time
+        - name: end
+          in: query
+          required: true
+          description: End time for the data range (ISO 8601 format)
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../../common/components.yaml#/components/schemas/APIResponseWithMetadata'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/TimeseriesData'
+                      metadata:
+                        $ref: '#/components/schemas/TimeseriesMetadata'
+        '400':
+          description: Client error response
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+        '403':
+          description: Forbidden - Enterprise access required
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+        '500':
+          description: Server error response
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+
+  /metrics/v1/networks:
+    get:
+      operationId: getNetworks
+      summary: List Networks
+      description: List of networks, metadata, and associated onchain metrics snapshot.
+      tags:
+        - Networks
+      security:
+        - apiKey: []
+      parameters:
+        - $ref: '../../common/parameters.yaml#/components/parameters/apiKey'
+        - name: page
+          in: query
+          description: Page number from which to start fetching results
+          schema:
+            type: integer
+            format: int32
+        - name: pageSize
+          in: query
+          description: Max number of results to return per page
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../../common/components.yaml#/components/schemas/APIResponseWithMetadata'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Network'
+        '400':
+          $ref: '../../common/components.yaml#/components/schemas/APIError'
+        '500':
+          $ref: '../../common/components.yaml#/components/schemas/APIError'
+
+  /metrics/v1/networks/{networkIdentifier}:
+    get:
+      operationId: getNetwork
+      summary: Get Network Details
+      description: Returns a single network based on the identifier
+      tags:
+        - Networks
+      security:
+        - apiKey: []
+      parameters:
+        - $ref: '../../common/parameters.yaml#/components/parameters/apiKey'
+        - name: networkIdentifier
+          in: path
+          required: true
+          description: Network identifier (ID or slug)
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../../common/components.yaml#/components/schemas/APIResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Network'
+        '400':
+          $ref: '../../common/components.yaml#/components/schemas/APIError'
+        '500':
+          $ref: '../../common/components.yaml#/components/schemas/APIError'
+
+  /metrics/v1/networks/metrics:
+    get:
+      operationId: getNetworkMetrics
+      summary: List Network Metrics
+      description: Returns a list of timeseries metrics available for networks.
+      tags:
+        - Networks
+      parameters:
+        - $ref: '../../common/parameters.yaml#/components/parameters/apiKey'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../../common/components.yaml#/components/schemas/APIResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/TimeseriesCatalog'
+        '400':
+          description: Client error response
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+        '403':
+          description: Forbidden - Enterprise access required
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+        '500':
+          description: Server error response
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+
+  /metrics/v1/networks/{entityIdentifier}/metrics/{datasetSlug}/time-series/{granularity}:
+    get:
+      operationId: getNetworkTimeseries
+      summary: Get Network Timeseries Metrics
+      description: Fetch timeseries metrics for a specific network.
+      tags:
+        - Networks
+      security:
+        - apiKey: []
+      parameters:
+        - $ref: '../../common/parameters.yaml#/components/parameters/apiKey'
+        - name: entityIdentifier
+          in: path
+          required: true
+          description: Exchange identifier (slug)
+          schema:
+            type: string
+        - name: datasetSlug
+          in: path
+          required: true
+          description: Slug of the dataset to retrieve data for
+          schema:
+            type: string
+        - name: granularity
+          in: path
+          required: true
+          description: Time granularity for the data points
+          schema:
+            $ref: '#/components/schemas/TimeseriesInterval'
+        - name: start
+          in: query
+          required: true
+          description: Start time for the data range (ISO 8601 format)
+          schema:
+            type: string
+            format: date-time
+        - name: end
+          in: query
+          required: true
+          description: End time for the data range (ISO 8601 format)
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../../common/components.yaml#/components/schemas/APIResponseWithMetadata'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/TimeseriesData'
+                      metadata:
+                        $ref: '#/components/schemas/TimeseriesMetadata'
+        '400':
+          description: Client error response
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+        '403':
+          description: Forbidden - Enterprise access required
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+        '500':
+          description: Server error response
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+
+
 components:
   securitySchemes:
     apiKey:
@@ -1130,3 +1747,244 @@ components:
           type: number
           format: float
           description: Percent up from cycle low
+
+    ExchangeListResponse:
+      type: object
+      properties:
+        error:
+          type: object
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Exchange'
+
+    ExchangeResponse:
+      type: object
+      properties:
+        error:
+          type: object
+        data:
+          $ref: '#/components/schemas/Exchange'
+
+    Exchange:
+      type: object
+      required:
+        - id
+        - name
+        - slug
+        - type
+        - metrics
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        slug:
+          type: string
+        type:
+          type: string
+        yearEstablished:
+          type: integer
+        region:
+          type: string
+        country:
+          type: string
+        typeRank30D:
+          type: integer
+        globalRank30D:
+          type: integer
+        relatedExchangeIDs:
+          type: array
+          items:
+            type: string
+            format: uuid
+        metrics:
+          type: object
+          properties:
+            volume24Hour:
+              type: number
+              format: float
+            trades24Hour:
+              type: integer
+            assetsCount:
+              type: integer
+            marketsCount:
+              type: integer
+
+    ExchangeMetricsResponse:
+      type: object
+      properties:
+        error:
+          type: object
+        data:
+          type: object
+          properties:
+            datasets:
+              type: array
+              items:
+                $ref: '#/components/schemas/ExchangeDataset'
+
+    ExchangeDataset:
+      type: object
+      required:
+        - slug
+        - granularities
+        - metrics
+      properties:
+        slug:
+          type: string
+        granularities:
+          type: array
+          items:
+            type: string
+        metrics:
+          type: array
+          items:
+            $ref: '#/components/schemas/TimeseriesPointSchema'
+
+    ExchangeTimeseriesResponse:
+      type: object
+      properties:
+        error:
+          type: object
+        data:
+          $ref: '#/components/schemas/TimeseriesData'
+        metadata:
+          $ref: '#/components/schemas/TimeseriesMetadata'
+
+    Network:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        slug:
+          type: string
+        metrics:
+          type: object
+          properties:
+            transactions:
+              type: object
+              properties:
+                totalTransactions:
+                  type: integer
+                successfulTransactions:
+                  type: integer
+                unsuccessfulTransactions:
+                  type: integer
+            addresses:
+              type: object
+              properties:
+                activeAddresses:
+                  type: integer
+                newAddresses:
+                  type: integer
+                returningAddresses:
+                  type: integer
+            contracts:
+              type: object
+              properties:
+                activeContracts:
+                  type: integer
+                totalContractsCalled:
+                  type: integer
+                newContractsCalled:
+                  type: integer
+                returningContractsCalled:
+                  type: integer
+                uniqueContractCallers:
+                  type: integer
+                newContractsDeployed:
+                  type: integer
+                contractCallGasPayers:
+                  type: integer
+                contractDeployers:
+                  type: integer
+                newContractDeployers:
+                  type: integer
+                gasSpenders:
+                  type: integer
+
+    Market:
+      type: object
+      properties:
+        id:
+          type: string
+        baseAsset:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            name:
+              type: string
+            slug:
+              type: string
+            symbol:
+              type: string
+        baseAssetSector:
+          type: string
+        quoteAsset:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            name:
+              type: string
+            slug:
+              type: string
+            symbol:
+              type: string
+        quoteAssetSector:
+          type: string
+        exchange:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            name:
+              type: string
+            slug:
+              type: string
+        network:
+          type: object
+        sectors:
+          type: array
+          items:
+            type: string
+        firstTradeAt:
+          type: string
+          format: date-time
+        lastTradeAt:
+          type: string
+          format: date-time
+        isNewMarket:
+          type: boolean
+        isRecentlyListed:
+          type: boolean
+        liveness:
+          type: string
+        metrics:
+          type: object
+          properties:
+            exchangeVolumePercentage24h:
+              type: number
+            latestPrice24hOpen:
+              type: number
+            latestPrice24hHigh:
+              type: number
+            latestPrice24hLow:
+              type: number
+            latestPrice24hClose:
+              type: number
+            premiumDiscount:
+              type: number
+            volume24h:
+              type: number
+            tradeCount24h:
+              type: integer

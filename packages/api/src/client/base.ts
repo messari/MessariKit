@@ -63,6 +63,27 @@ import type {
   getAssetTimeseriesWithGranularityParameters,
   getAssetTimeseriesWithGranularityResponse,
   TimeseriesMetadata,
+  getExchangesParameters,
+  getExchangesResponse,
+  getExchangeParameters,
+  getExchangeResponse,
+  getExchangeTimeseriesParameters,
+  getExchangeTimeseriesResponse,
+  getExchangeMetricsResponse,
+  getNetworkTimeseriesResponse,
+  getNetworkTimeseriesParameters,
+  getNetworkMetricsResponse,
+  getMarketMetricsResponse,
+  getMarketTimeseriesParameters,
+  getMarketTimeseriesResponse,
+  getNetworksParameters,
+  getNetworksResponse,
+  getNetworkParameters,
+  getNetworkResponse,
+  getMarketsResponse,
+  getMarketsParameters,
+  getMarketResponse,
+  getMarketParameters,
   createWatchlistResponse,
   createWatchlistParameters,
   getWatchlistParameters,
@@ -165,6 +186,126 @@ export interface AssetInterface {
     params: getAssetTimeseriesWithGranularityParameters,
     options?: RequestOptions,
   ): Promise<APIResponseWithMetadata<getAssetTimeseriesWithGranularityResponse, TimeseriesMetadata>>;
+}
+
+/**
+ * Interface for the Exchanges API methods
+ */
+export interface ExchangesInterface {
+  /**
+   * Gets a list of all exchanges
+   * @param params Parameters for filtering exchanges
+   * @param options Optional request configuration
+   * @returns A paginated result of exchanges
+   */
+  getExchanges(params?: getExchangesParameters, options?: RequestOptions): Promise<APIResponseWithMetadata<getExchangesResponse>>;
+
+  /**
+   * Gets a specific exchange by ID
+   * @param params Parameters for the exchange ID
+   * @param options Optional request configuration
+   * @returns A promise resolving to the exchange
+   */
+  getExchangeById(params: getExchangeParameters, options?: RequestOptions): Promise<APIResponseWithMetadata<getExchangeResponse>>;
+
+  /**
+   * Gets a list of all metrics for an exchange
+   * @param params Parameters for the exchange ID
+   * @param options Optional request configuration
+   * @returns A promise resolving to the metrics
+   */
+  getExchangeMetrics(options?: RequestOptions): Promise<APIResponseWithMetadata<getExchangeMetricsResponse>>;
+
+  /**
+   * Gets timeseries data for a specific exchange and metric group
+   * @param params Parameters for the exchange ID and metric group
+   * @param options Optional request configuration
+   * @returns A promise resolving to the timeseries data
+   */
+  getExchangeTimeseries(
+    params: getExchangeTimeseriesParameters,
+    options?: RequestOptions,
+  ): Promise<APIResponseWithMetadata<getExchangeTimeseriesResponse, TimeseriesMetadata>>;
+}
+
+/**
+ * Interface for the Networks API methods
+ */
+export interface NetworksInterface {
+  /**
+   * Gets a list of all networks
+   * @param params Parameters for filtering networks
+   * @param options Optional request configuration
+   * @returns A paginated result of networks
+   */
+  getNetworks(params?: getNetworksParameters, options?: RequestOptions): Promise<APIResponseWithMetadata<getNetworksResponse>>;
+
+  /**
+   * Gets a specific exchange by ID
+   * @param params Parameters for the exchange ID
+   * @param options Optional request configuration
+   * @returns A promise resolving to the exchange
+   */
+  getNetworkById(params: getNetworkParameters, options?: RequestOptions): Promise<APIResponseWithMetadata<getNetworkResponse>>;
+
+  /**
+   * Gets a list of all metrics for an network
+   * @param params Parameters for the network ID
+   * @param options Optional request configuration
+   * @returns A promise resolving to the metrics
+   */
+  getNetworkMetrics(options?: RequestOptions): Promise<APIResponseWithMetadata<getNetworkMetricsResponse>>;
+
+  /**
+   * Gets timeseries data for a specific network and metric group
+   * @param params Parameters for the network ID and metric group
+   * @param options Optional request configuration
+   * @returns A promise resolving to the timeseries data
+   */
+  getNetworkTimeseries(
+    params: getNetworkTimeseriesParameters,
+    options?: RequestOptions,
+  ): Promise<APIResponseWithMetadata<getNetworkTimeseriesResponse, TimeseriesMetadata>>;
+}
+
+/**
+ * Interface for the Markets API methods
+ */
+export interface MarketsInterface {
+  /**
+   * Gets a list of all markets
+   * @param params Parameters for filtering markets
+   * @param options Optional request configuration
+   * @returns A paginated result of markets
+   */
+  getMarkets(params?: getMarketsParameters, options?: RequestOptions): Promise<APIResponseWithMetadata<getMarketsResponse>>;
+
+  /**
+   * Gets a specific market by ID
+   * @param params Parameters for the market ID
+   * @param options Optional request configuration
+   * @returns A promise resolving to the market
+   */
+  getMarketById(params: getMarketParameters, options?: RequestOptions): Promise<APIResponseWithMetadata<getMarketResponse>>;
+
+  /**
+   * Gets a list of all metrics for an Market
+   * @param params Parameters for the Market ID
+   * @param options Optional request configuration
+   * @returns A promise resolving to the metrics
+   */
+  getMarketMetrics(options?: RequestOptions): Promise<APIResponseWithMetadata<getMarketMetricsResponse>>;
+
+  /**
+   * Gets timeseries data for a specific Market and metric group
+   * @param params Parameters for the Market ID and metric group
+   * @param options Optional request configuration
+   * @returns A promise resolving to the timeseries data
+   */
+  getMarketTimeseries(
+    params: getMarketTimeseriesParameters,
+    options?: RequestOptions,
+  ): Promise<APIResponseWithMetadata<getMarketTimeseriesResponse, TimeseriesMetadata>>;
 }
 
 /**
