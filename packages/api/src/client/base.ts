@@ -15,14 +15,6 @@ import type {
   getAllAssetsParameters,
   getAllAssetsResponse,
   getAllEventsResponse,
-  getAssetMarketdataParameters,
-  getAssetMarketdataResponse,
-  getAssetROIParameters,
-  getAssetROIResponse,
-  getAssetATHParameters,
-  getAssetATHResponse,
-  getAssetsROIResponse,
-  getAssetsATHResponse,
   getProjectRecapParameters,
   getExchangeRankingsRecapResponse,
   getExchangeRecapParameters,
@@ -227,44 +219,6 @@ export interface NewsInterface {
 }
 
 /**
- * Interface for the Markets API methods
- */
-export interface MarketsInterface {
-  /**
-   * Gets price data for a specific asset
-   * @param params Parameters including the asset ID
-   * @returns A promise resolving to the asset price data
-   */
-  getAssetPrice(params: getAssetMarketdataParameters): Promise<getAssetMarketdataResponse>;
-
-  /**
-   * Gets ROI data for a specific asset
-   * @param params Parameters including the asset ID
-   * @returns A promise resolving to the asset ROI data
-   */
-  getAssetROI(params: getAssetROIParameters): Promise<getAssetROIResponse>;
-
-  /**
-   * Gets all-time high data for a specific asset
-   * @param params Parameters including the asset ID
-   * @returns A promise resolving to the asset ATH data
-   */
-  getAssetATH(params: getAssetATHParameters): Promise<getAssetATHResponse>;
-
-  /**
-   * Gets ROI data for all assets
-   * @returns A promise resolving to ROI data for all assets
-   */
-  getAllAssetsROI(): Promise<getAssetsROIResponse>;
-
-  /**
-   * Gets all-time high data for all assets
-   * @returns A promise resolving to ATH data for all assets
-   */
-  getAllAssetsATH(): Promise<getAssetsATHResponse>;
-}
-
-/**
  * Interface for the recaps API endpoints
  */
 export interface RecapsAPIInterface {
@@ -390,11 +344,6 @@ export abstract class MessariClientBase {
    * Interface for AI-related API methods
    */
   public abstract readonly ai: AIInterface;
-
-  /**
-   * Interface for Markets-related API methods
-   */
-  public abstract readonly markets: MarketsInterface;
 
   /**
    * Interface for Asset-related API methods

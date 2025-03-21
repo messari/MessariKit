@@ -250,6 +250,18 @@ paths:
         - apiKey: []
       parameters:
         - $ref: '../../common/parameters.yaml#/components/parameters/apiKey'
+        - name: ids
+          in: query
+          required: false
+          description: Comma-separated list of asset IDs
+          schema:
+            type: string
+        - name: slugs
+          in: query
+          required: false
+          description: Comma-separated list of asset slugs
+          schema:
+            type: string
         - name: category
           in: query
           required: false
@@ -315,6 +327,18 @@ paths:
         - apiKey: []
       parameters:
         - $ref: '../../common/parameters.yaml#/components/parameters/apiKey'
+        - name: ids
+          in: query
+          required: false
+          description: Comma-separated list of asset IDs
+          schema:
+            type: string
+        - name: slugs
+          in: query
+          required: false
+          description: Comma-separated list of asset slugs
+          schema:
+            type: string
         - name: category
           in: query
           required: false

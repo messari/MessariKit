@@ -1,16 +1,55 @@
 # MessariKit
 
-MessariKit is the official TypeScript/JavaScript SDK for interacting with Messari's APIs. It provides a type-safe, intuitive interface for accessing Messari's suite of crypto data and AI services.
+This repository defines the OpenAPI specifications and types for the official TypeScript SDK. The purpose of the SDK is to provide a type-safe, intuitive interface for accessing Messari's suite of crypto data and AI services. 
 
-## API Services
+## Project Structure
+
+The repository is organized as follows:
+
+- `packages/api`: The SDK package that we publish to npm for consumption.
+- `packages/examples`: A demo project that implements examples of the SDK in action for the various services: AI, Asset, Intel, News, etc.
+- `typegen`: The OpenAPI specifications and type generation scripts. Used for updating the SDK types and operations.
+
+```
+├── packages/
+│   └── api/
+│       └── src/
+│           ├── types.ts        # Generated API types from OpenAPI
+│           ├── schema.ts       # Re-exported schema types
+│           └── index.ts        # Generated operations and re-exports
+│   └── examples/
+│       └── src/
+│           ├── ai.ts           # Example usage of the AI service
+│           ├── asset/
+│              ├── asset.ts     # Example usage of the Asset service
+│              ├── ath.ts       # Example usage of the Asset service - ATHs
+│              ├── roi.ts       # Example usage of the Asset service - ROIs
+├── typegen/
+│   ├── openapi/
+│   │   ├── common/            # Shared OpenAPI components
+│   │   ├── services/          # Service-specific OpenAPI specs
+│   │   ├── index.yaml         # Main entry point that combines all services
+│   │   └── dist/              # Bundled OpenAPI specs
+│   └── scripts/               # Type generation scripts
+└── package.json
+```
+
+## API Services & Implementation Status
+
+List of services currently implemented in the SDK, more services will be added over time.
+For the full list of APIs, see the [API Reference Docs](https://docs.messari.io/reference/introduction).
 
 | Service Name | Endpoint Name | Endpoint Route | Implemented |
 |--------------|---------------|----------------|-------------|
 | AI | Chat Completion | `/ai/v1/chat/completions` | ✅ |
 | AI | Entity Extraction | `/ai/v1/classification/extraction` | ✅ |
 | |
-| Asset | Asset List | `/asset/v1/assets` | 🚧 |
-| Asset | Asset By ID | `/asset/v1/assets/{assetId}` | ❌ |
+| Asset | Asset List | `/metrics/v2/assets` | ✅ |
+| Asset | Asset Details | `/metrics/v2/assets/details` | ✅ |
+| Asset | Asset ATHs | `/metrics/v2/assets/ath` | ✅ |
+| Asset | Asset ROIs | `/metrics/v2/assets/roi` | ✅ |
+| Asset | Asset Metrics | `/metrics/v2/assets/metrics` | ✅ |
+| Asset | Asset Price Time Series | `/metrics/v2/assets/{assetId}/metrics/price/time-series/{granularity}` | ✅ |
 | |
 | Intel | Events | `/intel/v1/events` | 🚧 |
 | Intel | Events By ID | `/intel/v1/events/{eventId}` | 🚧 |
@@ -19,19 +58,6 @@ MessariKit is the official TypeScript/JavaScript SDK for interacting with Messar
 | News | News Assets | `/news/v1/news/assets` | 🚧 |
 | News | News Feed | `/news/v1/news/feed` | 🚧 |
 | News | News Sources | `/news/v1/news/sources` | 🚧 |
-| |
-| Marketdata | Marketdata by AssetID | `/marketdata/v1/assets/{assetId}/price` | 🚧 |
-| Marketdata | ROI | `/marketdata/v1/assets/roi` | 🚧 |
-| Marketdata | ROI by AssetID | `/marketdata/v1/assets/{assetId}/roi` | 🚧 |
-| Marketdata | ATH | `/marketdata/v1/assets/ath` | 🚧 |
-| Marketdata | ATH by Asset | `/marketdata/v1/assets/{assetId}/ath` | 🚧 |
-| Marketdata | Timeseries by AssetID | `/marketdata/v1/assets/{assetId}/price/time-series` | ❌ |
-| Marketdata | Markets | `/marketdata/v1/markets` | ❌ |
-| Marketdata | Markets by MarketID | `/marketdata/v1/markets/{id}` | ❌ |
-| Marketdata | Timeseries by MarketID | `/marketdata/v1/markets/{marketId}/price/time-series` | ❌ |
-| Marketdata | Markets by MarketID | `/marketdata/v1/markets/{id}` | ❌ |
-| Marketdata | Exchanges | `/marketdata/v1/exchanges` | ❌ |
-| Marketdata | Volume Timeseries by ExchangeID | `/marketdata/v1/exchanges/{exchangeId}/volume/time-series` | ❌ |
 | |
 | AI Digest | Project Recap By ID | `/ai-digest/api/v1/recap` | ❌ |
 | AI Digest | Exchange Recaps Overview | `/ai-digest/api/v1/exchange-rankings-recap` | ❌ |
@@ -50,60 +76,15 @@ MessariKit is the official TypeScript/JavaScript SDK for interacting with Messar
 | Fundraising | Organizations | `/funding/v1/organizations` | 🚧 |
 | Fundraising | Projects | `/funding/v1/projects` | 🚧 |
 
+## Generating Types
 
-
-### AI Service
-
-The AI service provides access to Messari's AI-powered features:
-
-- Chat Completions: Engage in context-aware conversations about crypto
-- Entity Extraction: Extract and classify entities from text content
-
-## Development
-
-### Project Structure
-
-```
-├── packages/
-│   └── types/
-│       └── src/
-│           ├── types.ts        # Generated API types from OpenAPI
-│           ├── schema.ts       # Re-exported schema types
-│           └── index.ts        # Generated operations and re-exports
-├── typegen/
-│   ├── openapi/
-│   │   ├── common/            # Shared OpenAPI components
-│   │   ├── services/          # Service-specific OpenAPI specs
-│   │   ├── index.yaml         # Main entry point that combines all services
-│   │   └── dist/              # Bundled OpenAPI specs
-│   └── scripts/               # Type generation scripts
-└── package.json
-```
-
-### Building
+To regenerate types after modifying OpenAPI specs:
 
 ```bash
 # Install dependencies
 pnpm install
 
-# Generate API types and bundles
-pnpm run api:build
-
-# Build the SDK
-pnpm run build
-```
-
-### Type Generation
-
-The SDK uses a multi-step type generation process:
-
-1. OpenAPI specs are validated (`pnpm api:validate`)
-2. OpenAPI specs are bundled into a combined spec (`pnpm api:bundle`)
-3. TypeScript types and operation helpers are generated (`pnpm api:types`)
-
-To regenerate types after modifying OpenAPI specs:
-
-```bash
+# Generate types & build the SDK
 pnpm run api:build
 ```
 
@@ -144,10 +125,6 @@ pnpm run api:build
 
 For more detailed information on the type generation process, see the [Type Generation README](typegen/README.md).
 
-## Contributing
-
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
-
 ## License
 
 MIT License - see the [LICENSE](LICENSE) file for details.
@@ -155,5 +132,5 @@ MIT License - see the [LICENSE](LICENSE) file for details.
 ## Support
 
 - [Documentation](https://docs.messari.io)
-- [API Reference](https://docs.messari.io/api)
+- [API Reference](https://docs.messari.io/reference/introduction)
 - [GitHub Issues](https://github.com/messari/messari-kit/issues) 

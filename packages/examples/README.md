@@ -1,39 +1,24 @@
 # Messari API Examples
 
-This package contains examples of how to use the Messari API client.
+This package contains examples of how to use the Messari API client. For the full list of examples, see the [Example Docs](https://docs.messari.io/recipes).
 
 ## Setup
 
-1. Install dependencies:
-   ```bash
-   pnpm install
-   ```
+1. Install dependencies `pnpm install`
+   
 
 2. Set up environment variables:
    - Copy `.env.example` to `.env`
-   - Add your Messari API key to the `.env` file:
-     ```
-     MESSARI_API_KEY=your_api_key_here
-     ```
+   - Add your Messari API key to the `.env` file: `MESSARI_API_KEY=your_api_key_here`
 
 ## Running Examples
 
-### News Feed Example
+To run the examples, select the example from [package.json](package.json) and run it with `npm run <example>`.
 
-This example demonstrates how to use the News API to fetch news articles, assets, and sources with pagination.
+#### AI Examples
 
-```bash
-npx tsx src/newsFeed.ts
-```
+`npm run start:ai`
 
-### Chat Completion Example
+#### Asset Examples
 
-This example demonstrates how to use the AI API to create chat completions.
-
-```bash
-npx tsx src/chatCompletion.ts
-```
-
-## API Documentation
-
-For more information about the Messari API, refer to the official documentation. 
+`npm run start:asset`
