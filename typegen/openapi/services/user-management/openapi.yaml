@@ -1,0 +1,512 @@
+components:
+  schemas:
+    AllowanceInfo:
+      properties:
+        creditsAllocated:
+          type: integer
+        endDate:
+          type: string
+        id:
+          type: string
+        isActive:
+          type: boolean
+        remainingCredits:
+          type: integer
+        startDate:
+          type: string
+        teamId:
+          type: integer
+      type: object
+      required:
+        - creditsAllocated
+        - endDate
+        - id
+        - isActive
+        - remainingCredits
+        - startDate
+        - teamId
+    CreateWatchlistRequest:
+      properties:
+        assetIds:
+          items:
+            type: string
+          type: array
+          uniqueItems: false
+        title:
+          type: string
+      type: object
+      required:
+        - assetIds
+        - title
+    ModifyWatchlistAssetsAction:
+      type: string
+      enum:
+        - add
+        - remove
+      x-enum-varnames:
+        - ModifyWatchlistAssetsActionAdd
+        - ModifyWatchlistAssetsActionRemove
+    ModifyWatchlistAssetsRequest:
+      properties:
+        action:
+          $ref: "#/components/schemas/ModifyWatchlistAssetsAction"
+        assetIds:
+          items:
+            type: string
+          type: array
+          uniqueItems: false
+        watchlistID:
+          type: string
+      required:
+        - action
+        - assetIds
+        - watchlistID
+      type: object
+    Permission:
+      properties:
+        active:
+          description: Indicates whether the permission is granted to the user
+          type: boolean
+        name:
+          type: string
+        permissionSlug:
+          type: string
+      type: object
+      required:
+        - active
+        - name
+        - permissionSlug
+    PermissionsResponse:
+      properties:
+        expiresAt:
+          type: string
+        hasAllAccess:
+          type: boolean
+        hasFullMarketDataGranularity:
+          type: boolean
+        permissions:
+          items:
+            $ref: "#/components/schemas/Permission"
+          type: array
+          uniqueItems: false
+      type: object
+      required:
+        - expiresAt
+        - hasAllAccess
+        - hasFullMarketDataGranularity
+        - permissions
+    UpdateWatchlistRequest:
+      properties:
+        assetIds:
+          description:
+            "Optional: if not provided, the watchlist assets will not be
+            updated. But if empty, all assets will be removed."
+          items:
+            type: string
+          type: array
+          uniqueItems: false
+        title:
+          description:
+            "Optional: if not provided, the watchlist title will not be
+            updated"
+          type: string
+        watchlistID:
+          type: string
+      required:
+        - watchlistID
+      type: object
+    Watchlist:
+      properties:
+        assetIds:
+          items:
+            type: string
+          type: array
+          uniqueItems: false
+        createdAt:
+          type: string
+        id:
+          type: string
+        title:
+          type: string
+        updatedAt:
+          type: string
+      type: object
+      required:
+        - assetIds
+        - createdAt
+        - id
+        - title
+        - updatedAt
+  securitySchemes:
+    apiKey:
+      description:
+        The API key to access the API. Can be found in the Messari Account
+        page.
+      in: header
+      name: X-Messari-Api-Key
+      type: apiKey
+externalDocs:
+  description: ""
+  url: ""
+info:
+  contact:
+    name: Messari Engineering
+    url: https://messari.io
+  description: Set of endpoints to manage your own user data.
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  title: User Management API
+  version: 0.1.0
+openapi: 3.1.0
+paths:
+  /api/credits/allowance:
+    get:
+      description: Get a team's current credit allowance
+      operationId: getTeamAllowance
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AllowanceInfo"
+          description: OK
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "../../common/components.yaml#/components/schemas/APIError"
+          description: Bad Request
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "../../common/components.yaml#/components/schemas/APIError"
+          description: Internal Server Error
+      security:
+        - apiKey: []
+      summary: Get a team's current credit allowance
+      tags:
+        - Credit Allowances
+  /api/permissions:
+    get:
+      description:
+        Returns all available permissions with flags indicating which ones
+        are granted to the current user
+      operationId: getPermissions
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PermissionsResponse"
+          description: OK
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "../../common/components.yaml#/components/schemas/APIError"
+          description: Bad Request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "../../common/components.yaml#/components/schemas/APIError"
+          description: Bad Request
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "../../common/components.yaml#/components/schemas/APIError"
+          description: Bad Request
+      security:
+        - apiKey: []
+      summary: Get all permissions with active status
+      tags:
+        - Permissions
+  /watchlists:
+    get:
+      description: Get all watchlists for the authenticated user
+      operationId: listWatchlists
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "../../common/components.yaml#/components/schemas/APIResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Watchlist"
+          description: OK
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "../../common/components.yaml#/components/schemas/APIError"
+          description: Internal Server Error
+      security:
+        - apiKey: []
+      summary: List user's watchlists
+      tags:
+        - watchlist
+    post:
+      description: Create a new watchlist for the authenticated user
+      operationId: createWatchlist
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateWatchlistRequest"
+        description: Create watchlist request
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "../../common/components.yaml#/components/schemas/APIResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/Watchlist"
+          description: Created
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "../../common/components.yaml#/components/schemas/APIError"
+          description: Bad Request
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "../../common/components.yaml#/components/schemas/APIError"
+          description: Bad Request
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "../../common/components.yaml#/components/schemas/APIError"
+          description: Bad Request
+      security:
+        - apiKey: []
+      summary: Create a new watchlist
+      tags:
+        - watchlist
+  /watchlists/{id}:
+    delete:
+      description: Delete a specific watchlist by ID for the authenticated user
+      operationId: deleteWatchlist
+      parameters:
+        - description: Watchlist ID
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "../../common/components.yaml#/components/schemas/APIError"
+          description: Bad Request
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "../../common/components.yaml#/components/schemas/APIError"
+          description: Bad Request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "../../common/components.yaml#/components/schemas/APIError"
+          description: Bad Request
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "../../common/components.yaml#/components/schemas/APIError"
+          description: Bad Request
+      security:
+        - apiKey: []
+      summary: Delete a watchlist
+      tags:
+        - watchlist
+    get:
+      description: Get a specific watchlist by ID for the authenticated user
+      operationId: getWatchlist
+      parameters:
+        - description: Watchlist ID
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "../../common/components.yaml#/components/schemas/APIResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/Watchlist"
+          description: OK
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "../../common/components.yaml#/components/schemas/APIError"
+          description: Bad Request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "../../common/components.yaml#/components/schemas/APIError"
+          description: Bad Request
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "../../common/components.yaml#/components/schemas/APIError"
+          description: Bad Request
+      security:
+        - apiKey: []
+      summary: Get a watchlist
+      tags:
+        - watchlist
+    patch:
+      description: Update a specific watchlist by ID for the authenticated user
+      operationId: updateWatchlist
+      parameters:
+        - description: Watchlist ID
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateWatchlistRequest"
+        description: Update watchlist request
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "../../common/components.yaml#/components/schemas/APIResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/Watchlist"
+          description: OK
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "../../common/components.yaml#/components/schemas/APIError"
+          description: Bad Request
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "../../common/components.yaml#/components/schemas/APIError"
+          description: Bad Request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "../../common/components.yaml#/components/schemas/APIError"
+          description: Bad Request
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "../../common/components.yaml#/components/schemas/APIError"
+          description: Bad Request
+      security:
+        - apiKey: []
+      summary: Update a watchlist
+      tags:
+        - watchlist
+  /watchlists/{id}/assets:
+    patch:
+      description:
+        Modify the assets in a specific watchlist by ID for the authenticated
+        user
+      operationId: modifyWatchlistAssets
+      parameters:
+        - description: Watchlist ID
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ModifyWatchlistAssetsRequest"
+        description: Modify watchlist assets request
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "../../common/components.yaml#/components/schemas/APIResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/Watchlist"
+          description: OK
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "../../common/components.yaml#/components/schemas/APIError"
+          description: Bad Request
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "../../common/components.yaml#/components/schemas/APIError"
+          description: Bad Request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "../../common/components.yaml#/components/schemas/APIError"
+          description: Bad Request
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "../../common/components.yaml#/components/schemas/APIError"
+          description: Bad Request
+      security:
+        - apiKey: []
+      summary: Modify watchlist assets
+      tags:
+        - watchlist
+servers:
+  - description: Production server
+    url: https://api.messari.io/user-management/v1
+  - description: Staging server
+    url: https://api-stage.messari.io/user-management/v1

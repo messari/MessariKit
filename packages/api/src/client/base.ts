@@ -63,6 +63,19 @@ import type {
   getAssetTimeseriesWithGranularityParameters,
   getAssetTimeseriesWithGranularityResponse,
   TimeseriesMetadata,
+  createWatchlistResponse,
+  createWatchlistParameters,
+  getWatchlistParameters,
+  listWatchlistsResponse,
+  getWatchlistResponse,
+  updateWatchlistResponse,
+  updateWatchlistParameters,
+  deleteWatchlistParameters,
+  deleteWatchlistResponse,
+  modifyWatchlistAssetsParameters,
+  modifyWatchlistAssetsResponse,
+  getTeamAllowanceResponse,
+  getPermissionsResponse,
 } from "../types";
 import { LogLevel, type Logger, makeConsoleLogger, createFilteredLogger, noOpLogger } from "../logging";
 import type { PaginatedResult, RequestOptions, ClientEventMap, ClientEventType, ClientEventHandler } from "./types";
@@ -272,6 +285,72 @@ export interface ResearchInterface {
 }
 
 /**
+ * Interface for the User Management API methods
+ */
+export interface UserManagementInterface {
+  /**
+   * Get a team's current credit allowance
+   * @param options Optional request configuration
+   * @returns A promise resolving to the team's credit allowance information
+   */
+  getTeamAllowance(options?: RequestOptions): Promise<getTeamAllowanceResponse>;
+
+  /**
+   * Get all permissions with active status for the current user
+   * @param options Optional request configuration
+   * @returns A promise resolving to the user's permissions
+   */
+  getPermissions(options?: RequestOptions): Promise<getPermissionsResponse>;
+
+  /**
+   * Get all watchlists for the authenticated user
+   * @param options Optional request configuration
+   * @returns A promise resolving to the user's watchlists
+   */
+  listWatchlists(options?: RequestOptions): Promise<listWatchlistsResponse>;
+
+  /**
+   * Create a new watchlist for the authenticated user
+   * @param params Parameters for creating a watchlist
+   * @param options Optional request configuration
+   * @returns A promise resolving to the created watchlist
+   */
+  createWatchlist(params: createWatchlistParameters, options?: RequestOptions): Promise<createWatchlistResponse>;
+
+  /**
+   * Get a specific watchlist by ID for the authenticated user
+   * @param params Parameters including the watchlist ID
+   * @param options Optional request configuration
+   * @returns A promise resolving to the requested watchlist
+   */
+  getWatchlist(params: getWatchlistParameters, options?: RequestOptions): Promise<getWatchlistResponse>;
+
+  /**
+   * Update a specific watchlist by ID for the authenticated user
+   * @param params Parameters for updating the watchlist
+   * @param options Optional request configuration
+   * @returns A promise resolving to the updated watchlist
+   */
+  updateWatchlist(params: updateWatchlistParameters, options?: RequestOptions): Promise<updateWatchlistResponse>;
+
+  /**
+   * Delete a specific watchlist by ID for the authenticated user
+   * @param params Parameters including the watchlist ID
+   * @param options Optional request configuration
+   * @returns A promise resolving to the API response
+   */
+  deleteWatchlist(params: deleteWatchlistParameters, options?: RequestOptions): Promise<deleteWatchlistResponse>;
+
+  /**
+   * Modify the assets in a specific watchlist by ID for the authenticated user
+   * @param params Parameters for modifying the watchlist assets
+   * @param options Optional request configuration
+   * @returns A promise resolving to the modified watchlist
+   */
+  modifyWatchlistAssets(params: modifyWatchlistAssetsParameters, options?: RequestOptions): Promise<modifyWatchlistAssetsResponse>;
+}
+
+/**
  * Interface for the Diligence API methods
  */
 export interface DiligenceAPIInterface {
@@ -379,6 +458,11 @@ export abstract class MessariClientBase {
    * Interface for Diligence-related API methods
    */
   public abstract readonly diligence: DiligenceAPIInterface;
+
+  /**
+   * Interface for User Management-related API methods
+   */
+  public abstract readonly userManagement: UserManagementInterface;
 
   /**
    * Interface for Recaps-related API methods
