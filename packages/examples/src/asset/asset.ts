@@ -101,17 +101,26 @@ async function getAssetsBySlugs(slugs: string[]) {
     const assets = response.data;
 
     console.log(`Retrieved ${assets.length} assets matching symbols: ${slugs.join(", ")}`);
-    const t = newAssetTable();
+    const t = new Table({
+      columns: [
+        { name: "Rank", alignment: "right" },
+        { name: "Name", alignment: "left" },
+        { name: "Symbol", alignment: "left" },
+        { name: "Category", alignment: "left" },
+        { name: "Sector", alignment: "left" },
+        { name: "Price", alignment: "left" },
+        { name: "FDV", alignment: "left" },
+      ],
+    });
     for (const asset of assets.slice(0, 10)) {
       t.addRow({
         Rank: asset.rank,
         Name: asset.name,
         Symbol: asset.symbol,
-        Slug: asset.slug,
         Category: asset.category,
         Sector: asset.sector,
-        Tags: asset.tags.join(", "),
-        "Asset ID": asset.id,
+        Price: asset.marketData?.priceUsd?.toLocaleString(),
+        FDV: asset.marketData?.marketcap?.fullyDilutedUsd?.toLocaleString(),
       });
     }
     t.printTable();
@@ -289,107 +298,6 @@ async function getTimeseriesCatalog() {
   }
 }
 
-/**
- * Example 7: Get timeseries data for a specific asset and dataset
- */
-async function getAssetTimeseriesData(assetIdentifier: string, datasetSlug: string) {
-  try {
-    const response = await client.asset.getAssetTimeseries({
-      entityIdentifier: assetIdentifier,
-      datasetSlug: datasetSlug,
-    });
-
-    // Access the points array from the properly typed response
-    const points = response.data?.points || [];
-    const dataLength = points.length;
-
-    console.log(`Retrieved ${dataLength} timeseries data points for ${assetIdentifier}`);
-    console.log(`Dataset: ${datasetSlug}`);
-
-    // Print metadata information
-    console.log("\nMetadata:");
-    console.log(`Granularity: ${response.metadata?.granularity || "undefined"}`);
-
-    const metricsString = response.metadata?.pointSchemas?.map((item: { name: string }) => item.name).join(", ");
-    console.log(`Metrics: ${metricsString || "No metrics information available"}`);
-
-    // Print a sample of data points
-    console.log("\nSample data points:");
-
-    if (points.length > 0) {
-      // Display only the first 2 points for brevity
-      for (const point of points.slice(0, 2)) {
-        console.log(`Timestamp: ${new Date(point[0] * 1000).toLocaleDateString()}`);
-        console.log(`Open: $${point[1].toLocaleString()}`);
-        console.log(`High: $${point[2].toLocaleString()}`);
-        console.log(`Low: $${point[3].toLocaleString()}`);
-        console.log(`Close: $${point[4].toLocaleString()}`);
-        console.log(`Volume: $${point[5].toLocaleString()}`);
-        console.log("---");
-      }
-      console.log(`... and ${points.length - 2} more points.`);
-    } else {
-      console.log("No points available in the response data.");
-    }
-
-    return response;
-  } catch (error) {
-    console.error("Error fetching timeseries data:", error);
-    throw error;
-  }
-}
-
-/**
- * Example 8: Get timeseries data with specific granularity
- */
-async function getAssetTimeseriesWithSpecificGranularity(assetIdentifier: string, datasetSlug: string, granularity: string) {
-  try {
-    const response = await client.asset.getAssetTimeseriesWithGranularity({
-      entityIdentifier: assetIdentifier,
-      datasetSlug: datasetSlug,
-      granularity: granularity,
-    });
-
-    // Access the points array from the properly typed response
-    const points = response.data?.points || [];
-    const dataLength = points.length;
-
-    console.log(`Retrieved ${dataLength} timeseries data points for ${assetIdentifier}`);
-    console.log(`Dataset: ${datasetSlug}, Granularity: ${granularity}`);
-
-    // Print metadata information
-    console.log("\nMetadata:");
-    console.log(`Granularity: ${response.metadata?.granularity || "undefined"}`);
-
-    const metricsString = response.metadata?.pointSchemas?.map((item: { name: string }) => item.name).join(", ");
-    console.log(`Metrics: ${metricsString || "No metrics information available"}`);
-
-    // Print a sample of data points
-    console.log("\nSample data points:");
-
-    if (points.length > 0) {
-      // Display only the first 2 points for brevity
-      for (const point of points.slice(0, 2)) {
-        console.log(`Timestamp: ${new Date(point[0] * 1000).toLocaleDateString()}`);
-        console.log(`Open: $${point[1].toLocaleString()}`);
-        console.log(`High: $${point[2].toLocaleString()}`);
-        console.log(`Low: $${point[3].toLocaleString()}`);
-        console.log(`Close: $${point[4].toLocaleString()}`);
-        console.log(`Volume: $${point[5].toLocaleString()}`);
-        console.log("---");
-      }
-      console.log(`... and ${points.length - 2} more points.`);
-    } else {
-      console.log("No points available in the response data.");
-    }
-
-    return response;
-  } catch (error) {
-    console.error("Error fetching timeseries data with granularity:", error);
-    throw error;
-  }
-}
-
 async function main() {
   console.log("\n====== 1. Get All Assets With Coverage Example ======");
   const assetsV2WithCoverageResponse = await getAssetsV2WithCoverage();
@@ -422,32 +330,6 @@ async function main() {
   console.log("\n====== 5. Get Asset Details By Slug Example ======");
   const assetDetailsResponse = await getAssetDetailsBySlug(["bitcoin"]);
   console.log(`Retrieved detailed information for ${assetDetailsResponse.data.length} assets.`);
-
-  console.log("\n====== 6. Get Timeseries Catalog Example ======");
-  const catalogResponse = await getTimeseriesCatalog();
-  console.log(`Retrieved ${catalogResponse.data.datasets.length} timeseries datasets.`);
-  console.log("First 5 datasets in catalog:");
-
-  for (const dataset of catalogResponse.data.datasets.slice(0, 5)) {
-    const metricName = dataset.metrics[0]?.name || "N/A";
-    console.log(`${dataset.slug}: ${metricName} and ${dataset.metrics.length - 1} more metrics`);
-  }
-
-  console.log("\n====== 7. Get Asset Timeseries Data Example ======");
-  const timeseriesResponse = await getAssetTimeseriesData("bitcoin", "price");
-  if (timeseriesResponse) {
-    console.log(`Retrieved ${timeseriesResponse.data?.points?.length || 0} timeseries data points for bitcoin`);
-  } else {
-    console.log("Failed to retrieve timeseries data.");
-  }
-
-  console.log("\n====== 8. Get Asset Timeseries With Granularity Example ======");
-  const timeseriesWithGranularityResponse = await getAssetTimeseriesWithSpecificGranularity("bitcoin", "price", "1d");
-  if (timeseriesWithGranularityResponse) {
-    console.log(`Retrieved ${timeseriesWithGranularityResponse.data?.points?.length || 0} timeseries data points for bitcoin with daily granularity`);
-  } else {
-    console.log("Failed to retrieve timeseries data with specified granularity.");
-  }
 }
 
 // Only run the main function if this file is executed directly
@@ -463,6 +345,4 @@ export {
   getAssetsV2WithCoverage,
   getAssetDetailsBySlug,
   getTimeseriesCatalog,
-  getAssetTimeseriesData,
-  getAssetTimeseriesWithSpecificGranularity,
 };
