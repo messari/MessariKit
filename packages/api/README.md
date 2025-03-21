@@ -39,6 +39,8 @@ To use the SDK, you'll need a Messari API key. You can get one by logging into [
 
 ## Example Usage
 
+For full examples, see the [Example Docs](https://docs.messari.io/recipes) or the [Examples Repo](https://github.com/messari/MessariKit/tree/master/packages/examples/src).
+
 ### AI Service
 
 ```typescript
