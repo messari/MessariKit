@@ -95,7 +95,7 @@ async function main() {
     console.log("Updated Watchlist:");
     console.log(JSON.stringify(updatedWatchlist, null, 2));
 
-    // Example 6: Modify Watchlist Assets (Add)
+    // Example 5: Modify Watchlist Assets (Add)
     console.log("\n--------------------------------");
     console.log(`Add Assets to Watchlist (ID: ${watchlistId})`);
     console.log("--------------------------------");
@@ -111,7 +111,7 @@ async function main() {
     console.log("Watchlist after adding assets:");
     console.log(JSON.stringify(modifiedWatchlist, null, 2));
 
-    // Example 7: Modify Watchlist Assets (Remove)
+    // Example 6: Modify Watchlist Assets (Remove)
     console.log("\n--------------------------------");
     console.log(`Remove Assets from Watchlist (ID: ${watchlistId})`);
     console.log("--------------------------------");
@@ -127,7 +127,7 @@ async function main() {
     console.log("Watchlist after removing assets:");
     console.log(JSON.stringify(modifiedWatchlist2, null, 2));
 
-    // Example 8: Delete a Watchlist
+    // Example 7: Delete a Watchlist
     console.log("\n--------------------------------");
     console.log(`Delete Watchlist (ID: ${watchlistId})`);
     console.log("--------------------------------");
