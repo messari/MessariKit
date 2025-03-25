@@ -103,6 +103,10 @@ pnpm install
 pnpm run api:build
 ```
 
+## Using the SDK
+
+For detailed SDK usage, see the [README](packages/api/README.md).
+
 ### ⚠️ Important Type Generation Rules
 
 1. **Never run type generation scripts directly**. Always use the package.json scripts from the root directory:
