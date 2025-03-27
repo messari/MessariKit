@@ -44,7 +44,8 @@ const newAssetTable = () => {
 async function getAssetsV2WithCoverage() {
   try {
     const response = await client.asset.getAssetsV2({
-      has_market_data: true,
+      hasMarketData: true,
+      limit: 10,
     });
 
     console.log(`Retrieved ${response.data.length} assets with market data coverage`);
@@ -70,11 +71,11 @@ async function getAssetsV2WithCoverage() {
         Name: asset.name,
         Symbol: asset.symbol,
         Category: asset.category,
-        "Has Diligence": asset.has_diligence ? "✅" : "❌",
-        "Has Intel": asset.has_intel ? "✅" : "❌",
-        "Has Market Data": asset.has_market_data ? "✅" : "❌",
-        "Has News": asset.has_news ? "✅" : "❌",
-        "Has Research": asset.has_research ? "✅" : "❌",
+        "Has Diligence": asset.hasDiligence ? "✅" : "❌",
+        "Has Intel": asset.hasIntel ? "✅" : "❌",
+        "Has Market Data": asset.hasMarketData ? "✅" : "❌",
+        "Has News": asset.hasNews ? "✅" : "❌",
+        "Has Research": asset.hasResearch ? "✅" : "❌",
       });
     }
     t.printTable();

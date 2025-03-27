@@ -27,7 +27,7 @@ const client = new MessariClient({
 export async function getAssetsROIInfo() {
   try {
     // Retrieve all assets with details
-    const response = await client.asset.getAssetsV2ROI({});
+    const response = await client.asset.getAssetsV2ROI({ limit: 20 });
 
     // Create a table to display ROI data
     const t = new Table({
