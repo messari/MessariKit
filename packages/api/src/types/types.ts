@@ -1699,21 +1699,21 @@ export type components = {
       /** @description Category of the asset */
       category: string;
       /** @description Whether the asset has diligence coverage */
-      has_diligence: boolean;
+      hasDiligence: boolean;
       /** @description Whether the asset has fundraising coverage */
-      has_fundraising: boolean;
+      hasFundraising: boolean;
       /** @description Whether the asset has intel coverage */
-      has_intel: boolean;
+      hasIntel: boolean;
       /** @description Whether the asset has market data coverage */
-      has_market_data: boolean;
+      hasMarketData: boolean;
       /** @description Whether the asset has news coverage */
-      has_news: boolean;
+      hasNews: boolean;
       /** @description Whether the asset has proposals coverage */
-      has_proposals: boolean;
+      hasProposals: boolean;
       /** @description Whether the asset has research coverage */
-      has_research: boolean;
+      hasResearch: boolean;
       /** @description Whether the asset has token unlocks coverage */
-      has_token_unlocks: boolean;
+      hasTokenUnlocks: boolean;
       /** @description Unique identifier for the asset */
       id: string;
       /** @description Name of the asset */
@@ -2958,22 +2958,24 @@ export type operations = {
         tags?: string[];
         /** @description Search query for assets */
         search?: string;
+        /** @description Limit the number of assets returned */
+        limit?: number;
         /** @description Filter assets by diligence coverage */
-        has_diligence?: boolean;
+        hasDiligence?: boolean;
         /** @description Filter assets by intel coverage */
-        has_intel?: boolean;
+        hasIntel?: boolean;
         /** @description Filter assets by market data coverage */
-        has_market_data?: boolean;
+        hasMarketData?: boolean;
         /** @description Filter assets by news coverage */
-        has_news?: boolean;
+        hasNews?: boolean;
         /** @description Filter assets by proposals coverage */
-        has_proposals?: boolean;
+        hasProposals?: boolean;
         /** @description Filter assets by research coverage */
-        has_research?: boolean;
+        hasResearch?: boolean;
         /** @description Filter assets by token unlocks coverage */
-        has_token_unlocks?: boolean;
+        hasTokenUnlocks?: boolean;
         /** @description Filter assets by fundraising coverage */
-        has_fundraising?: boolean;
+        hasFundraising?: boolean;
       };
       header: {
         "x-messari-api-key": components["parameters"]["apiKey"];
@@ -3129,6 +3131,8 @@ export type operations = {
         tags?: string[];
         /** @description Search query for assets */
         search?: string;
+        /** @description Limit the number of assets returned */
+        limit?: number;
       };
       header: {
         "x-messari-api-key": components["parameters"]["apiKey"];
@@ -3255,6 +3259,8 @@ export type operations = {
         tags?: string[];
         /** @description Search query for assets */
         search?: string;
+        /** @description Limit the number of assets returned */
+        limit?: number;
       };
       header: {
         "x-messari-api-key": components["parameters"]["apiKey"];

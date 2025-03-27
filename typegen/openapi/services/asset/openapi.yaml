@@ -68,49 +68,55 @@ paths:
           description: Search query for assets
           schema:
             type: string
-        - name: has_diligence
+        - name: limit
+          in: query
+          required: false
+          description: Limit the number of assets returned
+          schema:
+            type: integer
+        - name: hasDiligence
           in: query
           required: false
           description: Filter assets by diligence coverage
           schema:
             type: boolean
-        - name: has_intel
+        - name: hasIntel
           in: query
           required: false
           description: Filter assets by intel coverage
           schema:
             type: boolean
-        - name: has_market_data
+        - name: hasMarketData
           in: query
           required: false
           description: Filter assets by market data coverage
           schema:
             type: boolean
-        - name: has_news
+        - name: hasNews
           in: query
           required: false
           description: Filter assets by news coverage
           schema:
             type: boolean
-        - name: has_proposals
+        - name: hasProposals
           in: query
           required: false
           description: Filter assets by proposals coverage
           schema:
             type: boolean
-        - name: has_research
+        - name: hasResearch
           in: query
           required: false
           description: Filter assets by research coverage
           schema:
             type: boolean
-        - name: has_token_unlocks
+        - name: hasTokenUnlocks
           in: query
           required: false
           description: Filter assets by token unlocks coverage
           schema:
             type: boolean
-        - name: has_fundraising
+        - name: hasFundraising
           in: query
           required: false
           description: Filter assets by fundraising coverage
@@ -288,6 +294,12 @@ paths:
           description: Search query for assets
           schema:
             type: string
+        - name: limit
+          in: query
+          required: false
+          description: Limit the number of assets returned
+          schema:
+            type: integer
       responses:
         '200':
           description: Successful response
@@ -365,6 +377,12 @@ paths:
           description: Search query for assets
           schema:
             type: string
+        - name: limit
+          in: query
+          required: false
+          description: Limit the number of assets returned
+          schema:
+            type: integer
       responses:
         '200':
           description: Successful response
@@ -1224,14 +1242,14 @@ components:
         - sector
         - tags
         - rank
-        - has_diligence
-        - has_intel
-        - has_market_data
-        - has_news
-        - has_proposals
-        - has_research
-        - has_token_unlocks
-        - has_fundraising
+        - hasDiligence
+        - hasIntel
+        - hasMarketData
+        - hasNews
+        - hasProposals
+        - hasResearch
+        - hasTokenUnlocks
+        - hasFundraising
       properties:
         id:
           type: string
@@ -1260,28 +1278,28 @@ components:
           type: number
           format: float
           description: Rank of the asset
-        has_diligence:
+        hasDiligence:
           type: boolean
           description: Whether the asset has diligence coverage
-        has_intel:
+        hasIntel:
           type: boolean
           description: Whether the asset has intel coverage
-        has_market_data:
+        hasMarketData:
           type: boolean
           description: Whether the asset has market data coverage
-        has_news:
+        hasNews:
           type: boolean
           description: Whether the asset has news coverage
-        has_proposals:
+        hasProposals:
           type: boolean
           description: Whether the asset has proposals coverage
-        has_research:
+        hasResearch:
           type: boolean
           description: Whether the asset has research coverage
-        has_token_unlocks:
+        hasTokenUnlocks:
           type: boolean
           description: Whether the asset has token unlocks coverage
-        has_fundraising:
+        hasFundraising:
           type: boolean
           description: Whether the asset has fundraising coverage
 

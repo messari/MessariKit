@@ -19,8 +19,7 @@ pnpm add @messari/sdk
 
 ## Authorization
 
-To use the SDK, you'll need a Messari API key. You can get one by logging into [messari.io](https://messari.io/)
- and visiting the [Account Page](https://messari.io/account).
+To use the SDK, you'll need a Messari API key. See our [docs](https://docs.messari.io/reference/introduction) for more information.
 
 
 ## API Services
@@ -110,7 +109,7 @@ for (const entity of entitiesResp.extractedEntities) {
 
 ```typescript
 // Get all assets with market data coverage
-const response = await client.asset.getAssetsV2({has_market_data: true});
+const response = await client.asset.getAssetsV2({hasMarketData: true});
 console.log(response.data);
 // [
 //   {
@@ -122,14 +121,14 @@ console.log(response.data);
 //     "sector": "Cryptocurrency",
 //     "tags": [ "Proof-of-Work" ],
 //     "rank": 1,
-//     "has_diligence": true,
-//     "has_intel": true,
-//     "has_market_data": true,
-//     "has_news": true,
-//     "has_proposals": false,
-//     "has_research": true,
-//     "has_token_unlocks": false,
-//     "has_fundraising": false
+//     "hasDiligence": true,
+//     "hasIntel": true,
+//     "hasMarketData": true,
+//     "hasNews": true,
+//     "hasProposals": false,
+//     "hasResearch": true,
+//     "hasTokenUnlocks": false,
+//     "hasFundraising": false
 //   }
 //   ...
 // ]

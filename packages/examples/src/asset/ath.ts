@@ -27,7 +27,7 @@ const client = new MessariClient({
 export async function getAssetsATHInfo() {
   try {
     // Retrieve all assets
-    const response = await client.asset.getAssetsV2ATH({});
+    const response = await client.asset.getAssetsV2ATH({ limit: 20 });
 
     // Sort assets by percentDownFromAllTimeHigh
     const sortedAssets = response.data.sort((a, b) => {
