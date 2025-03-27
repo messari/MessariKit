@@ -19,8 +19,7 @@ pnpm add @messari/sdk
 
 ## Authorization
 
-To use the SDK, you'll need a Messari API key. You can get one by logging into [messari.io](https://messari.io/)
- and visiting the [Account Page](https://messari.io/account).
+To use the SDK, you'll need a Messari API key. See our [docs](https://docs.messari.io/reference/introduction) for more information.
 
 
 ## API Services
