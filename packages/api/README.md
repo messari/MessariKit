@@ -28,12 +28,6 @@ To use the SDK, you'll need a Messari API key. See our [docs](https://docs.messa
 |--------------|---------------|----------------|
 | AI | Chat Completion | `/ai/v1/chat/completions` |
 | AI | Entity Extraction | `/ai/v1/classification/extraction` | 
-| Asset | Asset List | `/metrics/v2/assets` |
-| Asset | Asset Details | `/metrics/v2/assets/details` |
-| Asset | Asset ATH | `/metrics/v2/assets/{assetSlug}/ath` |
-| Asset | Asset ROIs | `/metrics/v2/assets/{assetSlug}/rois` |
-| Asset | Asset Metrics Catalog | `/metrics/v2/assets/metrics-catalog` |
-| Asset | Asset Metrics Timeseries | `/metrics/v2/assets/{assetSlug}/metrics/{datasetSlug}/time-series/{granularity}` |
 
 
 ## Example Usage

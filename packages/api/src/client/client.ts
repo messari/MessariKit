@@ -692,6 +692,9 @@ export class MessariClient extends MessariClientBase {
       }),
   };
 
+  /**
+   * @deprecated Asset is Work-in-Progress and not production ready
+   */
   public readonly asset: AssetInterface = {
     getAssetsV2: async (params: getAssetsV2Parameters = {}, options?: RequestOptions) => {
       return this.requestWithMetadata<getAssetsV2Response, PaginationMetadata>({
@@ -756,6 +759,9 @@ export class MessariClient extends MessariClientBase {
     },
   };
 
+  /**
+   * @deprecated Exchanges is Work-in-Progress and not production ready
+   */
   public readonly exchanges: ExchangesInterface = {
     getExchanges: async (params: getExchangesParameters = {}, options?: RequestOptions) => {
       return this.requestWithMetadata<getExchangesResponse, PaginationMetadata>({
@@ -828,6 +834,9 @@ export class MessariClient extends MessariClientBase {
     },
   };
 
+  /**
+   * @deprecated Markets is Work-in-Progress and not production ready
+   */
   public readonly markets: MarketsInterface = {
     getMarkets: async (params: getMarketsParameters = {}, options?: RequestOptions) => {
       return this.requestWithMetadata<getMarketsResponse, PaginationMetadata>({
