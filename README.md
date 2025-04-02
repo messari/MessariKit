@@ -1,4 +1,10 @@
-# MessariKit
+```
+ __  __                          _     ____  ____  _  __
+|  \/  | ___  ___ ___  __ _ _ __(_)   / ___||  _ \| |/ /
+| |\/| |/ _ \/ __/ __|/ _` | '__| |   \___ \| | | | ' / 
+| |  | |  __/\__ \__ \ (_| | |  | |    ___) | |_| | . \ 
+|_|  |_|\___||___/___/\__,_|_|  |_|   |____/|____/|_|\_\
+```
 
 This repository defines the OpenAPI specifications and types for the official TypeScript SDK. The purpose of the SDK is to provide a type-safe, intuitive interface for accessing Messari's suite of crypto data and AI services. 
 
