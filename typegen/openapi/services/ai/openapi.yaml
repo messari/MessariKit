@@ -162,6 +162,10 @@ components:
           type: boolean
           default: false
           description: Whether to include inline citations in the response
+        stream:
+          type: boolean
+          default: false
+          description: Whether to stream the response
 
     ChatCompletionResponse:
       type: object

@@ -588,6 +588,11 @@ export type components = {
        */
       response_format?: "markdown" | "plaintext";
       /**
+       * @description Whether to stream the response
+       * @default false
+       */
+      stream?: boolean;
+      /**
        * @description Controls how verbose the response should be
        * @enum {string}
        */

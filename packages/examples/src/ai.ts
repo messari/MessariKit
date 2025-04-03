@@ -21,7 +21,7 @@ const client = new MessariClient({
 
 async function main() {
   try {
-    console.log("\n--------------------------------");
+    console.log("--------------------------------");
     console.log("AI Chat Completion");
     console.log("--------------------------------");
     console.log("Sending request...");
@@ -38,6 +38,7 @@ async function main() {
       verbosity: "succinct",
       response_format: "plaintext",
       inline_citations: false,
+      stream: false,
     });
 
     const assistantMessage = response.messages[0].content;
@@ -46,6 +47,52 @@ async function main() {
     console.error("Error calling createChatCompletion:", error);
   }
 
+  // Call the createChatCompletion endpoint with streaming
+  try {
+    console.log("\n--------------------------------");
+    console.log("AI Chat Completion Streaming");
+    console.log("--------------------------------");
+    console.log("Sending request...");
+    console.log(`"What is the all time high price of Bitcoin?"`);
+
+    // Call the createChatCompletion endpoint
+    const response = await client.ai.createChatCompletion({
+      messages: [
+        {
+          role: "user",
+          content: "What is the all time high price of Bitcoin?",
+        },
+      ],
+      verbosity: "succinct",
+      response_format: "plaintext",
+      inline_citations: false,
+      stream: true,
+    });
+
+    // Treat the combined streamed Server-Sent Events (SSE) chunks as a single string
+    const rawResponse = response as unknown as string;
+    const chunks = rawResponse.split("\n\n").filter((line) => line.trim() !== "");
+
+    let content = "";
+    for (const chunk of chunks) {
+      const dataMatch = chunk.match(/data: ({.*})/);
+      if (dataMatch) {
+        try {
+          const data = JSON.parse(dataMatch[1]);
+          if (data.data?.messages?.[0]?.delta?.content) {
+            content += data.data.messages[0].delta.content;
+          }
+        } catch (e) {
+          console.error("Error parsing SSE message:", e);
+        }
+      }
+    }
+    console.log(content);
+  } catch (error) {
+    console.error("Error calling createChatCompletion:", error);
+  }
+
+  // Entity Extraction
   try {
     console.log("\n--------------------------------");
     console.log("AI Entity Extraction");
