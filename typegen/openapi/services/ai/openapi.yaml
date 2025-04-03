@@ -152,16 +152,16 @@ components:
           description: Array of messages in the conversation
         verbosity:
           type: string
-          enum: [concise, normal, detailed]
+          enum: [succinct, balanced, verbose]
           description: Controls how verbose the response should be
         response_format:
           type: string
-          enum: [text, json, markdown]
+          enum: [markdown, plaintext]
           description: Desired format of the response
-        stream:
+        inline_citations:
           type: boolean
           default: false
-          description: Whether to stream the response
+          description: Whether to include inline citations in the response
 
     ChatCompletionResponse:
       type: object

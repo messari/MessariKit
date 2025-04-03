@@ -47,7 +47,7 @@ const response = await client.ai.createChatCompletion({
   messages: [
     {
       role: "user",
-      content: "What companies have both paradigm and multicoin on their cap table?",
+      content: "What companies have both paradigm and a16z on their cap table?",
     },
   ],
 });

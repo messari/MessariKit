@@ -27,7 +27,7 @@ export const createChatCompletion = {
   method: 'POST' as const,
   pathParams: [] as const,
   queryParams: [] as const,
-  bodyParams: ['messages', 'verbosity', 'response_format', 'stream'] as const,
+  bodyParams: ['messages', 'verbosity', 'response_format', 'inline_citations'] as const,
   path: () => '/ai/v1/chat/completions'
 } as const;
 
