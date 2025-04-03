@@ -575,23 +575,23 @@ export type components = {
       role: "system" | "user" | "assistant";
     };
     ChatCompletionRequest: {
+      /**
+       * @description Whether to include inline citations in the response
+       * @default false
+       */
+      inline_citations?: boolean;
       /** @description Array of messages in the conversation */
       messages: components["schemas"]["ChatCompletionMessage"][];
       /**
        * @description Desired format of the response
        * @enum {string}
        */
-      response_format?: "text" | "json" | "markdown";
-      /**
-       * @description Whether to stream the response
-       * @default false
-       */
-      stream?: boolean;
+      response_format?: "markdown" | "plaintext";
       /**
        * @description Controls how verbose the response should be
        * @enum {string}
        */
-      verbosity?: "concise" | "normal" | "detailed";
+      verbosity?: "succinct" | "balanced" | "verbose";
     };
     ChatCompletionResponse: {
       /** @description Array of response messages */

@@ -25,16 +25,19 @@ async function main() {
     console.log("AI Chat Completion");
     console.log("--------------------------------");
     console.log("Sending request...");
-    console.log(`"What companies have both paradigm and multicoin on their cap table?"`);
+    console.log(`"What companies have both paradigm and a16z on their cap table?"`);
 
     // Call the createChatCompletion endpoint
     const response = await client.ai.createChatCompletion({
       messages: [
         {
           role: "user",
-          content: "What companies have both Paradigm and a16z on their cap table?",
+          content: "What companies have both paradigm and a16z on their cap table?",
         },
       ],
+      verbosity: "succinct",
+      response_format: "plaintext",
+      inline_citations: false,
     });
 
     const assistantMessage = response.messages[0].content;
