@@ -29,10 +29,8 @@ jobs:
       - name: API validation and generation
         run: pnpm api:build
 
-      - name: Navigate to packages/api
-        run: cd packages/api
-
       - name: Update version from release tag
+        working-directory: packages/api
         run: |
           # Remove 'v' prefix if present (e.g., v1.0.0 -> 1.0.0)
           VERSION=${GITHUB_REF#refs/tags/}
@@ -41,6 +39,7 @@ jobs:
           pnpm version $VERSION --no-git-tag-version
 
       - name: Publish package
+        working-directory: packages/api
         run: pnpm publish --provenance --access public --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
