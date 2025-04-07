@@ -4,6 +4,10 @@
 	"private": false,
 	"description": "Messari SDK provides a type-safe, intuitive interface for accessing Messari's suite of crypto data and AI APIs.",
 	"author": "Messari Engineering",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/messari/MessariKit"
+	},
 	"keywords": ["messari", "crypto", "ai", "agent", "bitcoin", "ethereum"],
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
