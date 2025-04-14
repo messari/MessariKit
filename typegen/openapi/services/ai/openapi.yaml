@@ -123,6 +123,51 @@ paths:
               schema:
                 $ref: '../../common/components.yaml#/components/schemas/APIError'
 
+  /ai/openai/chat/completions:
+    post:
+      operationId: createChatCompletionOpenAI
+      summary: OpenAI-Compatible Chat Completion
+      description: |
+        Creates a completion for the chat message in OpenAI-compatible format. 
+        Supports both streaming and non-streaming responses.
+        The last message must be from the user role.
+        Response is returned directly without the standard {data: } wrapper.
+      tags:
+        - Chat
+      security:
+        - apiKey: []
+      parameters:
+        - $ref: '../../common/parameters.yaml#/components/parameters/apiKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatCompletionRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatCompletionResponseOpenAI'
+            text/event-stream:
+              schema:
+                type: string
+                description: Server-sent events stream for chat completion
+        '4XX':
+          description: Client error response
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+        '500':
+          description: Server error response
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/components.yaml#/components/schemas/APIError'
+
 components:
   schemas:
     ChatCompletionMessage:
@@ -294,6 +339,233 @@ components:
         status:
           type: string
           description: Current status of the extraction request
+
+    ChatCompletionResponseOpenAI:
+      type: object
+      required:
+        - id
+        - object
+        - created
+        - model
+        - choices
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the completion
+        object:
+          type: string
+          description: Object type, always "chat.completion"
+        created:
+          type: integer
+          format: int64
+          description: Unix timestamp of when the completion was created
+        model:
+          type: string
+          description: The model used for completion
+        choices:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChatCompletionResponseChoiceOpenAI'
+          description: Array of completion choices
+        metadata:
+          $ref: '#/components/schemas/ChatCompletionResponseMetadataV2'
+
+    ChatCompletionResponseChoiceOpenAI:
+      type: object
+      required:
+        - index
+        - message
+        - finish_reason
+      properties:
+        index:
+          type: integer
+          description: Index of the choice in the array
+        message:
+          $ref: '#/components/schemas/ChatCompletionResponseMessageOpenAI'
+        finish_reason:
+          type: string
+          description: Reason the completion finished
+
+    ChatCompletionResponseMessageOpenAI:
+      type: object
+      required:
+        - role
+        - content
+      properties:
+        role:
+          type: string
+          enum: [system, user, assistant]
+          description: The role of the message sender
+        content:
+          type: string
+          description: The message content
+
+    ChatCompletionResponseMetadataV2:
+      type: object
+      required:
+        - status
+        - trace_id
+      properties:
+        status:
+          type: string
+          description: Current status of the chat completion
+        trace_id:
+          type: string
+          format: uuid
+          description: Unique trace ID for the request
+        cited_sources:
+          type: array
+          items:
+            $ref: '#/components/schemas/StandardSource'
+          description: Array of sources cited in the response
+        charts:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChartSource'
+          description: Array of charts referenced in the response
+
+    StandardSource:
+      type: object
+      properties:
+        citationId:
+          type: integer
+          description: Unique identifier for the citation
+        domain:
+          $ref: '#/components/schemas/Domain'
+        title:
+          type: string
+          description: Title of the source
+        url:
+          type: string
+          description: URL of the source
+
+    Domain:
+      type: object
+      description: Domain information (placeholder - add specific properties as needed)
+
+    ChartSource:
+      type: object
+      allOf:
+        - type: object
+          properties:
+            citationId:
+              type: integer
+              description: Unique identifier for the citation
+        - $ref: '#/components/schemas/ChartWidgetSpecification'
+
+    ChartWidgetSpecification:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The ID for the widget
+        entities:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChartWidgetEntity'
+          description: Array of entities for the chart
+        dataset:
+          type: string
+          description: Dataset identifier
+        metric:
+          type: string
+          description: Metric identifier
+        start:
+          type: string
+          format: date-time
+          description: Start time for the chart data
+        end:
+          type: string
+          format: date-time
+          description: End time for the chart data
+        tier:
+          type: string
+          description: Tier information
+        metricTimeseries:
+          $ref: '#/components/schemas/TimeseriesResult'
+        granularity:
+          type: string
+          description: Data granularity
+
+    ChartWidgetEntity:
+      type: object
+      required:
+        - entityType
+        - entityId
+      properties:
+        entityType:
+          type: string
+          description: Type of the entity
+        entityId:
+          type: string
+          description: Identifier of the entity
+
+    TimeseriesResult:
+      type: object
+      required:
+        - point_schema
+        - series
+      properties:
+        point_schema:
+          type: array
+          items:
+            $ref: '#/components/schemas/PointSchema'
+        series:
+          type: array
+          items:
+            $ref: '#/components/schemas/Series'
+
+    PointSchema:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Deprecated - Use slug instead
+        name:
+          type: string
+        slug:
+          type: string
+        description:
+          type: string
+        is_timestamp:
+          type: boolean
+        format:
+          type: string
+        time_bucket_aggregate_operation:
+          type: string
+          description: Aggregate operation performed for the time bucket
+        group_aggregate_operation:
+          type: string
+          description: Aggregate operation performed for the group
+        subcategory:
+          type: string
+        attribution:
+          type: array
+          items:
+            $ref: '#/components/schemas/Attribution'
+
+    Attribution:
+      type: object
+      description: Attribution information (placeholder - add specific properties as needed)
+
+    Series:
+      type: object
+      required:
+        - key
+        - points
+      properties:
+        key:
+          type: string
+        entity:
+          type: object
+          additionalProperties: true
+        points:
+          type: array
+          items:
+            type: array
+            items:
+              type: object
+              description: Can be any type
 
   securitySchemes:
     ApiKeyAuth:

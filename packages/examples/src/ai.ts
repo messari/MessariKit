@@ -114,6 +114,34 @@ async function main() {
   } catch (error) {
     console.error("Error calling extractEntities:", error);
   }
+
+  // OpenAI Chat Completion
+  try {
+    console.log("\n--------------------------------");
+    console.log("OpenAI Chat Completion");
+    console.log("--------------------------------");
+    console.log("Sending request...");
+    console.log(`"What are the key differences between Bitcoin and Ethereum?"`);
+
+    // Call the createChatCompletionOpenAI endpoint
+    const response = await client.ai.createChatCompletionOpenAI({
+      messages: [
+        {
+          role: "user",
+          content: "What are the key differences between Bitcoin and Ethereum?",
+        },
+      ],
+      verbosity: "succinct",
+      response_format: "plaintext",
+      inline_citations: false,
+      stream: false,
+    });
+
+    console.log("Response received:");
+    console.log(response.choices[0].message.content);
+  } catch (error) {
+    console.error("Error calling createChatCompletionOpenAI:", error);
+  }
 }
 
 main().catch(console.error);

@@ -1,6 +1,7 @@
 import {
   createChatCompletion,
-  extractEntities,
+  extractEntities, 
+  createChatCompletionOpenAI,
   getNewsFeed,
   getNewsSources,
   getNewsFeedAssets,
@@ -146,6 +147,7 @@ import type {
   getWatchlistResponse,
   updateWatchlistParameters,
   updateWatchlistResponse,
+  createChatCompletionOpenAIResponse,
 } from "../types";
 import type { Agent } from "node:http";
 import { pick } from "../utils";
@@ -681,6 +683,13 @@ export class MessariClient extends MessariClientBase {
         method: createChatCompletion.method,
         path: createChatCompletion.path(),
         body: pick(params, createChatCompletion.bodyParams),
+        options,
+      }),
+    createChatCompletionOpenAI: (params: createChatCompletionParameters, options?: RequestOptions) =>
+      this.request<createChatCompletionOpenAIResponse>({
+        method: createChatCompletionOpenAI.method,
+        path: createChatCompletionOpenAI.path(),
+        body: pick(params, createChatCompletionOpenAI.bodyParams),
         options,
       }),
     extractEntities: (params: extractEntitiesParameters, options?: RequestOptions) =>
