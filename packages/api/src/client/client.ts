@@ -326,12 +326,14 @@ export class MessariClient extends MessariClientBase {
 
       // Check if the response is JSON or text based on Content-Type header
       const contentType = response.headers.get("Content-Type");
-      let responseData: { data: T };
+      let responseData: T;
 
       if (contentType?.toLowerCase().includes("application/json")) {
-        responseData = await response.json();
+        const jsonResponse = await response.json();
+        // If response has data field and no error, unwrap it, otherwise use the whole response
+        responseData = jsonResponse.data && !jsonResponse.error ? jsonResponse.data : jsonResponse;
       } else {
-        responseData = { data: await response.text() } as { data: T };
+        responseData = await response.text() as T;
       }
 
       this.logger(LogLevel.DEBUG, "request success", { responseData });
@@ -344,7 +346,7 @@ export class MessariClient extends MessariClientBase {
         data: responseData,
       });
 
-      return responseData.data;
+      return responseData;
     } catch (error) {
       this.logger(LogLevel.ERROR, "request failed", { error });
 
@@ -455,10 +457,16 @@ export class MessariClient extends MessariClientBase {
         data: responseData,
       });
 
-      return {
-        data: responseData.data,
-        metadata: responseData.metadata,
-      };
+      // If response has data field, return wrapped format, otherwise treat whole response as data
+      return responseData.data !== undefined
+        ? {
+            data: responseData.data,
+            metadata: responseData.metadata,
+          }
+        : {
+            data: responseData,
+            metadata: {} as M,
+          };
     } catch (error) {
       this.logger(LogLevel.ERROR, "request with metadata failed", { error });
 
