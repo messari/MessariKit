@@ -58,7 +58,7 @@ export const createChatCompletionOpenAI = {
   pathParams: [] as const,
   queryParams: [] as const,
   bodyParams: ['messages', 'verbosity', 'response_format', 'inline_citations', 'stream'] as const,
-  path: () => '/ai/v1/chat/completions/openai'
+  path: () => '/ai/openai/chat/completions'
 } as const;
 
 

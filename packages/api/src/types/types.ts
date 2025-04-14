@@ -26,15 +26,7 @@ export type paths = {
      */
     get: operations["getProjectRecap"];
   };
-  "/ai/v1/chat/completions": {
-    /**
-     * Chat Completion
-     * @description Creates a completion for the chat message. Supports both streaming and non-streaming responses.
-     * The last message must be from the user role.
-     */
-    post: operations["createChatCompletion"];
-  };
-  "/ai/v1/chat/completions/openai": {
+  "/ai/openai/chat/completions": {
     /**
      * OpenAI-Compatible Chat Completion
      * @description Creates a completion for the chat message in OpenAI-compatible format.
@@ -43,6 +35,14 @@ export type paths = {
      * Response is returned directly without the standard {data: } wrapper.
      */
     post: operations["createChatCompletionOpenAI"];
+  };
+  "/ai/v1/chat/completions": {
+    /**
+     * Chat Completion
+     * @description Creates a completion for the chat message. Supports both streaming and non-streaming responses.
+     * The last message must be from the user role.
+     */
+    post: operations["createChatCompletion"];
   };
   "/ai/v1/classification/extraction": {
     /**
@@ -2102,6 +2102,46 @@ export type operations = {
     };
   };
   /**
+   * OpenAI-Compatible Chat Completion
+   * @description Creates a completion for the chat message in OpenAI-compatible format.
+   * Supports both streaming and non-streaming responses.
+   * The last message must be from the user role.
+   * Response is returned directly without the standard {data: } wrapper.
+   */
+  createChatCompletionOpenAI: {
+    parameters: {
+      header: {
+        "x-messari-api-key": components["parameters"]["apiKey"];
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ChatCompletionRequest"];
+      };
+    };
+    responses: {
+      /** @description Client error response */
+      "4XX": {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Successful response */
+      200: {
+        content: {
+          "application/json": components["schemas"]["ChatCompletionResponseOpenAI"];
+          "text/event-stream": string;
+        };
+      };
+      /** @description Server error response */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+    };
+  };
+  /**
    * Chat Completion
    * @description Creates a completion for the chat message. Supports both streaming and non-streaming responses.
    * The last message must be from the user role.
@@ -2131,46 +2171,6 @@ export type operations = {
             data?: components["schemas"]["ChatCompletionResponse"];
             metadata?: components["schemas"]["ChatCompletionResponseMetadata"];
           };
-          "text/event-stream": string;
-        };
-      };
-      /** @description Server error response */
-      500: {
-        content: {
-          "application/json": components["schemas"]["APIError"];
-        };
-      };
-    };
-  };
-  /**
-   * OpenAI-Compatible Chat Completion
-   * @description Creates a completion for the chat message in OpenAI-compatible format.
-   * Supports both streaming and non-streaming responses.
-   * The last message must be from the user role.
-   * Response is returned directly without the standard {data: } wrapper.
-   */
-  createChatCompletionOpenAI: {
-    parameters: {
-      header: {
-        "x-messari-api-key": components["parameters"]["apiKey"];
-      };
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["ChatCompletionRequest"];
-      };
-    };
-    responses: {
-      /** @description Client error response */
-      "4XX": {
-        content: {
-          "application/json": components["schemas"]["APIError"];
-        };
-      };
-      /** @description Successful response */
-      200: {
-        content: {
-          "application/json": components["schemas"]["ChatCompletionResponseOpenAI"];
           "text/event-stream": string;
         };
       };
