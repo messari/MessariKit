@@ -1,6 +1,6 @@
 import {
   createChatCompletion,
-  extractEntities, 
+  extractEntities,
   createChatCompletionOpenAI,
   getNewsFeed,
   getNewsSources,
@@ -248,11 +248,11 @@ export class MessariClient extends MessariClientBase {
     }
   }
 
-  private async request<T>({ 
-    method, 
-    path, 
-    body, 
-    queryParams = {}, 
+  private async request<T>({
+    method,
+    path,
+    body,
+    queryParams = {},
     options = {}
   }: RequestParameters): Promise<T> {
     this.logger(LogLevel.DEBUG, "request start", {
@@ -333,14 +333,14 @@ export class MessariClient extends MessariClientBase {
 
       // Check if the response is JSON or text based on Content-Type header
       const contentType = response.headers.get("Content-Type");
-      
+
       if (contentType?.toLowerCase().includes("application/json")) {
         const jsonResponse = await response.json();
         // If response has data field and no error, unwrap it, otherwise use the whole response
         const data = jsonResponse.data && !jsonResponse.error ? jsonResponse.data : jsonResponse;
         return data as T;
       }
-      
+
       const text = await response.text();
       return text as T;
     } catch (error) {
@@ -360,11 +360,11 @@ export class MessariClient extends MessariClientBase {
     }
   }
 
-  private async requestStream<T>({ 
-    method, 
-    path, 
-    body, 
-    queryParams = {}, 
+  private async requestStream<T>({
+    method,
+    path,
+    body,
+    queryParams = {},
     options = {}
   }: RequestParameters): Promise<ReadableStream<T>> {
     this.logger(LogLevel.DEBUG, "stream request start", {
@@ -450,10 +450,10 @@ export class MessariClient extends MessariClientBase {
       if (!response.body) {
         throw new Error("No reader available for streaming response");
       }
-      
+
       let buffer = '';
       const decoder = new TextDecoder();
-      
+
       // Create a TransformStream that will parse the raw bytes into the expected type T
       const transformer = new TransformStream<Uint8Array, T>({
         transform: async (chunk, controller) => {
@@ -461,29 +461,29 @@ export class MessariClient extends MessariClientBase {
             // Decode the chunk and add to buffer
             const text = decoder.decode(chunk, { stream: true });
             buffer += text;
-            
+
             // Process any complete lines in the buffer
             const lines = buffer.split('\n');
             // Keep the last potentially incomplete line in the buffer
             buffer = lines.pop() || '';
-            
+
             for (const line of lines) {
               if (line.startsWith('data: ')) {
                 const jsonData = line.slice(6).trim(); // Remove 'data: ' prefix
-                
+
                 // Skip [DONE] marker
                 if (jsonData === '[DONE]') {
                   continue;
                 }
-                
+
                 if (jsonData) {
                   try {
                     const parsed = JSON.parse(jsonData);
                     controller.enqueue(parsed as T);
                   } catch (e) {
-                    this.logger(LogLevel.ERROR, "Error parsing JSON from stream", { 
-                      error: e, 
-                      data: jsonData 
+                    this.logger(LogLevel.ERROR, "Error parsing JSON from stream", {
+                      error: e,
+                      data: jsonData
                     });
                   }
                 }
@@ -515,9 +515,9 @@ export class MessariClient extends MessariClientBase {
                   const parsed = JSON.parse(jsonData);
                   controller.enqueue(parsed as T);
                 } catch (e) {
-                  this.logger(LogLevel.ERROR, "Error parsing final JSON from stream", { 
-                    error: e, 
-                    data: jsonData 
+                  this.logger(LogLevel.ERROR, "Error parsing final JSON from stream", {
+                    error: e,
+                    data: jsonData
                   });
                 }
               }
@@ -525,7 +525,7 @@ export class MessariClient extends MessariClientBase {
           }
         }
       });
-      
+
       // Pipe the response body through our transformer
       return response.body.pipeThrough(transformer);
     } catch (error) {
@@ -641,13 +641,13 @@ export class MessariClient extends MessariClientBase {
       // If response has data field, return wrapped format, otherwise treat whole response as data
       return responseData.data !== undefined
         ? {
-            data: responseData.data,
-            metadata: responseData.metadata,
-          }
+          data: responseData.data,
+          metadata: responseData.metadata,
+        }
         : {
-            data: responseData,
-            metadata: {} as M,
-          };
+          data: responseData,
+          metadata: {} as M,
+        };
     } catch (error) {
       this.logger(LogLevel.ERROR, "request with metadata failed", { error });
 
@@ -674,21 +674,21 @@ export class MessariClient extends MessariClientBase {
     // Convert PaginationResult to PaginationMetadata
     const metadata: PaginationMetadata = response.metadata
       ? {
-          page: response.metadata.page || 1,
-          limit: response.metadata.limit || 10,
-          total: response.metadata.total || 0,
-          totalRows: response.metadata.total || 0,
-          totalPages: Math.ceil((response.metadata.total || 0) / (response.metadata.limit || 10)),
-          hasMore: response.metadata.hasMore || false,
-        }
+        page: response.metadata.page || 1,
+        limit: response.metadata.limit || 10,
+        total: response.metadata.total || 0,
+        totalRows: response.metadata.total || 0,
+        totalPages: Math.ceil((response.metadata.total || 0) / (response.metadata.limit || 10)),
+        hasMore: response.metadata.hasMore || false,
+      }
       : {
-          page: 1,
-          limit: 10,
-          total: 0,
-          totalRows: 0,
-          totalPages: 0,
-          hasMore: false,
-        };
+        page: 1,
+        limit: 10,
+        total: 0,
+        totalRows: 0,
+        totalPages: 0,
+        hasMore: false,
+      };
 
     const currentPage = metadata.page;
     const hasNextPage = metadata.hasMore || false || currentPage < (metadata.totalPages || 0);
@@ -718,17 +718,17 @@ export class MessariClient extends MessariClientBase {
             const nextPageResponse = await fetchPage(nextPageParams, options);
             const nextPageMetadata: PaginationMetadata = nextPageResponse.metadata
               ? {
-                  page: nextPageResponse.metadata.page || nextPage,
-                  limit: nextPageResponse.metadata.limit || metadata.limit,
-                  totalRows: nextPageResponse.metadata.total || metadata.totalRows || 0,
-                  totalPages: Math.ceil((nextPageResponse.metadata.total || metadata.totalRows || 0) / (nextPageResponse.metadata.limit || metadata.limit)),
-                }
+                page: nextPageResponse.metadata.page || nextPage,
+                limit: nextPageResponse.metadata.limit || metadata.limit,
+                totalRows: nextPageResponse.metadata.total || metadata.totalRows || 0,
+                totalPages: Math.ceil((nextPageResponse.metadata.total || metadata.totalRows || 0) / (nextPageResponse.metadata.limit || metadata.limit)),
+              }
               : {
-                  page: nextPage,
-                  limit: metadata.limit,
-                  totalRows: metadata.totalRows || 0,
-                  totalPages: metadata.totalPages || 0,
-                };
+                page: nextPage,
+                limit: metadata.limit,
+                totalRows: metadata.totalRows || 0,
+                totalPages: metadata.totalPages || 0,
+              };
 
             return {
               data: nextPageResponse.data,
@@ -758,17 +758,17 @@ export class MessariClient extends MessariClientBase {
             const prevPageResponse = await fetchPage(prevPageParams, options);
             const prevPageMetadata: PaginationMetadata = prevPageResponse.metadata
               ? {
-                  page: prevPageResponse.metadata.page || prevPage,
-                  limit: prevPageResponse.metadata.limit || metadata.limit,
-                  totalRows: prevPageResponse.metadata.total || metadata.totalRows || 0,
-                  totalPages: Math.ceil((prevPageResponse.metadata.total || metadata.totalRows || 0) / (prevPageResponse.metadata.limit || metadata.limit)),
-                }
+                page: prevPageResponse.metadata.page || prevPage,
+                limit: prevPageResponse.metadata.limit || metadata.limit,
+                totalRows: prevPageResponse.metadata.total || metadata.totalRows || 0,
+                totalPages: Math.ceil((prevPageResponse.metadata.total || metadata.totalRows || 0) / (prevPageResponse.metadata.limit || metadata.limit)),
+              }
               : {
-                  page: prevPage,
-                  limit: metadata.limit,
-                  totalRows: metadata.totalRows || 0,
-                  totalPages: metadata.totalPages || 0,
-                };
+                page: prevPage,
+                limit: metadata.limit,
+                totalRows: metadata.totalRows || 0,
+                totalPages: metadata.totalPages || 0,
+              };
 
             return {
               data: prevPageResponse.data,
@@ -793,17 +793,17 @@ export class MessariClient extends MessariClientBase {
             const pageResponse = await fetchPage(pageParams, options);
             const pageMetadata: PaginationMetadata = pageResponse.metadata
               ? {
-                  page: pageResponse.metadata.page || page,
-                  limit: pageResponse.metadata.limit || metadata.limit,
-                  totalRows: pageResponse.metadata.total || metadata.totalRows || 0,
-                  totalPages: Math.ceil((pageResponse.metadata.total || metadata.totalRows || 0) / (pageResponse.metadata.limit || metadata.limit)),
-                }
+                page: pageResponse.metadata.page || page,
+                limit: pageResponse.metadata.limit || metadata.limit,
+                totalRows: pageResponse.metadata.total || metadata.totalRows || 0,
+                totalPages: Math.ceil((pageResponse.metadata.total || metadata.totalRows || 0) / (pageResponse.metadata.limit || metadata.limit)),
+              }
               : {
-                  page,
-                  limit: metadata.limit,
-                  totalRows: metadata.totalRows || 0,
-                  totalPages: metadata.totalPages || 0,
-                };
+                page,
+                limit: metadata.limit,
+                totalRows: metadata.totalRows || 0,
+                totalPages: metadata.totalPages || 0,
+              };
 
             return {
               data: pageResponse.data,
@@ -874,7 +874,7 @@ export class MessariClient extends MessariClientBase {
         body: pick(params, createChatCompletion.bodyParams),
         options,
       }),
-    createChatCompletionOpenAI: (params: createChatCompletionParameters, options?: RequestOptions) => 
+    createChatCompletionOpenAI: (params: createChatCompletionParameters, options?: RequestOptions) =>
       this.request<createChatCompletionOpenAIResponse>({
         method: createChatCompletionOpenAI.method,
         path: createChatCompletionOpenAI.path(),
