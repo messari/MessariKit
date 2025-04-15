@@ -182,7 +182,6 @@ import type {
 } from "./base";
 import { MessariClientBase } from "./base";
 
-
 /**
  * MessariClient is the main client class for interacting with the Messari API.
  * It provides a comprehensive interface for accessing market data, news, intelligence,
