@@ -22,6 +22,7 @@ const client = new MessariClient({
 // Get command line arguments
 const args = process.argv.slice(2);
 const useOpenAI = args.includes("openai");
+const useStreaming = args.includes("stream");
 
 async function main() {
   if (useOpenAI) {
@@ -33,23 +34,41 @@ async function main() {
       console.log("Sending request...");
       console.log(`"What are the key differences between Bitcoin and Ethereum?"`);
 
-      // Call the createChatCompletionOpenAI endpoint
-      const response = await client.ai.createChatCompletionOpenAI({
-        messages: [
-          {
-            role: "user",
-            content: "What are the key differences between Bitcoin and Ethereum?",
-          },
-        ],
-        verbosity: "succinct",
-        response_format: "plaintext",
-        inline_citations: false,
-        stream: false,
-      });
-      console.log(response);
+      if (useStreaming) {
+        // Call the createChatCompletionOpenAI endpoint
+        const response = await client.ai.createChatCompletionOpenAIStream({
+          messages: [
+            {
+              role: "user",
+              content: "What are the key differences between Bitcoin and Ethereum?",
+            },
+          ],
+          verbosity: "succinct",
+          response_format: "plaintext",
+          inline_citations: false
+        });
 
-      console.log("Response received:");
-      console.log(response.choices[0].message.content);
+        for await (const chunk of response) {
+          console.log({chunk});
+        }
+      
+        console.log('\n');
+      } else {
+        const response = await client.ai.createChatCompletionOpenAI({
+          messages: [
+            {
+              role: "user",
+              content: "What are the key differences between Bitcoin and Ethereum?",
+            },
+          ],
+          verbosity: "succinct",
+          response_format: "plaintext",
+          inline_citations: false,
+          
+        });
+        console.log("Response received:");
+        console.log(response);
+      }
     } catch (error) {
       console.error("Error calling createChatCompletionOpenAI:", error);
     }
@@ -74,7 +93,7 @@ async function main() {
       verbosity: "succinct",
       response_format: "plaintext",
       inline_citations: false,
-      stream: false,
+      stream: useStreaming,
     });
 
     const assistantMessage = response.messages[0].content;
