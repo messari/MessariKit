@@ -47,6 +47,21 @@ export const extractEntities = {
 } as const;
 
 
+export type createChatCompletionOpenAIResponse = components['schemas']['ChatCompletionResponseOpenAI'];
+export type createChatCompletionOpenAIError = components['schemas']['APIError'];
+
+export type createChatCompletionOpenAIParameters = components['schemas']['ChatCompletionRequest'];
+
+
+export const createChatCompletionOpenAI = {
+  method: 'POST' as const,
+  pathParams: [] as const,
+  queryParams: [] as const,
+  bodyParams: ['messages', 'verbosity', 'response_format', 'inline_citations', 'stream'] as const,
+  path: () => '/ai/openai/chat/completions'
+} as const;
+
+
 export type getAssetsV2Response = components['schemas']['V2AssetListItem'][];
 export type getAssetsV2Error = components['schemas']['APIError'];
 

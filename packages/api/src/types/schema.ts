@@ -31,7 +31,15 @@ export type AssetV2Link = components['schemas']['AssetV2Link'];
 
 export type AssetV2MarketData = components['schemas']['AssetV2MarketData'];
 
+export type Attribution = components['schemas']['Attribution'];
+
 export type Author = components['schemas']['Author'];
+
+export type ChartSource = components['schemas']['ChartSource'];
+
+export type ChartWidgetEntity = components['schemas']['ChartWidgetEntity'];
+
+export type ChartWidgetSpecification = components['schemas']['ChartWidgetSpecification'];
 
 export type ChatCompletionMessage = components['schemas']['ChatCompletionMessage'];
 
@@ -39,13 +47,23 @@ export type ChatCompletionRequest = components['schemas']['ChatCompletionRequest
 
 export type ChatCompletionResponse = components['schemas']['ChatCompletionResponse'];
 
+export type ChatCompletionResponseChoiceOpenAI = components['schemas']['ChatCompletionResponseChoiceOpenAI'];
+
+export type ChatCompletionResponseMessageOpenAI = components['schemas']['ChatCompletionResponseMessageOpenAI'];
+
 export type ChatCompletionResponseMetadata = components['schemas']['ChatCompletionResponseMetadata'];
+
+export type ChatCompletionResponseMetadataV2 = components['schemas']['ChatCompletionResponseMetadataV2'];
+
+export type ChatCompletionResponseOpenAI = components['schemas']['ChatCompletionResponseOpenAI'];
 
 export type CreateWatchlistRequest = components['schemas']['CreateWatchlistRequest'];
 
 export type Document = components['schemas']['Document'];
 
 export type DocumentList = components['schemas']['DocumentList'];
+
+export type Domain = components['schemas']['Domain'];
 
 export type Entity = components['schemas']['Entity'];
 
@@ -123,6 +141,8 @@ export type PermissionsResponse = components['schemas']['PermissionsResponse'];
 
 export type Person = components['schemas']['Person'];
 
+export type PointSchema = components['schemas']['PointSchema'];
+
 export type Project = components['schemas']['Project'];
 
 export type ProjectRecapResponse = components['schemas']['ProjectRecapResponse'];
@@ -143,11 +163,15 @@ export type Resource = components['schemas']['Resource'];
 
 export type SelectedEntity = components['schemas']['SelectedEntity'];
 
+export type Series = components['schemas']['Series'];
+
 export type Source = components['schemas']['Source'];
 
 export type SourceList = components['schemas']['SourceList'];
 
 export type SourceType = components['schemas']['SourceType'];
+
+export type StandardSource = components['schemas']['StandardSource'];
 
 export type SummaryResponse = components['schemas']['SummaryResponse'];
 
@@ -164,6 +188,8 @@ export type TimeseriesInterval = components['schemas']['TimeseriesInterval'];
 export type TimeseriesMetadata = components['schemas']['TimeseriesMetadata'];
 
 export type TimeseriesPointSchema = components['schemas']['TimeseriesPointSchema'];
+
+export type TimeseriesResult = components['schemas']['TimeseriesResult'];
 
 export type TokenUnlockAllocation = components['schemas']['TokenUnlockAllocation'];
 

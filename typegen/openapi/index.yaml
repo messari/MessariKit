@@ -55,6 +55,8 @@ paths:
     $ref: "./services/ai/openapi.yaml#/paths/~1ai~1v1~1chat~1completions"
   /ai/v1/classification/extraction:
     $ref: "./services/ai/openapi.yaml#/paths/~1ai~1v1~1classification~1extraction"
+  /ai/openai/chat/completions:
+    $ref: "./services/ai/openapi.yaml#/paths/~1ai~1openai~1chat~1completions"
 
   # Asset Service Paths
   /metrics/v2/assets:

@@ -26,6 +26,16 @@ export type paths = {
      */
     get: operations["getProjectRecap"];
   };
+  "/ai/openai/chat/completions": {
+    /**
+     * OpenAI-Compatible Chat Completion
+     * @description Creates a completion for the chat message in OpenAI-compatible format.
+     * Supports both streaming and non-streaming responses.
+     * The last message must be from the user role.
+     * Response is returned directly without the standard {data: } wrapper.
+     */
+    post: operations["createChatCompletionOpenAI"];
+  };
   "/ai/v1/chat/completions": {
     /**
      * Chat Completion
@@ -555,6 +565,8 @@ export type components = {
        */
       volume24Hour?: number;
     };
+    /** @description Attribution information (placeholder - add specific properties as needed) */
+    Attribution: Record<string, never>;
     Author: {
       /** @description Unique identifier for the author */
       id: string;
@@ -564,6 +576,41 @@ export type components = {
       linkedinUrl: string;
       /** @description Name of the author */
       name: string;
+    };
+    ChartSource: {
+      /** @description Unique identifier for the citation */
+      citationId?: number;
+    } & components["schemas"]["ChartWidgetSpecification"];
+    ChartWidgetEntity: {
+      /** @description Identifier of the entity */
+      entityId: string;
+      /** @description Type of the entity */
+      entityType: string;
+    };
+    ChartWidgetSpecification: {
+      /** @description Dataset identifier */
+      dataset?: string;
+      /**
+       * Format: date-time
+       * @description End time for the chart data
+       */
+      end?: string;
+      /** @description Array of entities for the chart */
+      entities?: components["schemas"]["ChartWidgetEntity"][];
+      /** @description Data granularity */
+      granularity?: string;
+      /** @description The ID for the widget */
+      id?: number;
+      /** @description Metric identifier */
+      metric?: string;
+      metricTimeseries?: components["schemas"]["TimeseriesResult"];
+      /**
+       * Format: date-time
+       * @description Start time for the chart data
+       */
+      start?: string;
+      /** @description Tier information */
+      tier?: string;
     };
     ChatCompletionMessage: {
       /** @description The message content */
@@ -602,9 +649,58 @@ export type components = {
       /** @description Array of response messages */
       messages: components["schemas"]["ChatCompletionMessage"][];
     };
+    ChatCompletionResponseChoiceOpenAI: {
+      delta?: {
+        /** @description The content of the message */
+        content?: string;
+      };
+      /** @description Reason the completion finished */
+      finish_reason: string;
+      /** @description Index of the choice in the array */
+      index: number;
+      message: components["schemas"]["ChatCompletionResponseMessageOpenAI"];
+    };
+    ChatCompletionResponseMessageOpenAI: {
+      /** @description The message content */
+      content: string;
+      /**
+       * @description The role of the message sender
+       * @enum {string}
+       */
+      role: "system" | "user" | "assistant";
+    };
     ChatCompletionResponseMetadata: {
       /** @description Current status of the chat completion */
       status: string;
+    };
+    ChatCompletionResponseMetadataV2: {
+      /** @description Array of charts referenced in the response */
+      charts?: components["schemas"]["ChartSource"][];
+      /** @description Array of sources cited in the response */
+      cited_sources?: components["schemas"]["StandardSource"][];
+      /** @description Current status of the chat completion */
+      status: string;
+      /**
+       * Format: uuid
+       * @description Unique trace ID for the request
+       */
+      trace_id: string;
+    };
+    ChatCompletionResponseOpenAI: {
+      /** @description Array of completion choices */
+      choices: components["schemas"]["ChatCompletionResponseChoiceOpenAI"][];
+      /**
+       * Format: int64
+       * @description Unix timestamp of when the completion was created
+       */
+      created: number;
+      /** @description Unique identifier for the completion */
+      id: string;
+      metadata?: components["schemas"]["ChatCompletionResponseMetadataV2"];
+      /** @description The model used for completion */
+      model: string;
+      /** @description Object type, always "chat.completion" */
+      object: string;
     };
     CreateWatchlistRequest: {
       assetIds: string[];
@@ -637,6 +733,8 @@ export type components = {
     };
     /** @description List of news documents */
     DocumentList: components["schemas"]["Document"][];
+    /** @description Domain information (placeholder - add specific properties as needed) */
+    Domain: Record<string, never>;
     Entity: {
       /**
        * Format: float
@@ -1177,6 +1275,21 @@ export type components = {
     };
     /** @description Person details (to be defined) */
     Person: Record<string, never>;
+    PointSchema: {
+      attribution?: components["schemas"]["Attribution"][];
+      description?: string;
+      format?: string;
+      /** @description Aggregate operation performed for the group */
+      group_aggregate_operation?: string;
+      /** @description Deprecated - Use slug instead */
+      id?: string;
+      is_timestamp?: boolean;
+      name?: string;
+      slug?: string;
+      subcategory?: string;
+      /** @description Aggregate operation performed for the time bucket */
+      time_bucket_aggregate_operation?: string;
+    };
     Project: {
       /** @description Category of the project */
       category?: string;
@@ -1363,6 +1476,13 @@ export type components = {
       name?: string;
       relevanceScore?: string;
     };
+    Series: {
+      entity?: {
+        [key: string]: unknown;
+      };
+      key: string;
+      points: Record<string, never>[][];
+    };
     Source: {
       /**
        * Format: uuid
@@ -1381,6 +1501,15 @@ export type components = {
      * @enum {string}
      */
     SourceType: "News" | "Forum" | "Blog";
+    StandardSource: {
+      /** @description Unique identifier for the citation */
+      citationId?: number;
+      domain?: components["schemas"]["Domain"];
+      /** @description Title of the source */
+      title?: string;
+      /** @description URL of the source */
+      url?: string;
+    };
     /** @description Summary information */
     SummaryResponse: {
       summary?: string;
@@ -1427,6 +1556,10 @@ export type components = {
       name: string;
       /** @description Slug of the metric */
       slug: string;
+    };
+    TimeseriesResult: {
+      point_schema: components["schemas"]["PointSchema"][];
+      series: components["schemas"]["Series"][];
     };
     TokenUnlockAllocation: {
       allocationRecipientCount?: number;
@@ -1965,6 +2098,45 @@ export type operations = {
         };
       };
       /** @description Internal server error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+    };
+  };
+  /**
+   * OpenAI-Compatible Chat Completion
+   * @description Creates a completion for the chat message in OpenAI-compatible format.
+   * Supports both streaming and non-streaming responses.
+   * The last message must be from the user role.
+   * Response is returned directly without the standard {data: } wrapper.
+   */
+  createChatCompletionOpenAI: {
+    parameters: {
+      header: {
+        "x-messari-api-key": components["parameters"]["apiKey"];
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ChatCompletionRequest"];
+      };
+    };
+    responses: {
+      /** @description Client error response */
+      "4XX": {
+        content: {
+          "application/json": components["schemas"]["APIError"];
+        };
+      };
+      /** @description Successful response */
+      200: {
+        content: {
+          "application/json": components["schemas"]["ChatCompletionResponseOpenAI"];
+        };
+      };
+      /** @description Server error response */
       500: {
         content: {
           "application/json": components["schemas"]["APIError"];

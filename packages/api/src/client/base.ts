@@ -97,6 +97,7 @@ import type {
   modifyWatchlistAssetsResponse,
   getTeamAllowanceResponse,
   getPermissionsResponse,
+  createChatCompletionOpenAIResponse,
 } from "../types";
 import { LogLevel, type Logger, makeConsoleLogger, createFilteredLogger, noOpLogger } from "../logging";
 import type { PaginatedResult, RequestOptions, ClientEventMap, ClientEventType, ClientEventHandler } from "./types";
@@ -106,12 +107,23 @@ import type { PaginatedResult, RequestOptions, ClientEventMap, ClientEventType, 
  */
 export interface AIInterface {
   /**
-   * Creates a chat completion using Messari's AI
+   * Creates a chat completion using OpenAI's API
    * @param params Parameters for the chat completion request
    * @param options Optional request configuration
    * @returns A promise resolving to the chat completion response
    */
-  createChatCompletion(params: createChatCompletionParameters, options?: RequestOptions): Promise<createChatCompletionResponse>;
+  createChatCompletion(params: Omit<createChatCompletionParameters, "stream">, options?: RequestOptions): Promise<createChatCompletionOpenAIResponse>;
+
+  /**
+   * Creates a streaming chat completion using OpenAI's API
+   * @param params Parameters for the chat completion request
+   * @param options Optional request configuration
+   * @returns A promise resolving to a readable stream of chat completion chunks
+   */
+  createChatCompletionStream(
+    params: Omit<createChatCompletionParameters, "stream">,
+    options?: RequestOptions,
+  ): Promise<ReadableStream<createChatCompletionOpenAIResponse>>;
 
   /**
    * Extracts entities from text content
