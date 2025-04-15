@@ -382,6 +382,12 @@ components:
           description: Index of the choice in the array
         message:
           $ref: '#/components/schemas/ChatCompletionResponseMessageOpenAI'
+        delta:
+          type: object
+          properties:
+            content:
+              type: string
+              description: The content of the message
         finish_reason:
           type: string
           description: Reason the completion finished

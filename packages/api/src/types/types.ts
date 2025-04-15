@@ -650,6 +650,10 @@ export type components = {
       messages: components["schemas"]["ChatCompletionMessage"][];
     };
     ChatCompletionResponseChoiceOpenAI: {
+      delta?: {
+        /** @description The content of the message */
+        content?: string;
+      };
       /** @description Reason the completion finished */
       finish_reason: string;
       /** @description Index of the choice in the array */
@@ -2130,7 +2134,6 @@ export type operations = {
       200: {
         content: {
           "application/json": components["schemas"]["ChatCompletionResponseOpenAI"];
-          "text/event-stream": string;
         };
       };
       /** @description Server error response */
