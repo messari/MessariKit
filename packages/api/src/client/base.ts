@@ -120,7 +120,7 @@ export interface AIInterface {
    * @param options Optional request configuration
    * @returns A promise resolving to the chat completion response
    */
-  createChatCompletionOpenAI(params: Omit<createChatCompletionParameters, 'stream'>, options?: RequestOptions): Promise<createChatCompletionOpenAIResponse>;
+  createChatCompletionOpenAI(params: Omit<createChatCompletionParameters, "stream">, options?: RequestOptions): Promise<createChatCompletionOpenAIResponse>;
 
   /**
    * Creates a streaming chat completion using OpenAI's API
@@ -128,7 +128,10 @@ export interface AIInterface {
    * @param options Optional request configuration
    * @returns A promise resolving to a readable stream of chat completion chunks
    */
-  createChatCompletionOpenAIStream(params: Omit<createChatCompletionParameters, 'stream'>, options?: RequestOptions): Promise<ReadableStream<createChatCompletionOpenAIResponse>>;
+  createChatCompletionOpenAIStream(
+    params: Omit<createChatCompletionParameters, "stream">,
+    options?: RequestOptions,
+  ): Promise<ReadableStream<createChatCompletionOpenAIResponse>>;
 
   /**
    * Extracts entities from text content

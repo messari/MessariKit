@@ -45,14 +45,14 @@ async function main() {
           ],
           verbosity: "succinct",
           response_format: "plaintext",
-          inline_citations: false
+          inline_citations: false,
         });
 
         for await (const chunk of response) {
-          console.log({chunk});
+          console.log({ chunk });
         }
-      
-        console.log('\n');
+
+        console.log("\n");
       } else {
         const response = await client.ai.createChatCompletionOpenAI({
           messages: [
@@ -64,7 +64,6 @@ async function main() {
           verbosity: "succinct",
           response_format: "plaintext",
           inline_citations: false,
-          
         });
         console.log("Response received:");
         console.log(response);
