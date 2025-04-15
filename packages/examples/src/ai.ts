@@ -48,9 +48,13 @@ async function main() {
           inline_citations: false,
         });
 
+        let content = "";
         for await (const chunk of response) {
-          console.log({ chunk });
+          if (chunk.choices.length > 0 && chunk.choices[0].delta?.content) {
+            content += chunk.choices[0].delta.content;
+          }
         }
+        console.log(content);
 
         console.log("\n");
       } else {
