@@ -856,20 +856,13 @@ export class MessariClient extends MessariClientBase {
 
   public readonly ai: AIInterface = {
     createChatCompletion: (params: createChatCompletionParameters, options?: RequestOptions) =>
-      this.request<createChatCompletionResponse>({
-        method: createChatCompletion.method,
-        path: createChatCompletion.path(),
-        body: pick(params, createChatCompletion.bodyParams),
-        options,
-      }),
-    createChatCompletionOpenAI: (params: createChatCompletionParameters, options?: RequestOptions) =>
       this.request<createChatCompletionOpenAIResponse>({
         method: createChatCompletionOpenAI.method,
         path: createChatCompletionOpenAI.path(),
         body: pick(params, createChatCompletionOpenAI.bodyParams) as createChatCompletionOpenAIParameters & { stream: false },
         options,
       }),
-    createChatCompletionOpenAIStream: (params: createChatCompletionParameters, options?: RequestOptions) =>
+    createChatCompletionStream: (params: createChatCompletionParameters, options?: RequestOptions) =>
       this.requestStream<createChatCompletionOpenAIResponse>({
         method: createChatCompletionOpenAI.method,
         path: createChatCompletionOpenAI.path(),

@@ -107,20 +107,12 @@ import type { PaginatedResult, RequestOptions, ClientEventMap, ClientEventType, 
  */
 export interface AIInterface {
   /**
-   * Creates a chat completion using Messari's AI
-   * @param params Parameters for the chat completion request
-   * @param options Optional request configuration
-   * @returns A promise resolving to the chat completion response
-   */
-  createChatCompletion(params: createChatCompletionParameters, options?: RequestOptions): Promise<createChatCompletionResponse>;
-
-  /**
    * Creates a chat completion using OpenAI's API
    * @param params Parameters for the chat completion request
    * @param options Optional request configuration
    * @returns A promise resolving to the chat completion response
    */
-  createChatCompletionOpenAI(params: Omit<createChatCompletionParameters, "stream">, options?: RequestOptions): Promise<createChatCompletionOpenAIResponse>;
+  createChatCompletion(params: Omit<createChatCompletionParameters, "stream">, options?: RequestOptions): Promise<createChatCompletionOpenAIResponse>;
 
   /**
    * Creates a streaming chat completion using OpenAI's API
@@ -128,7 +120,7 @@ export interface AIInterface {
    * @param options Optional request configuration
    * @returns A promise resolving to a readable stream of chat completion chunks
    */
-  createChatCompletionOpenAIStream(
+  createChatCompletionStream(
     params: Omit<createChatCompletionParameters, "stream">,
     options?: RequestOptions,
   ): Promise<ReadableStream<createChatCompletionOpenAIResponse>>;

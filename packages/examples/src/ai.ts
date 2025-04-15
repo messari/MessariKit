@@ -21,133 +21,59 @@ const client = new MessariClient({
 
 // Get command line arguments
 const args = process.argv.slice(2);
-const useOpenAI = args.includes("openai");
 const useStreaming = args.includes("stream");
 
 async function main() {
-  if (useOpenAI) {
-    // OpenAI Chat Completion
-    try {
-      console.log("\n--------------------------------");
-      console.log("OpenAI Chat Completion");
-      console.log("--------------------------------");
-      console.log("Sending request...");
-      console.log(`"What are the key differences between Bitcoin and Ethereum?"`);
-
-      if (useStreaming) {
-        // Call the createChatCompletionOpenAI endpoint
-        const response = await client.ai.createChatCompletionOpenAIStream({
-          messages: [
-            {
-              role: "user",
-              content: "What are the key differences between Bitcoin and Ethereum?",
-            },
-          ],
-          verbosity: "succinct",
-          response_format: "plaintext",
-          inline_citations: false,
-        });
-
-        let content = "";
-        for await (const chunk of response) {
-          if (chunk.choices.length > 0 && chunk.choices[0].delta?.content) {
-            content += chunk.choices[0].delta.content;
-          }
-        }
-        console.log(content);
-
-        console.log("\n");
-      } else {
-        const response = await client.ai.createChatCompletionOpenAI({
-          messages: [
-            {
-              role: "user",
-              content: "What are the key differences between Bitcoin and Ethereum?",
-            },
-          ],
-          verbosity: "succinct",
-          response_format: "plaintext",
-          inline_citations: false,
-        });
-        console.log("Response received:");
-        console.log(response);
-      }
-    } catch (error) {
-      console.error("Error calling createChatCompletionOpenAI:", error);
-    }
-    return;
-  }
-
-  try {
-    console.log("--------------------------------");
-    console.log("AI Chat Completion");
-    console.log("--------------------------------");
-    console.log("Sending request...");
-    console.log(`"What companies have both paradigm and a16z on their cap table?"`);
-
-    // Call the createChatCompletion endpoint
-    const response = await client.ai.createChatCompletion({
-      messages: [
-        {
-          role: "user",
-          content: "What companies have both paradigm and a16z on their cap table?",
-        },
-      ],
-      verbosity: "succinct",
-      response_format: "plaintext",
-      inline_citations: false,
-      stream: useStreaming,
-    });
-
-    const assistantMessage = response.messages[0].content;
-    console.log(assistantMessage);
-  } catch (error) {
-    console.error("Error calling createChatCompletion:", error);
-  }
-
-  // Call the createChatCompletion endpoint with streaming
+  // OpenAI Chat Completion
   try {
     console.log("\n--------------------------------");
-    console.log("AI Chat Completion Streaming");
+    console.log("OpenAI Chat Completion (Streaming)");
     console.log("--------------------------------");
     console.log("Sending request...");
-    console.log(`"What is the all time high price of Bitcoin?"`);
+    console.log(`"What are the key differences between Bitcoin and Ethereum?"`);
 
-    // Call the createChatCompletion endpoint
-    const response = await client.ai.createChatCompletion({
-      messages: [
-        {
-          role: "user",
-          content: "What is the all time high price of Bitcoin?",
-        },
-      ],
-      verbosity: "succinct",
-      response_format: "plaintext",
-      inline_citations: false,
-      stream: true,
-    });
+    if (useStreaming) {
+      // Call the createChatCompletionOpenAI endpoint
+      const response = await client.ai.createChatCompletionStream({
+        messages: [
+          {
+            role: "user",
+            content: "What are the key differences between Bitcoin and Ethereum?",
+          },
+        ],
+        verbosity: "succinct",
+        response_format: "plaintext",
+        inline_citations: false,
+      });
 
-    // Treat the combined streamed Server-Sent Events (SSE) chunks as a single string
-    const rawResponse = response as unknown as string;
-    const chunks = rawResponse.split("\n\n").filter((line) => line.trim() !== "");
-
-    let content = "";
-    for (const chunk of chunks) {
-      const dataMatch = chunk.match(/data: ({.*})/);
-      if (dataMatch) {
-        try {
-          const data = JSON.parse(dataMatch[1]);
-          if (data.data?.messages?.[0]?.delta?.content) {
-            content += data.data.messages[0].delta.content;
-          }
-        } catch (e) {
-          console.error("Error parsing SSE message:", e);
+      // Process the stream and progressively print out the text
+      process.stdout.write("Response: ");
+      for await (const chunk of response) {
+        if (chunk.choices.length > 0 && chunk.choices[0].delta?.content) {
+          const content = chunk.choices[0].delta.content;
+          process.stdout.write(content);
         }
       }
+      process.stdout.write("\n");
+
+      console.log("\n");
+    } else {
+      const response = await client.ai.createChatCompletion({
+        messages: [
+          {
+            role: "user",
+            content: "What are the key differences between Bitcoin and Ethereum?",
+          },
+        ],
+        verbosity: "succinct",
+        response_format: "plaintext",
+        inline_citations: false,
+      });
+      console.log("Response received:");
+      console.log(response);
     }
-    console.log(content);
   } catch (error) {
-    console.error("Error calling createChatCompletion:", error);
+    console.error("Error calling createChatCompletionOpenAI:", error);
   }
 
   // Entity Extraction
