@@ -109,12 +109,44 @@ function extractParameterNames(operation: OpenAPIV3.OperationObject, spec: OpenA
   return { queryParams, pathParams, bodyParams };
 }
 
+function getSuccessResponseSchema(operation: OpenAPIV3.OperationObject): OpenAPIV3.ResponseObject | undefined {
+  const successCodePriority = [
+    "200",
+    "201",
+    "202",
+    "203",
+    "204",
+    "205",
+    "206",
+    "207",
+    "208",
+    "209",
+    "210",
+    "211",
+    "212",
+    "213",
+    "214",
+    "215",
+    "216",
+    "217",
+    "218",
+    "219",
+    "220",
+  ];
+  for (const code of successCodePriority) {
+    const response = operation.responses[code] as OpenAPIV3.ResponseObject;
+    if (response) {
+      return response;
+    }
+  }
+}
+
 /**
  * Generates TypeScript types for an operation
  */
 function generateOperationTypes(operationId: string, operation: OpenAPIV3.OperationObject): string {
   // Get the schema name from the response
-  const responseObj = operation.responses["200"] as OpenAPIV3.ResponseObject;
+  const responseObj = getSuccessResponseSchema(operation);
   const responseSchema = responseObj?.content?.["application/json"]?.schema;
 
   // Handle different response schema structures
@@ -123,7 +155,8 @@ function generateOperationTypes(operationId: string, operation: OpenAPIV3.Operat
   let isArray = false;
   let arrayItemsRef: string | undefined;
   let arrayItemsType: string | undefined;
-
+  let isObject = false;
+  let resProps: { [key: string]: OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject } | undefined;
   if (responseSchema) {
     if ("allOf" in responseSchema && responseSchema.allOf) {
       const dataSchema = responseSchema.allOf[1] as OpenAPIV3.SchemaObject;
@@ -155,6 +188,30 @@ function generateOperationTypes(operationId: string, operation: OpenAPIV3.Operat
         // Handle primitive array types
         arrayItemsType = responseSchema.items.type;
       }
+    } else if (responseSchema.type === "object") {
+      if (responseSchema.properties?.data) {
+        const dataProperty = responseSchema.properties.data as OpenAPIV3.SchemaObject;
+        if ("$ref" in dataProperty) {
+          schemaRef = dataProperty.$ref as string;
+        } else if (dataProperty.type === "array") {
+          isArray = true;
+          if (dataProperty.items && "$ref" in dataProperty.items) {
+            arrayItemsRef = dataProperty.items.$ref;
+          } else if (dataProperty.items && "type" in dataProperty.items) {
+            // Handle primitive array types
+            arrayItemsType = dataProperty.items.type;
+          }
+        }
+      }
+
+      if (responseSchema.properties?.metadata && "$ref" in responseSchema.properties.metadata) {
+        metadataRef = responseSchema.properties.metadata.$ref;
+      }
+
+      isObject = true;
+      resProps = responseSchema.properties;
+    } else {
+      throw new Error(`Unsupported response schema type: ${responseSchema.type}`);
     }
   }
 
@@ -174,6 +231,24 @@ function generateOperationTypes(operationId: string, operation: OpenAPIV3.Operat
       // Array with primitive type case
       responseType = `${arrayItemsType}[]`;
     }
+  } else if (isObject) {
+    const properties = Object.entries(resProps ?? {});
+    responseType = `{ ${properties
+      .map(([key, value]) => {
+        if ("$ref" in value) {
+          const refPath = value.$ref.split("/");
+          const schemaName = refPath[refPath.length - 1];
+          return `${key}: components['schemas']['${schemaName}']`;
+          // biome-ignore lint/style/noUselessElse:
+        } else if ("type" in value && value.type === "array") {
+          const itemSchemaName = value.items.$ref.split("/").pop();
+          return `${key}: components['schemas']['${itemSchemaName}'][]`;
+          // biome-ignore lint/style/noUselessElse:
+        } else {
+          return `${key}: ${value.type}`;
+        }
+      })
+      .join("; ")} }`;
   }
 
   if (metadataRef) {
@@ -277,11 +352,16 @@ function generateOperationTypes(operationId: string, operation: OpenAPIV3.Operat
   // Combine path and query parameters into a single type
   const typeIntersection = [bodyType, queryParams ? `{ ${queryParams} }` : null, pathParams ? `{ ${pathParams} }` : null].filter(Boolean).join(" & ");
 
-  return `
+  let ret = `
 export type ${operationId}Response = ${finalResponseType};
 export type ${operationId}Error = components['schemas']['APIError'];
 
 export type ${operationId}Parameters = ${typeIntersection || "null"};`;
+  if (metadataType) {
+    ret += `
+export type ${operationId}Metadata = ${metadataType};`;
+  }
+  return ret;
 }
 
 /**

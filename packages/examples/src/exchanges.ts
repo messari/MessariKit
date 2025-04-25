@@ -21,7 +21,7 @@ const client = new MessariClient({ apiKey: API_KEY });
 async function getTop5CentralizedExchanges() {
   try {
     // Retrieve all assets with details
-    const response = await client.exchanges.getExchanges({ type: "centralized", typeRankCutoff: "5" });
+    const response = await client.exchanges.getExchanges({ type: "centralized", typeRankCutoff: 5 });
 
     // Create a table to display ROI data
     const t = new Table({
@@ -61,8 +61,7 @@ async function getTop5CentralizedExchanges() {
 
 export async function getExchangeMetrics() {
   try {
-    const response = await client.exchanges.getExchangeMetrics();
-    const catalog = response.data;
+    const catalog = await client.exchanges.getExchangeMetrics();
     const t = new Table({
       columns: [
         { name: "Slug", alignment: "right" },
@@ -81,7 +80,7 @@ export async function getExchangeMetrics() {
       });
     }
     t.printTable();
-    return response;
+    return catalog;
   } catch (error) {
     console.error("Error fetching Exchange Metrics:", error);
     throw error;
@@ -98,7 +97,7 @@ export async function getExchangeTimeseriesWithGranularity(slug: string, dataset
       end: "2025-01-07T00:00:00Z",
     });
     // Access the points array from the properly typed response
-    const points = response.data?.points || [];
+    const points = response.data.points || [];
     const dataLength = points.length;
 
     console.log(`Retrieved ${dataLength} timeseries data points for ${slug}`);

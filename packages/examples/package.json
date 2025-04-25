@@ -6,6 +6,7 @@
 	"scripts": {
 		"build": "tsc",
 		"clean": "rimraf dist",
+		"start:all": "tsx src/asset/asset.ts && tsx src/asset/ath.ts && tsx src/asset/roi.ts && tsx src/asset/timeseries.ts && tsx src/exchanges.ts && tsx src/markets.ts && tsx src/networks.ts && tsx src/diligence.ts && tsx src/fundraising.ts && tsx src/intelEvents.ts && tsx src/newsFeed.ts && tsx src/research.ts && tsx src/tokenUnlocks.ts && tsx src/userManagement.ts",
 		"start:ai": "tsx src/ai.ts",
 		"start:asset": "tsx src/asset/asset.ts",
 		"start:asset:ath": "tsx src/asset/ath.ts",

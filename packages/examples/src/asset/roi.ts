@@ -43,7 +43,7 @@ export async function getAssetsROIInfo() {
     });
 
     // Filter for assets with valid ROI data
-    const assetsWithValidROI = response.data.filter((asset) => asset.returnOnInvestment);
+    const assetsWithValidROI = response.filter((asset) => asset.returnOnInvestment);
 
     // Limit to at most 20 rows for console output
     const dataToDisplay = assetsWithValidROI.slice(0, 20);
@@ -72,7 +72,7 @@ export async function getAssetsROIInfo() {
       console.log(`... and ${assetsWithValidROI.length - 20} more rows not displayed.`);
     }
 
-    console.log(`Total assets retrieved: ${response.data.length}`);
+    console.log(`Total assets retrieved: ${response.length}`);
     return response;
   } catch (error) {
     console.error("Error fetching ROI data:", error);
@@ -87,7 +87,7 @@ async function main() {
   console.log("Fetching Return On Investment (ROI) information for assets...");
   try {
     const response = await getAssetsROIInfo();
-    console.log(`Successfully retrieved ROI data for ${response.data.length} assets.`);
+    console.log(`Successfully retrieved ROI data for ${response.length} assets.`);
   } catch (error) {
     console.error("Error running ROI example:", error);
   }

@@ -56,8 +56,7 @@ async function getTop5MarketsOnExchange(slug: string) {
 }
 export async function getMarketMetrics() {
   try {
-    const response = await client.markets.getMarketMetrics();
-    const catalog = response.data;
+    const catalog = await client.markets.getMarketMetrics();
     const t = new Table({
       columns: [
         { name: "Slug", alignment: "right" },
@@ -76,7 +75,7 @@ export async function getMarketMetrics() {
       });
     }
     t.printTable();
-    return response;
+    return catalog;
   } catch (error) {
     console.error("Error fetching Markets Metrics:", error);
     throw error;
@@ -93,7 +92,7 @@ export async function getMarketTimeseriesWithGranularity(slug: string, datasetSl
       end: "2025-01-07T00:00:00Z",
     });
     // Access the points array from the properly typed response
-    const points = response.data?.points || [];
+    const points = response.data.points || [];
     const dataLength = points.length;
 
     console.log(`Retrieved ${dataLength} timeseries data points for ${slug}`);

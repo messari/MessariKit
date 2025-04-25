@@ -57,7 +57,7 @@ components:
       type: object
       description: Pagination metadata for list endpoints
       properties:
-        total:
+        totalRows:
           type: integer
           description: Total number of items available
           example: 100
@@ -69,10 +69,10 @@ components:
           type: integer
           description: Number of items per page
           example: 20
-        hasMore:
-          type: boolean
-          description: Whether there are more pages available
-          example: true
+        totalPages:
+          type: integer
+          description: Total number of pages
+          example: 7
 
 servers:
   - url: https://api.messari.io

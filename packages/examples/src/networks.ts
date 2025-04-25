@@ -55,8 +55,7 @@ async function getTop5Networks() {
 
 export async function getNetworkMetrics() {
   try {
-    const response = await client.networks.getNetworkMetrics();
-    const catalog = response.data;
+    const catalog = await client.networks.getNetworkMetrics();
     const t = new Table({
       columns: [
         { name: "Slug", alignment: "right" },
@@ -75,7 +74,7 @@ export async function getNetworkMetrics() {
       });
     }
     t.printTable();
-    return response;
+    return catalog;
   } catch (error) {
     console.error("Error fetching Networks Metrics:", error);
     throw error;
@@ -92,7 +91,7 @@ export async function getNetworkTimeseriesWithGranularity(slug: string, datasetS
       end: "2025-01-07T00:00:00Z",
     });
     // Access the points array from the properly typed response
-    const points = response.data?.points || [];
+    const points = response.data.points || [];
     const dataLength = points.length;
 
     console.log(`Retrieved ${dataLength} timeseries data points for ${slug}`);

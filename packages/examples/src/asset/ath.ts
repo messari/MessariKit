@@ -30,7 +30,7 @@ export async function getAssetsATHInfo() {
     const response = await client.asset.getAssetsV2ATH({ limit: 20 });
 
     // Sort assets by percentDownFromAllTimeHigh
-    const sortedAssets = response.data.sort((a, b) => {
+    const sortedAssets = response.sort((a, b) => {
       const aDownPercent = a.allTimeHigh?.allTimeHighPercentDown ?? 100;
       const bDownPercent = b.allTimeHigh?.allTimeHighPercentDown ?? 100;
       return aDownPercent - bDownPercent;
@@ -96,7 +96,7 @@ export async function getAssetsATHInfo() {
       console.log(`... and ${assetsWithValidAth.length - 20} more rows not displayed.`);
     }
 
-    console.log(`Total assets retrieved: ${response.data.length}`);
+    console.log(`Total assets retrieved: ${response.length}`);
     return response;
   } catch (error) {
     console.error("Error fetching ATH data:", error);
@@ -111,7 +111,7 @@ async function main() {
   console.log("Fetching All-Time High (ATH) information for assets...");
   try {
     const response = await getAssetsATHInfo();
-    console.log(`Successfully retrieved ATH data for ${response.data.length} assets.`);
+    console.log(`Successfully retrieved ATH data for ${response.length} assets.`);
   } catch (error) {
     console.error("Error running ATH example:", error);
   }

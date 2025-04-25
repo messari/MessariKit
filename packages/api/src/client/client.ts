@@ -149,6 +149,14 @@ import type {
   updateWatchlistResponse,
   createChatCompletionOpenAIResponse,
   createChatCompletionOpenAIParameters,
+  getAssetTimeseriesWithGranularityMetadata,
+  getAssetTimeseriesMetadata,
+  getExchangeTimeseriesMetadata,
+  getNetworksMetadata,
+  getNetworkTimeseriesMetadata,
+  getMarketsMetadata,
+  getMarketTimeseriesMetadata,
+  getExchangesMetadata,
 } from "../types";
 import type { Agent } from "node:http";
 import { pick } from "../utils";
@@ -664,22 +672,18 @@ export class MessariClient extends MessariClientBase {
       ? {
           page: response.metadata.page || 1,
           limit: response.metadata.limit || 10,
-          total: response.metadata.total || 0,
-          totalRows: response.metadata.total || 0,
-          totalPages: Math.ceil((response.metadata.total || 0) / (response.metadata.limit || 10)),
-          hasMore: response.metadata.hasMore || false,
+          totalRows: response.metadata.totalRows || 0,
+          totalPages: response.metadata.totalPages || 1,
         }
       : {
           page: 1,
           limit: 10,
-          total: 0,
           totalRows: 0,
           totalPages: 0,
-          hasMore: false,
         };
 
     const currentPage = metadata.page;
-    const hasNextPage = metadata.hasMore || false || currentPage < (metadata.totalPages || 0);
+    const hasNextPage = currentPage < (metadata.totalPages || 0);
     const hasPreviousPage = currentPage > 1;
 
     // This method adds pagination helpers to the response
@@ -708,8 +712,8 @@ export class MessariClient extends MessariClientBase {
               ? {
                   page: nextPageResponse.metadata.page || nextPage,
                   limit: nextPageResponse.metadata.limit || metadata.limit,
-                  totalRows: nextPageResponse.metadata.total || metadata.totalRows || 0,
-                  totalPages: Math.ceil((nextPageResponse.metadata.total || metadata.totalRows || 0) / (nextPageResponse.metadata.limit || metadata.limit)),
+                  totalRows: nextPageResponse.metadata.totalRows || metadata.totalRows || 0,
+                  totalPages: nextPageResponse.metadata.totalPages || metadata.totalPages || 1,
                 }
               : {
                   page: nextPage,
@@ -748,8 +752,8 @@ export class MessariClient extends MessariClientBase {
               ? {
                   page: prevPageResponse.metadata.page || prevPage,
                   limit: prevPageResponse.metadata.limit || metadata.limit,
-                  totalRows: prevPageResponse.metadata.total || metadata.totalRows || 0,
-                  totalPages: Math.ceil((prevPageResponse.metadata.total || metadata.totalRows || 0) / (prevPageResponse.metadata.limit || metadata.limit)),
+                  totalRows: prevPageResponse.metadata.totalRows || metadata.totalRows || 0,
+                  totalPages: prevPageResponse.metadata.totalPages || metadata.totalPages || 1,
                 }
               : {
                   page: prevPage,
@@ -783,8 +787,8 @@ export class MessariClient extends MessariClientBase {
               ? {
                   page: pageResponse.metadata.page || page,
                   limit: pageResponse.metadata.limit || metadata.limit,
-                  totalRows: pageResponse.metadata.total || metadata.totalRows || 0,
-                  totalPages: Math.ceil((pageResponse.metadata.total || metadata.totalRows || 0) / (pageResponse.metadata.limit || metadata.limit)),
+                  totalRows: pageResponse.metadata.totalRows || metadata.totalRows || 0,
+                  totalPages: pageResponse.metadata.totalPages || metadata.totalPages || 1,
                 }
               : {
                   page,
@@ -883,7 +887,7 @@ export class MessariClient extends MessariClientBase {
    */
   public readonly asset: AssetInterface = {
     getAssetsV2: async (params: getAssetsV2Parameters = {}, options?: RequestOptions) => {
-      return this.requestWithMetadata<getAssetsV2Response, PaginationMetadata>({
+      return this.request<getAssetsV2Response>({
         method: getAssetsV2.method,
         path: getAssetsV2.path(),
         queryParams: pick(params, getAssetsV2.queryParams),
@@ -892,7 +896,7 @@ export class MessariClient extends MessariClientBase {
     },
 
     getAssetDetails: async (params: getAssetDetailsParameters, options?: RequestOptions) => {
-      return this.requestWithMetadata<getAssetDetailsResponse, PaginationMetadata>({
+      return this.request<getAssetDetailsResponse>({
         method: getAssetDetails.method,
         path: getAssetDetails.path(),
         queryParams: pick(params, getAssetDetails.queryParams),
@@ -901,7 +905,7 @@ export class MessariClient extends MessariClientBase {
     },
 
     getAssetsTimeseriesCatalog: async (options?: RequestOptions) => {
-      return this.requestWithMetadata<getAssetsTimeseriesCatalogResponse, PaginationMetadata>({
+      return this.request<getAssetsTimeseriesCatalogResponse>({
         method: getAssetsTimeseriesCatalog.method,
         path: getAssetsTimeseriesCatalog.path(),
         options,
@@ -909,7 +913,7 @@ export class MessariClient extends MessariClientBase {
     },
 
     getAssetsV2ATH: async (params: getAssetsV2ATHParameters = {}, options?: RequestOptions) => {
-      return this.requestWithMetadata<getAssetsV2ATHResponse, PaginationMetadata>({
+      return this.request<getAssetsV2ATHResponse>({
         method: getAssetsV2ATH.method,
         path: getAssetsV2ATH.path(),
         queryParams: pick(params, getAssetsV2ATH.queryParams),
@@ -918,7 +922,7 @@ export class MessariClient extends MessariClientBase {
     },
 
     getAssetsV2ROI: async (params: getAssetsV2ROIParameters = {}, options?: RequestOptions) => {
-      return this.requestWithMetadata<getAssetsV2ROIResponse, PaginationMetadata>({
+      return this.request<getAssetsV2ROIResponse>({
         method: getAssetsV2ROI.method,
         path: getAssetsV2ROI.path(),
         queryParams: pick(params, getAssetsV2ROI.queryParams),
@@ -959,7 +963,7 @@ export class MessariClient extends MessariClientBase {
     },
 
     getExchangeById: async (params: getExchangeParameters, options?: RequestOptions) => {
-      return this.requestWithMetadata<getExchangeResponse, PaginationMetadata>({
+      return this.request<getExchangeResponse>({
         method: getExchange.method,
         path: getExchange.path(params),
         options,
@@ -967,7 +971,7 @@ export class MessariClient extends MessariClientBase {
     },
 
     getExchangeMetrics: async (options?: RequestOptions) => {
-      return this.requestWithMetadata<getExchangeMetricsResponse, PaginationMetadata>({
+      return this.request<getExchangeMetricsResponse>({
         method: getExchangeMetrics.method,
         path: getExchangeMetrics.path(),
         options,
@@ -995,7 +999,7 @@ export class MessariClient extends MessariClientBase {
     },
 
     getNetworkById: async (params: getNetworkParameters, options?: RequestOptions) => {
-      return this.requestWithMetadata<getNetworkResponse, PaginationMetadata>({
+      return this.request<getNetworkResponse>({
         method: getNetwork.method,
         path: getNetwork.path(params),
         options,
@@ -1003,7 +1007,7 @@ export class MessariClient extends MessariClientBase {
     },
 
     getNetworkMetrics: async (options?: RequestOptions) => {
-      return this.requestWithMetadata<getNetworkMetricsResponse, PaginationMetadata>({
+      return this.request<getNetworkMetricsResponse>({
         method: getNetworkMetrics.method,
         path: getNetworkMetrics.path(),
         options,
@@ -1034,7 +1038,7 @@ export class MessariClient extends MessariClientBase {
     },
 
     getMarketById: async (params: getMarketParameters, options?: RequestOptions) => {
-      return this.requestWithMetadata<getMarketResponse, PaginationMetadata>({
+      return this.request<getMarketResponse>({
         method: getMarket.method,
         path: getMarket.path(params),
         options,
@@ -1042,7 +1046,7 @@ export class MessariClient extends MessariClientBase {
     },
 
     getMarketMetrics: async (options?: RequestOptions) => {
-      return this.requestWithMetadata<getMarketMetricsResponse, PaginationMetadata>({
+      return this.request<getMarketMetricsResponse>({
         method: getMarketMetrics.method,
         path: getMarketMetrics.path(),
         options,

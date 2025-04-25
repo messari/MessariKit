@@ -24,9 +24,7 @@ const client = new MessariClient({
 export async function getAssetsTimeseriesCatalog() {
   try {
     // Retrieve all assets with details
-    const response = await client.asset.getAssetsTimeseriesCatalog({});
-
-    const catalog = response.data;
+    const catalog = await client.asset.getAssetsTimeseriesCatalog({});
 
     const t = new Table({
       columns: [
@@ -44,7 +42,7 @@ export async function getAssetsTimeseriesCatalog() {
       });
     }
     t.printTable();
-    return response;
+    return catalog;
   } catch (error) {
     console.error("Error fetching ROI data:", error);
     throw error;
@@ -61,7 +59,7 @@ export async function getAssetTimeseriesWithGranularity(slug: string, datasetSlu
       end: "2025-01-07T00:00:00Z",
     });
     // Access the points array from the properly typed response
-    const points = response.data?.points || [];
+    const points = response.data.points || [];
     const dataLength = points.length;
 
     console.log(`Retrieved ${dataLength} timeseries data points for ${slug}`);

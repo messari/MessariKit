@@ -148,7 +148,7 @@ export type paths = {
   "/metrics/v1/exchanges/metrics": {
     /**
      * List Exchange Metrics
-     * @description Returns a list of timeseries metrics available for exchanges.
+     * @description Get metric catalog of datasets for exchanges.
      */
     get: operations["getExchangeMetrics"];
   };
@@ -161,102 +161,99 @@ export type paths = {
   };
   "/metrics/v1/markets/{entityIdentifier}/metrics/{datasetSlug}/time-series/{granularity}": {
     /**
-     * Get Market Timeseries Metrics
-     * @description Fetch timeseries metrics for a specific market.
+     * Get market timeseries data
+     * @description Retrieve a specific market's timeseries data
      */
     get: operations["getMarketTimeseries"];
   };
   "/metrics/v1/markets/{marketIdentifier}": {
     /**
-     * Get Market Details
-     * @description Fetches the data for a single market based on the marketIdentifier provided
+     * Get market
+     * @description Retrieve a specific market
      */
     get: operations["getMarket"];
   };
   "/metrics/v1/markets/metrics": {
     /**
-     * List Market Metrics
-     * @description Returns a list of timeseries metrics available for markets.
+     * List Exchange Metrics
+     * @description Returns a list of timeseries metrics available for exchanges.
      */
     get: operations["getMarketMetrics"];
   };
   "/metrics/v1/networks": {
     /**
-     * List Networks
-     * @description List of networks, metadata, and associated onchain metrics snapshot.
+     * Get networks
+     * @description Retrieve a list of networks
      */
     get: operations["getNetworks"];
   };
   "/metrics/v1/networks/{entityIdentifier}/metrics/{datasetSlug}/time-series/{granularity}": {
     /**
-     * Get Network Timeseries Metrics
-     * @description Fetch timeseries metrics for a specific network.
+     * Get network timeseries data
+     * @description Retrieve a specific network's timeseries data
      */
     get: operations["getNetworkTimeseries"];
   };
   "/metrics/v1/networks/{networkIdentifier}": {
     /**
-     * Get Network Details
-     * @description Returns a single network based on the identifier
+     * Get network
+     * @description Retrieve a specific network
      */
     get: operations["getNetwork"];
   };
   "/metrics/v1/networks/metrics": {
     /**
-     * List Network Metrics
-     * @description Returns a list of timeseries metrics available for networks.
+     * List Exchange Metrics
+     * @description Get metric catalog of datasets for networks.
      */
     get: operations["getNetworkMetrics"];
   };
   "/metrics/v2/assets": {
     /**
-     * Get Asset List (V2)
-     * @description Get a list of assets with extended information and coverage details.
+     * Get assets
+     * @description Retrieve a list of assets
      */
     get: operations["getAssetsV2"];
   };
   "/metrics/v2/assets/{entityIdentifier}/metrics/{datasetSlug}/time-series": {
     /**
-     * Get Asset Timeseries Data
-     * @description Get timeseries data for a specific asset and dataset.
-     * This endpoint is only available for enterprise users.
+     * Get asset timeseries data
+     * @description Retrieve a specific asset's timeseries data
      */
     get: operations["getAssetTimeseries"];
   };
   "/metrics/v2/assets/{entityIdentifier}/metrics/{datasetSlug}/time-series/{granularity}": {
     /**
-     * Get Asset Timeseries Data with Specific Granularity
-     * @description Get timeseries data for a specific asset and dataset with a specific time granularity.
-     * This endpoint is only available for enterprise users.
+     * Get asset timeseries data
+     * @description Retrieve a specific asset's timeseries data
      */
     get: operations["getAssetTimeseriesWithGranularity"];
   };
   "/metrics/v2/assets/ath": {
     /**
-     * Get Assets All-Time High Information
-     * @description Get all-time high information for assets, with various filtering options.
+     * Get asset ATH
+     * @description Retrieve a specific asset's ATH
      */
     get: operations["getAssetsV2ATH"];
   };
   "/metrics/v2/assets/details": {
     /**
-     * Get Asset Details
-     * @description Get detailed information for specific assets by IDs or slugs.
+     * Get asset details
+     * @description Retrieve a specific asset's details
      */
     get: operations["getAssetDetails"];
   };
   "/metrics/v2/assets/metrics": {
     /**
-     * Get Assets Timeseries Catalog
-     * @description Get a catalog of available timeseries datasets and metrics for assets.
-     * This endpoint is only available for enterprise users.
+     * List Exchange Metrics
+     * @description Get metric catalog of datasets for assets.
      */
     get: operations["getAssetsTimeseriesCatalog"];
   };
   "/metrics/v2/assets/roi": {
     /**
-     * Get Assets Return on Investment Information
-     * @description Get return on investment information for assets, with various filtering options.
+     * Get asset ROI
+     * @description Retrieve a specific asset's ROI
      */
     get: operations["getAssetsV2ROI"];
   };
@@ -343,7 +340,11 @@ export type paths = {
   "/user-management/v1/api/credits/allowance": {
     /**
      * Get a team's current credit allowance
-     * @description Get a team's current credit allowance
+     * @description #### Controller:
+     *
+     * `github.com/messari/user-service/internal/api/handler/permissioned/credit.(*creditHandler).GetTeamAllowance`
+     *
+     * ---
      */
     get: operations["getTeamAllowance"];
   };
@@ -424,12 +425,17 @@ export type components = {
      */
     AcquisitionDealStatus: "Announced" | "Completed" | "Canceled";
     AllowanceInfo: {
+      /** Format: int64 */
       creditsAllocated: number;
+      /** Format: date-time */
       endDate: string;
       id: string;
       isActive: boolean;
+      /** Format: int64 */
       remainingCredits: number;
+      /** Format: date-time */
       startDate: string;
+      /** Format: int64 */
       teamId: number;
     };
     /** @description Announcement details (to be defined) */
@@ -471,6 +477,17 @@ export type components = {
       /** @description Symbol of the asset */
       symbol: string;
     };
+    AssetComparisonItem: {
+      allTimeHigh?: components["schemas"]["V2AssetATH"];
+      category: string;
+      id: string;
+      name: string;
+      returnOnInvestment?: components["schemas"]["V2AssetROI"];
+      sector: string;
+      slug: string;
+      symbol: string;
+      tags: string[];
+    };
     /** @description List of assets */
     AssetList: components["schemas"]["NewsAsset"][];
     AssetReport: components["schemas"]["ReportResponse"] & {
@@ -481,89 +498,22 @@ export type components = {
       lookupType?: "asset";
     };
     AssetV2Link: {
-      /** @description Name of the link */
-      name?: string;
-      /** @description Type of the link */
-      type: string;
-      /** @description URL of the link */
+      name: string;
       url: string;
     };
     AssetV2MarketData: {
-      marketcap?: {
-        /** Format: float */
-        circulatingUsd?: number;
-        /** Format: float */
-        dominance?: number;
-        /** Format: float */
-        fullyDilutedUsd?: number;
-      };
-      /**
-       * Format: float
-       * @description Market capitalization of the asset
-       */
-      marketCap?: number;
-      ohlcv1HourUsd?: {
-        /** Format: float */
-        close?: number;
-        /** Format: float */
-        high?: number;
-        /** Format: float */
-        low?: number;
-        /** Format: float */
-        open?: number;
-        /** Format: float */
-        volume?: number;
-      };
-      ohlcv24HourUsd?: {
-        /** Format: float */
-        close?: number;
-        /** Format: float */
-        high?: number;
-        /** Format: float */
-        low?: number;
-        /** Format: float */
-        open?: number;
-        /** Format: float */
-        volume?: number;
-      };
-      /**
-       * Format: float
-       * @description Current price of the asset
-       */
-      price?: number;
-      /**
-       * Format: float
-       * @description Current price of the asset in BTC
-       */
-      priceBtc?: number;
-      /**
-       * Format: float
-       * @description Current price of the asset in ETH
-       */
-      priceEth?: number;
-      /**
-       * Format: float
-       * @description Current price of the asset in USD
-       */
-      priceUsd?: number;
-      supply?: {
-        /** Format: float */
-        circulating?: number;
-        /** Format: float */
-        max?: number;
-        /** Format: float */
-        total?: number;
-      };
-      /**
-       * Format: float
-       * @description 24-hour trading volume of the asset
-       */
-      volume24h?: number;
-      /**
-       * Format: float
-       * @description 24-hour trading volume of the asset
-       */
-      volume24Hour?: number;
+      marketcap: components["schemas"]["MarketCap"];
+      ohlcv1HourUsd: components["schemas"]["OHLCV"];
+      ohlcv24HourUsd: components["schemas"]["OHLCV"];
+      /** Format: double */
+      priceBtc: number;
+      /** Format: double */
+      priceEth: number;
+      /** Format: double */
+      priceUsd: number;
+      supply: components["schemas"]["Supply"];
+      /** Format: double */
+      volume24Hour: number;
     };
     /** @description Attribution information (placeholder - add specific properties as needed) */
     Attribution: Record<string, never>;
@@ -702,6 +652,11 @@ export type components = {
       /** @description Object type, always "chat.completion" */
       object: string;
     };
+    ContractAddress: {
+      contractAddress: string;
+      networkName: string;
+      networkSlug: string;
+    };
     CreateWatchlistRequest: {
       assetIds: string[];
       title: string;
@@ -803,24 +758,35 @@ export type components = {
       updateDetails?: string | null;
     };
     Exchange: {
-      country?: string;
-      globalRank30D?: number;
-      /** Format: uuid */
+      country: string;
+      /** Format: int64 */
+      globalRank30D: number;
       id: string;
-      metrics: {
-        assetsCount?: number;
-        marketsCount?: number;
-        trades24Hour?: number;
-        /** Format: float */
-        volume24Hour?: number;
-      };
+      metrics: components["schemas"]["ExchangeMetrics"];
       name: string;
-      region?: string;
-      relatedExchangeIDs?: string[];
+      region: string;
+      relatedExchangeIDs: string[];
       slug: string;
       type: string;
-      typeRank30D?: number;
-      yearEstablished?: number;
+      /** Format: int64 */
+      typeRank30D: number;
+      /** Format: int64 */
+      yearEstablished: number;
+    };
+    ExchangeEntity: {
+      id: string;
+      name: string;
+      slug: string;
+    };
+    ExchangeMetrics: {
+      /** Format: int64 */
+      assetsCount: number;
+      /** Format: int64 */
+      marketsCount: number;
+      /** Format: int64 */
+      trades24Hour: number;
+      /** Format: double */
+      volume24Hour: number;
     };
     /** @description News recap for exchanges */
     ExchangeNewsRecap: {
@@ -1075,6 +1041,10 @@ export type components = {
       /** @description History of the event */
       eventHistory: components["schemas"]["EventHistory"][];
     };
+    GetNetworksV2Response: {
+      data: components["schemas"]["NetworkV2"][];
+      metadata: components["schemas"]["SnapshotListingMetadata"];
+    };
     GetPreviewsResponse: components["schemas"]["ReportResponse"][];
     /** @description List of project recaps */
     GetProjectRecapResponse: components["schemas"]["ProjectRecapResponse"][];
@@ -1105,85 +1075,148 @@ export type components = {
       projects?: components["schemas"]["Project"][];
     };
     Market: {
-      baseAsset?: {
-        /** Format: uuid */
-        id?: string;
-        name?: string;
-        slug?: string;
-        symbol?: string;
-      };
-      baseAssetSector?: string;
-      exchange?: {
-        /** Format: uuid */
-        id?: string;
-        name?: string;
-        slug?: string;
-      };
+      baseAsset: components["schemas"]["V2AssetEntity"];
+      baseAssetSector: string;
+      exchange: components["schemas"]["ExchangeEntity"];
       /** Format: date-time */
-      firstTradeAt?: string;
-      id?: string;
-      isNewMarket?: boolean;
-      isRecentlyListed?: boolean;
+      firstTradeAt: string;
+      id: string;
+      isNewMarket: boolean;
+      isRecentlyListed: boolean;
       /** Format: date-time */
-      lastTradeAt?: string;
-      liveness?: string;
-      metrics?: {
-        exchangeVolumePercentage24h?: number;
-        latestPrice24hClose?: number;
-        latestPrice24hHigh?: number;
-        latestPrice24hLow?: number;
-        latestPrice24hOpen?: number;
-        premiumDiscount?: number;
-        tradeCount24h?: number;
-        volume24h?: number;
-      };
-      network?: Record<string, never>;
-      quoteAsset?: {
-        /** Format: uuid */
-        id?: string;
-        name?: string;
-        slug?: string;
-        symbol?: string;
-      };
-      quoteAssetSector?: string;
-      sectors?: string[];
+      lastTradeAt: string;
+      liveness: string;
+      metrics: components["schemas"]["MarketMetrics"];
+      network?: components["schemas"]["NetworkEntity"];
+      quoteAsset: components["schemas"]["V2AssetEntity"];
+      quoteAssetSector: string;
+      sectors: string[];
     };
-    /** @enum {string} */
-    ModifyWatchlistAssetsAction: "add" | "remove";
+    MarketCap: {
+      /** Format: double */
+      circulatingUsd: number;
+      /** Format: double */
+      dominance: number;
+      /** Format: double */
+      fullyDilutedUsd: number;
+    };
+    MarketMetrics: {
+      /** Format: double */
+      exchangeVolumePercentage24h: number;
+      /** Format: double */
+      latestPrice24hClose: number;
+      /** Format: double */
+      latestPrice24hHigh: number;
+      /** Format: double */
+      latestPrice24hLow: number;
+      /** Format: double */
+      latestPrice24hOpen: number;
+      /** Format: double */
+      premiumDiscount: number;
+      /** Format: int64 */
+      tradeCount24h: number;
+      /** Format: double */
+      volume24h: number;
+    };
     ModifyWatchlistAssetsRequest: {
-      action: components["schemas"]["ModifyWatchlistAssetsAction"];
+      /** @enum {string} */
+      action: "add" | "remove";
       assetIds: string[];
-      watchlistID: string;
     };
     Network: {
-      /** Format: uuid */
-      id?: string;
-      metrics?: {
-        addresses?: {
-          activeAddresses?: number;
-          newAddresses?: number;
-          returningAddresses?: number;
-        };
-        contracts?: {
-          activeContracts?: number;
-          contractCallGasPayers?: number;
-          contractDeployers?: number;
-          gasSpenders?: number;
-          newContractDeployers?: number;
-          newContractsCalled?: number;
-          newContractsDeployed?: number;
-          returningContractsCalled?: number;
-          totalContractsCalled?: number;
-          uniqueContractCallers?: number;
-        };
-        transactions?: {
-          successfulTransactions?: number;
-          totalTransactions?: number;
-          unsuccessfulTransactions?: number;
-        };
-      };
-      name?: string;
-      slug?: string;
+      id: string;
+      metrics: components["schemas"]["NetworkMetrics2"];
+      name: string;
+      slug: string;
+    };
+    NetworkAddresses: {
+      /** Format: int64 */
+      activeAddresses: number;
+      /** Format: int64 */
+      newAddresses: number;
+      /** Format: int64 */
+      returningAddresses: number;
+    };
+    NetworkBlockProduction: {
+      /** Format: double */
+      circulatingMarketcap: number;
+      /** Format: double */
+      estimatedNakamotoCoefficient: number;
+    };
+    NetworkBlocks: {
+      /** Format: int64 */
+      maxBlockNumber: number;
+      /** Format: int64 */
+      minBlockNumber: number;
+      /** Format: int64 */
+      totalBlocks: number;
+    };
+    NetworkContracts: {
+      /** Format: int64 */
+      activeContracts: number;
+      /** Format: int64 */
+      contractCallGasPayers: number;
+      /** Format: int64 */
+      contractDeployers: number;
+      /** Format: int64 */
+      gasSpenders: number;
+      /** Format: int64 */
+      newContractDeployers: number;
+      /** Format: int64 */
+      newContractsCalled: number;
+      /** Format: int64 */
+      newContractsDeployed: number;
+      /** Format: int64 */
+      returningContractsCalled: number;
+      /** Format: int64 */
+      totalContractsCalled: number;
+      /** Format: int64 */
+      uniqueContractCallers: number;
+    };
+    NetworkCore: {
+      /** Format: int64 */
+      activeAddresses: number;
+      /** Format: int64 */
+      blockTimeMs: number;
+      /** Format: int64 */
+      contractDeployers: number;
+      /** Format: int64 */
+      newContractsDeployed: number;
+      /** Format: int64 */
+      totalTransactions: number;
+    };
+    NetworkEntity: {
+      id: string;
+      name: string;
+      slug: string;
+    };
+    NetworkFees: {
+      /** Format: double */
+      avgFeePerTransaction: number;
+      /** Format: double */
+      feeMedian: number;
+      /** Format: double */
+      feeRevenue: number;
+      /** Format: double */
+      rolling90DAvgTransactionFee: number;
+    };
+    NetworkFinancial: {
+      /** Format: double */
+      avgFeePerTransactionUSD: number;
+      /** Format: double */
+      expensesUSD: number;
+      /** Format: double */
+      feeMedianUSD: number;
+      /** Format: double */
+      feesSupplySideUSD: number;
+      /** Format: double */
+      feesTotalUSD: number;
+      /** Format: double */
+      revenueUSD: number;
+      /** Format: double */
+      rolling7dAvgTransactionFeeUSD: number;
+      /** Format: double */
+      tokenIncentivesUSD: number;
     };
     /** @description Network metrics data */
     NetworkMetrics: {
@@ -1195,6 +1228,44 @@ export type components = {
       fee_revenue_percent_change?: number;
       tvl_percent_change?: number;
       tvl_usd?: number;
+    };
+    NetworkMetrics2: {
+      addresses: components["schemas"]["NetworkAddresses"];
+      blockProduction: components["schemas"]["NetworkBlockProduction"];
+      blocks: components["schemas"]["NetworkBlocks"];
+      contracts: components["schemas"]["NetworkContracts"];
+      fees: components["schemas"]["NetworkFees"];
+      options: components["schemas"]["Options"];
+      transactions: components["schemas"]["NetworkTransactions"];
+    };
+    NetworkMetricsV2: {
+      core: components["schemas"]["NetworkCore"];
+      financial: components["schemas"]["NetworkFinancial"];
+      stablecoin: components["schemas"]["NetworkStablecoin"];
+    };
+    NetworkStablecoin: {
+      /** Format: double */
+      stablecoinMintsUSD: number;
+      /** Format: double */
+      stablecoinOutstandingSupplyUSD: number;
+      /** Format: double */
+      stablecoinRedemptionsUSD: number;
+      /** Format: double */
+      stablecoinTransferVolumeUSD: number;
+    };
+    NetworkTransactions: {
+      /** Format: int64 */
+      successfulTransactions: number;
+      /** Format: int64 */
+      totalTransactions: number;
+      /** Format: int64 */
+      unsuccessfulTransactions: number;
+    };
+    NetworkV2: {
+      id: string;
+      metrics: components["schemas"]["NetworkMetricsV2"];
+      name: string;
+      slug: string;
     };
     NewsAsset: {
       /**
@@ -1219,6 +1290,22 @@ export type components = {
         }[];
       summary?: string;
     };
+    OHLCV: {
+      /** Format: double */
+      close: number;
+      /** Format: double */
+      high: number;
+      /** Format: double */
+      low: number;
+      /** Format: double */
+      open: number;
+      /** Format: double */
+      volume: number;
+    };
+    Options: {
+      /** Format: double */
+      volume: number;
+    };
     Organization: {
       /** @description Category of the organization */
       category?: string;
@@ -1241,11 +1328,6 @@ export type components = {
     /** @description Pagination metadata for list endpoints */
     PaginationResult: {
       /**
-       * @description Whether there are more pages available
-       * @example true
-       */
-      hasMore?: boolean;
-      /**
        * @description Number of items per page
        * @example 20
        */
@@ -1256,19 +1338,25 @@ export type components = {
        */
       page?: number;
       /**
+       * @description Total number of pages
+       * @example 7
+       */
+      totalPages?: number;
+      /**
        * @description Total number of items available
        * @example 100
        */
-      total?: number;
+      totalRows?: number;
     };
     Permission: {
-      /** @description Indicates whether the permission is granted to the user */
       active: boolean;
       name: string;
-      permissionSlug: string;
+      /** @enum {string} */
+      permissionSlug: "aggregation_permission" | "ai_digest_permission" | "ai_toolkit_permission" | "asset_permission" | "copilot_permission" | "core_metrics_permission" | "diligence_service_permission" | "funding_permission" | "governor_service_permission" | "intel_permission" | "market_data_permission" | "news_permission" | "research_permission" | "signal_permission" | "token_unlocks_permission";
     };
     PermissionsResponse: {
-      expiresAt: string;
+      /** Format: date-time */
+      expiresAt?: string;
       hasAllAccess: boolean;
       hasFullMarketDataGranularity: boolean;
       permissions: components["schemas"]["Permission"][];
@@ -1483,6 +1571,16 @@ export type components = {
       key: string;
       points: Record<string, never>[][];
     };
+    SnapshotListingMetadata: {
+      /** Format: int64 */
+      page: number;
+      /** Format: int64 */
+      pageSize: number;
+      /** Format: int64 */
+      totalPages: number;
+      /** Format: int64 */
+      totalRows: number;
+    };
     Source: {
       /**
        * Format: uuid
@@ -1514,6 +1612,14 @@ export type components = {
     SummaryResponse: {
       summary?: string;
     };
+    Supply: {
+      /** Format: double */
+      circulating: number;
+      /** Format: double */
+      max: number;
+      /** Format: double */
+      total: number;
+    };
     Tag: {
       /** @description Unique identifier for the tag */
       id: string;
@@ -1521,40 +1627,25 @@ export type components = {
       name: string;
     };
     TimeseriesCatalog: {
-      /** @description Available timeseries datasets */
       datasets: components["schemas"]["TimeseriesDataset"][];
     };
     TimeseriesData: {
-      /** @description Array of timeseries data points */
-      points?: number[][];
+      points: number[][];
     };
     TimeseriesDataset: {
-      /** @description Available time granularities for the dataset */
-      granularities: components["schemas"]["TimeseriesInterval"][];
-      /** @description Metrics available in the dataset */
+      granularities: ("" | "1m" | "5m" | "15m" | "30m" | "1h" | "6h" | "1d" | "1w" | "30d" | "1q" | "1y")[];
       metrics: components["schemas"]["TimeseriesPointSchema"][];
-      /** @description Unique slug identifier for the dataset */
       slug: string;
     };
-    /**
-     * @description Time interval granularity for data points
-     * @enum {string}
-     */
-    TimeseriesInterval: "1m" | "5m" | "15m" | "30m" | "1h" | "6h" | "1d" | "1w" | "30d" | "1q" | "1y";
     TimeseriesMetadata: {
-      /** @description Time granularity of the data points */
-      granularity: components["schemas"]["TimeseriesInterval"];
-      /** @description Schemas for the points in the timeseries */
+      /** @enum {string} */
+      granularity: "" | "1m" | "5m" | "15m" | "30m" | "1h" | "6h" | "1d" | "1w" | "30d" | "1q" | "1y";
       pointSchemas: components["schemas"]["TimeseriesPointSchema"][];
     };
     TimeseriesPointSchema: {
-      /** @description Description of the metric */
       description: string;
-      /** @description Whether this point is a timestamp */
       is_timestamp: boolean;
-      /** @description Name of the metric */
       name: string;
-      /** @description Slug of the metric */
       slug: string;
     };
     TimeseriesResult: {
@@ -1728,212 +1819,92 @@ export type components = {
         }[];
     };
     UpdateWatchlistRequest: {
-      /** @description Optional: if not provided, the watchlist assets will not be updated. But if empty, all assets will be removed. */
       assetIds?: string[];
-      /** @description Optional: if not provided, the watchlist title will not be updated */
       title?: string;
-      watchlistID: string;
     };
-    V2Asset: components["schemas"]["V2AssetEntity"] & {
-      /** @description All-time high data for the asset */
+    V2Asset: {
       allTimeHigh: components["schemas"]["V2AssetATH"];
-      /** @description Category of the asset */
       category: string;
-      /** @description Description of the asset */
+      contractAddresses: components["schemas"]["ContractAddress"][];
       description: string;
-      /** @description Links related to the asset */
+      id: string;
       links: components["schemas"]["AssetV2Link"][];
-      /** @description Market data for the asset */
       marketData: components["schemas"]["AssetV2MarketData"];
-      /** @description Slugs of networks related to the asset */
+      name: string;
       networkSlugs: string[];
-      /** @description Slugs of protocols related to the asset */
       protocolSlugs: string[];
-      /** @description Rank of the asset (optional) */
+      /** Format: int64 */
       rank?: number;
-      /** @description Return on investment data for the asset */
       returnOnInvestment: components["schemas"]["V2AssetROI"];
-      /** @description Sector of the asset */
       sector: string;
-      /** @description Tags associated with the asset */
+      slug: string;
+      symbol: string;
       tags: string[];
     };
     V2AssetATH: {
-      /**
-       * Format: float
-       * @description Price at the all-time high
-       */
+      /** Format: double */
       allTimeHigh: number;
-      /**
-       * Format: date-time
-       * @description Date of the all-time high
-       */
+      /** Format: date-time */
       allTimeHighDate: string;
-      /**
-       * Format: float
-       * @description Percent down from all-time high
-       */
+      /** Format: double */
       allTimeHighPercentDown: number;
-      /**
-       * Format: float
-       * @description Time since all-time high in seconds
-       */
+      /** Format: double */
       allTimeHighTimeSinceSeconds: number;
-      /**
-       * Format: float
-       * @description Multiple required to reach breakeven from current price
-       */
+      /** Format: double */
       breakevenMultiple: number;
-      /**
-       * Format: float
-       * @description The cycle low price
-       */
+      /** Format: double */
       cycleLow: number;
-      /**
-       * Format: date-time
-       * @description Date of the cycle low
-       */
+      /** Format: date-time */
       cycleLowDate: string;
-      /**
-       * Format: float
-       * @description Percent up from cycle low
-       */
+      /** Format: double */
       cycleLowPercentUp: number;
-      /**
-       * Format: float
-       * @description Time since cycle low in seconds
-       */
+      /** Format: double */
       cycleLowTimeSinceSeconds: number;
     };
-    V2AssetAthItem: {
-      /** @description All-time high data for the asset */
-      allTimeHigh: components["schemas"]["V2AssetATH"];
-      /** @description Category of the asset */
-      category: string;
-      /** @description Unique identifier for the asset */
-      id: string;
-      /** @description Name of the asset */
-      name: string;
-      /** @description Sector of the asset */
-      sector: string;
-      /** @description Slug of the asset */
-      slug: string;
-      /** @description Symbol of the asset */
-      symbol: string;
-      /** @description Tags associated with the asset */
-      tags: string[];
-    };
     V2AssetEntity: {
-      /** @description Unique identifier for the asset */
       id: string;
-      /** @description Name of the asset */
       name: string;
-      /** @description Slug of the asset */
       slug: string;
-      /** @description Symbol of the asset */
       symbol: string;
     };
     V2AssetListItem: {
-      /** @description Category of the asset */
       category: string;
-      /** @description Whether the asset has diligence coverage */
       hasDiligence: boolean;
-      /** @description Whether the asset has fundraising coverage */
       hasFundraising: boolean;
-      /** @description Whether the asset has intel coverage */
       hasIntel: boolean;
-      /** @description Whether the asset has market data coverage */
       hasMarketData: boolean;
-      /** @description Whether the asset has news coverage */
       hasNews: boolean;
-      /** @description Whether the asset has proposals coverage */
       hasProposals: boolean;
-      /** @description Whether the asset has research coverage */
       hasResearch: boolean;
-      /** @description Whether the asset has token unlocks coverage */
       hasTokenUnlocks: boolean;
-      /** @description Unique identifier for the asset */
       id: string;
-      /** @description Name of the asset */
       name: string;
-      /**
-       * Format: float
-       * @description Rank of the asset
-       */
+      /** Format: double */
       rank: number;
-      /** @description Sector of the asset */
       sector: string;
-      /** @description Slug of the asset */
       slug: string;
-      /** @description Symbol of the asset */
       symbol: string;
-      /** @description Tags associated with the asset */
       tags: string[];
     };
     V2AssetROI: {
-      /**
-       * Format: float
-       * @description Price change over the last year
-       */
+      /** Format: double */
       priceChange1y: number;
-      /**
-       * Format: float
-       * @description Price change over the last 3 years
-       */
+      /** Format: double */
       priceChange3y: number;
-      /**
-       * Format: float
-       * @description Price change over the last 5 years
-       */
+      /** Format: double */
       priceChange5y: number;
-      /**
-       * Format: float
-       * @description Price change over the last 7 days
-       */
+      /** Format: double */
       priceChange7d: number;
-      /**
-       * Format: float
-       * @description Price change over the last 24 hours
-       */
+      /** Format: double */
       priceChange24h: number;
-      /**
-       * Format: float
-       * @description Price change over the last 30 days
-       */
+      /** Format: double */
       priceChange30d: number;
-      /**
-       * Format: float
-       * @description Price change month-to-date
-       */
+      /** Format: double */
       priceChangeMTD: number;
-      /**
-       * Format: float
-       * @description Price change quarter-to-date
-       */
+      /** Format: double */
       priceChangeQTD: number;
-      /**
-       * Format: float
-       * @description Price change year-to-date
-       */
+      /** Format: double */
       priceChangeYTD: number;
-    };
-    V2AssetRoiItem: {
-      /** @description Category of the asset */
-      category: string;
-      /** @description Unique identifier for the asset */
-      id: string;
-      /** @description Name of the asset */
-      name: string;
-      /** @description Return on investment data for the asset */
-      returnOnInvestment: components["schemas"]["V2AssetROI"];
-      /** @description Sector of the asset */
-      sector: string;
-      /** @description Slug of the asset */
-      slug: string;
-      /** @description Symbol of the asset */
-      symbol: string;
-      /** @description Tags associated with the asset */
-      tags: string[];
     };
     /** @description Video and podcast ranking information */
     VideoPodcastResponse: {
@@ -1948,16 +1919,15 @@ export type components = {
     };
     Watchlist: {
       assetIds: string[];
+      /** Format: date-time */
       createdAt: string;
       id: string;
       title: string;
+      /** Format: date-time */
       updatedAt: string;
     };
   };
   responses: {
-    APIError: {
-      content: never;
-    };
     /** @description Standard error response */
     ErrorResponse: {
       content: never;
@@ -2134,6 +2104,7 @@ export type operations = {
       200: {
         content: {
           "application/json": components["schemas"]["ChatCompletionResponseOpenAI"];
+          "text/event-stream": string;
         };
       };
       /** @description Server error response */
@@ -2665,29 +2636,51 @@ export type operations = {
   getExchanges: {
     parameters: {
       query?: {
-        /** @description The type of exchange "centralized" or "decentralized" */
-        type?: string;
-        typeRankCutoff?: string;
-        /** @description Page number from which to start fetching results */
-        page?: number;
-        /** @description Max number of results to return per page */
+        limit?: number;
         pageSize?: number;
-      };
-      header: {
-        "x-messari-api-key": components["parameters"]["apiKey"];
+        page?: number;
+        type?: string;
+        typeRankCutoff?: number;
       };
     };
     responses: {
-      /** @description Successful response */
+      /** @description Default response */
       200: {
         content: {
-          "application/json": components["schemas"]["APIResponseWithMetadata"] & {
-            data?: components["schemas"]["Exchange"][];
+          "application/json": {
+            data: components["schemas"]["Exchange"][];
+            error?: string;
+            metadata?: components["schemas"]["SnapshotListingMetadata"];
           };
         };
       };
-      400: components["responses"]["APIError"];
-      500: components["responses"]["APIError"];
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
+        };
+      };
     };
   };
   /**
@@ -2696,50 +2689,52 @@ export type operations = {
    */
   getExchangeTimeseries: {
     parameters: {
-      query: {
-        /** @description Start time for the data range (ISO 8601 format) */
-        start: string;
-        /** @description End time for the data range (ISO 8601 format) */
-        end: string;
-      };
-      header: {
-        "x-messari-api-key": components["parameters"]["apiKey"];
+      query?: {
+        start?: string;
+        end?: string;
       };
       path: {
-        /** @description Exchange identifier (slug) */
         entityIdentifier: string;
-        /** @description Slug of the dataset to retrieve data for */
         datasetSlug: string;
-        /** @description Time granularity for the data points */
-        granularity: components["schemas"]["TimeseriesInterval"];
+        granularity: string;
       };
     };
     responses: {
-      /** @description Successful response */
+      /** @description Default response */
       200: {
         content: {
-          "application/json": components["schemas"]["APIResponseWithMetadata"] & {
-            data?: components["schemas"]["TimeseriesData"];
+          "application/json": {
+            data: components["schemas"]["TimeseriesData"];
+            error?: string;
             metadata?: components["schemas"]["TimeseriesMetadata"];
           };
         };
       };
-      /** @description Client error response */
+      /** @description Bad Request */
       400: {
         content: {
-          "application/json": components["schemas"]["APIError"];
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
         };
       };
-      /** @description Forbidden - Enterprise access required */
-      403: {
+      /** @description Unauthorized */
+      401: {
         content: {
-          "application/json": components["schemas"]["APIError"];
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
         };
       };
-      /** @description Server error response */
+      /** @description Internal Server Error */
       500: {
         content: {
-          "application/json": components["schemas"]["APIError"];
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
         };
       };
     };
@@ -2750,62 +2745,89 @@ export type operations = {
    */
   getExchange: {
     parameters: {
-      header: {
-        "x-messari-api-key": components["parameters"]["apiKey"];
-      };
       path: {
-        /** @description Exchange identifier (slug) */
         exchangeIdentifier: string;
       };
     };
     responses: {
-      /** @description Successful response */
+      /** @description Default response */
       200: {
         content: {
-          "application/json": components["schemas"]["APIResponseWithMetadata"] & {
-            data?: components["schemas"]["Exchange"];
+          "application/json": {
+            data: components["schemas"]["Exchange"];
+            error?: string;
           };
         };
       };
-      400: components["responses"]["APIError"];
-      500: components["responses"]["APIError"];
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
+        };
+      };
     };
   };
   /**
    * List Exchange Metrics
-   * @description Returns a list of timeseries metrics available for exchanges.
+   * @description Get metric catalog of datasets for exchanges.
    */
   getExchangeMetrics: {
-    parameters: {
-      header: {
-        "x-messari-api-key": components["parameters"]["apiKey"];
-      };
-    };
     responses: {
-      /** @description Successful response */
+      /** @description Default response */
       200: {
         content: {
-          "application/json": components["schemas"]["APIResponse"] & {
-            data?: components["schemas"]["TimeseriesCatalog"];
+          "application/json": {
+            data: components["schemas"]["TimeseriesCatalog"];
+            error?: string;
           };
         };
       };
-      /** @description Client error response */
+      /** @description Bad Request */
       400: {
         content: {
-          "application/json": components["schemas"]["APIError"];
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
         };
       };
-      /** @description Forbidden - Enterprise access required */
-      403: {
+      /** @description Unauthorized */
+      401: {
         content: {
-          "application/json": components["schemas"]["APIError"];
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
         };
       };
-      /** @description Server error response */
+      /** @description Internal Server Error */
       500: {
         content: {
-          "application/json": components["schemas"]["APIError"];
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
         };
       };
     };
@@ -2817,651 +2839,781 @@ export type operations = {
   getMarkets: {
     parameters: {
       query?: {
-        /** @description Filter by exchange ID */
+        limit?: number;
+        pageSize?: number;
+        page?: number;
         exchangeId?: string;
-        /** @description Filter by exchange slug */
         exchangeSlug?: string;
-        /** @description Filter by quote asset ID */
         quoteAssetId?: string;
-        /** @description Filter by quote asset slug */
         quoteAssetSlug?: string;
-        /** @description Filter by base asset ID */
         baseAssetId?: string;
-        /** @description Filter by base asset slug */
         baseAssetSlug?: string;
-        /** @description Filter by minimum 24h volume */
-        volume24hAbove?: string;
-        /** @description Filter by maximum 24h volume */
-        volume24hBelow?: string;
-      };
-      header: {
-        "x-messari-api-key": components["parameters"]["apiKey"];
+        volume24hAbove?: number;
+        volume24hBelow?: number;
       };
     };
     responses: {
-      /** @description Successful response */
+      /** @description Default response */
       200: {
         content: {
-          "application/json": components["schemas"]["APIResponseWithMetadata"] & {
-            data?: components["schemas"]["Market"][];
+          "application/json": {
+            data: components["schemas"]["Market"][];
+            error?: string;
+            metadata?: components["schemas"]["SnapshotListingMetadata"];
           };
         };
       };
-      400: components["responses"]["APIError"];
-      500: components["responses"]["APIError"];
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
+        };
+      };
     };
   };
   /**
-   * Get Market Timeseries Metrics
-   * @description Fetch timeseries metrics for a specific market.
+   * Get market timeseries data
+   * @description Retrieve a specific market's timeseries data
    */
   getMarketTimeseries: {
     parameters: {
-      query: {
-        /** @description Start time for the data range (ISO 8601 format) */
-        start: string;
-        /** @description End time for the data range (ISO 8601 format) */
-        end: string;
-      };
-      header: {
-        "x-messari-api-key": components["parameters"]["apiKey"];
+      query?: {
+        start?: string;
+        end?: string;
       };
       path: {
-        /** @description Market identifier (slug) */
         entityIdentifier: string;
-        /** @description Slug of the dataset to retrieve data for */
         datasetSlug: string;
-        /** @description Time granularity for the data points */
-        granularity: components["schemas"]["TimeseriesInterval"];
+        granularity: string;
       };
     };
     responses: {
-      /** @description Successful response */
+      /** @description Default response */
       200: {
         content: {
-          "application/json": components["schemas"]["APIResponseWithMetadata"] & {
-            data?: components["schemas"]["TimeseriesData"];
+          "application/json": {
+            data: components["schemas"]["TimeseriesData"];
+            error?: string;
             metadata?: components["schemas"]["TimeseriesMetadata"];
           };
         };
       };
-      /** @description Client error response */
+      /** @description Bad Request */
       400: {
         content: {
-          "application/json": components["schemas"]["APIError"];
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
         };
       };
-      /** @description Forbidden - Enterprise access required */
-      403: {
+      /** @description Unauthorized */
+      401: {
         content: {
-          "application/json": components["schemas"]["APIError"];
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
         };
       };
-      /** @description Server error response */
+      /** @description Internal Server Error */
       500: {
         content: {
-          "application/json": components["schemas"]["APIError"];
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
         };
       };
     };
   };
   /**
-   * Get Market Details
-   * @description Fetches the data for a single market based on the marketIdentifier provided
+   * Get market
+   * @description Retrieve a specific market
    */
   getMarket: {
     parameters: {
-      header: {
-        "x-messari-api-key": components["parameters"]["apiKey"];
-      };
       path: {
-        /** @description Market identifier */
         marketIdentifier: string;
       };
     };
     responses: {
-      /** @description Successful response */
+      /** @description Default response */
       200: {
         content: {
-          "application/json": components["schemas"]["APIResponse"] & {
-            data?: components["schemas"]["Market"];
+          "application/json": {
+            data: components["schemas"]["Market"];
+            error?: string;
           };
         };
       };
-      400: components["responses"]["APIError"];
-      500: components["responses"]["APIError"];
-    };
-  };
-  /**
-   * List Market Metrics
-   * @description Returns a list of timeseries metrics available for markets.
-   */
-  getMarketMetrics: {
-    parameters: {
-      header: {
-        "x-messari-api-key": components["parameters"]["apiKey"];
-      };
-    };
-    responses: {
-      /** @description Successful response */
-      200: {
-        content: {
-          "application/json": components["schemas"]["APIResponse"] & {
-            data?: components["schemas"]["TimeseriesCatalog"];
-          };
-        };
-      };
-      /** @description Client error response */
+      /** @description Bad Request */
       400: {
         content: {
-          "application/json": components["schemas"]["APIError"];
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
         };
       };
-      /** @description Forbidden - Enterprise access required */
-      403: {
+      /** @description Unauthorized */
+      401: {
         content: {
-          "application/json": components["schemas"]["APIError"];
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
         };
       };
-      /** @description Server error response */
+      /** @description Internal Server Error */
       500: {
         content: {
-          "application/json": components["schemas"]["APIError"];
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
         };
       };
     };
   };
   /**
-   * List Networks
-   * @description List of networks, metadata, and associated onchain metrics snapshot.
+   * List Exchange Metrics
+   * @description Returns a list of timeseries metrics available for exchanges.
+   */
+  getMarketMetrics: {
+    responses: {
+      /** @description Default response */
+      200: {
+        content: {
+          "application/json": {
+            data: components["schemas"]["TimeseriesCatalog"];
+            error?: string;
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
+        };
+      };
+    };
+  };
+  /**
+   * Get networks
+   * @description Retrieve a list of networks
    */
   getNetworks: {
     parameters: {
       query?: {
-        /** @description Page number from which to start fetching results */
-        page?: number;
-        /** @description Max number of results to return per page */
+        limit?: number;
         pageSize?: number;
-      };
-      header: {
-        "x-messari-api-key": components["parameters"]["apiKey"];
+        page?: number;
       };
     };
     responses: {
-      /** @description Successful response */
+      /** @description Default response */
       200: {
         content: {
-          "application/json": components["schemas"]["APIResponseWithMetadata"] & {
-            data?: components["schemas"]["Network"][];
+          "application/json": {
+            data: components["schemas"]["Network"][];
+            error?: string;
+            metadata?: components["schemas"]["SnapshotListingMetadata"];
           };
         };
       };
-      400: components["responses"]["APIError"];
-      500: components["responses"]["APIError"];
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
+        };
+      };
     };
   };
   /**
-   * Get Network Timeseries Metrics
-   * @description Fetch timeseries metrics for a specific network.
+   * Get network timeseries data
+   * @description Retrieve a specific network's timeseries data
    */
   getNetworkTimeseries: {
     parameters: {
-      query: {
-        /** @description Start time for the data range (ISO 8601 format) */
-        start: string;
-        /** @description End time for the data range (ISO 8601 format) */
-        end: string;
-      };
-      header: {
-        "x-messari-api-key": components["parameters"]["apiKey"];
+      query?: {
+        start?: string;
+        end?: string;
       };
       path: {
-        /** @description Exchange identifier (slug) */
         entityIdentifier: string;
-        /** @description Slug of the dataset to retrieve data for */
         datasetSlug: string;
-        /** @description Time granularity for the data points */
-        granularity: components["schemas"]["TimeseriesInterval"];
+        granularity: string;
       };
     };
     responses: {
-      /** @description Successful response */
+      /** @description Default response */
       200: {
         content: {
-          "application/json": components["schemas"]["APIResponseWithMetadata"] & {
-            data?: components["schemas"]["TimeseriesData"];
+          "application/json": {
+            data: components["schemas"]["TimeseriesData"];
+            error?: string;
             metadata?: components["schemas"]["TimeseriesMetadata"];
           };
         };
       };
-      /** @description Client error response */
+      /** @description Bad Request */
       400: {
         content: {
-          "application/json": components["schemas"]["APIError"];
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
         };
       };
-      /** @description Forbidden - Enterprise access required */
-      403: {
+      /** @description Unauthorized */
+      401: {
         content: {
-          "application/json": components["schemas"]["APIError"];
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
         };
       };
-      /** @description Server error response */
+      /** @description Internal Server Error */
       500: {
         content: {
-          "application/json": components["schemas"]["APIError"];
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
         };
       };
     };
   };
   /**
-   * Get Network Details
-   * @description Returns a single network based on the identifier
+   * Get network
+   * @description Retrieve a specific network
    */
   getNetwork: {
     parameters: {
-      header: {
-        "x-messari-api-key": components["parameters"]["apiKey"];
-      };
       path: {
-        /** @description Network identifier (ID or slug) */
         networkIdentifier: string;
       };
     };
     responses: {
-      /** @description Successful response */
+      /** @description Default response */
       200: {
         content: {
-          "application/json": components["schemas"]["APIResponse"] & {
-            data?: components["schemas"]["Network"];
+          "application/json": {
+            data: components["schemas"]["Network"];
+            error?: string;
           };
         };
       };
-      400: components["responses"]["APIError"];
-      500: components["responses"]["APIError"];
-    };
-  };
-  /**
-   * List Network Metrics
-   * @description Returns a list of timeseries metrics available for networks.
-   */
-  getNetworkMetrics: {
-    parameters: {
-      header: {
-        "x-messari-api-key": components["parameters"]["apiKey"];
-      };
-    };
-    responses: {
-      /** @description Successful response */
-      200: {
-        content: {
-          "application/json": components["schemas"]["APIResponse"] & {
-            data?: components["schemas"]["TimeseriesCatalog"];
-          };
-        };
-      };
-      /** @description Client error response */
+      /** @description Bad Request */
       400: {
         content: {
-          "application/json": components["schemas"]["APIError"];
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
         };
       };
-      /** @description Forbidden - Enterprise access required */
-      403: {
+      /** @description Unauthorized */
+      401: {
         content: {
-          "application/json": components["schemas"]["APIError"];
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
         };
       };
-      /** @description Server error response */
+      /** @description Internal Server Error */
       500: {
         content: {
-          "application/json": components["schemas"]["APIError"];
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
         };
       };
     };
   };
   /**
-   * Get Asset List (V2)
-   * @description Get a list of assets with extended information and coverage details.
+   * List Exchange Metrics
+   * @description Get metric catalog of datasets for networks.
+   */
+  getNetworkMetrics: {
+    responses: {
+      /** @description Default response */
+      200: {
+        content: {
+          "application/json": {
+            data: components["schemas"]["TimeseriesCatalog"];
+            error?: string;
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
+        };
+      };
+    };
+  };
+  /**
+   * Get assets
+   * @description Retrieve a list of assets
    */
   getAssetsV2: {
     parameters: {
       query?: {
-        /** @description Filter by asset category */
         category?: string;
-        /** @description Filter by asset sector */
         sector?: string;
-        /** @description Filter by asset tags (comma-separated) */
         tags?: string[];
-        /** @description Search query for assets */
         search?: string;
-        /** @description Limit the number of assets returned */
         limit?: number;
-        /** @description Filter assets by diligence coverage */
         hasDiligence?: boolean;
-        /** @description Filter assets by intel coverage */
         hasIntel?: boolean;
-        /** @description Filter assets by market data coverage */
         hasMarketData?: boolean;
-        /** @description Filter assets by news coverage */
         hasNews?: boolean;
-        /** @description Filter assets by proposals coverage */
         hasProposals?: boolean;
-        /** @description Filter assets by research coverage */
         hasResearch?: boolean;
-        /** @description Filter assets by token unlocks coverage */
         hasTokenUnlocks?: boolean;
-        /** @description Filter assets by fundraising coverage */
         hasFundraising?: boolean;
-      };
-      header: {
-        "x-messari-api-key": components["parameters"]["apiKey"];
       };
     };
     responses: {
-      /** @description Successful response */
+      /** @description Default response */
       200: {
         content: {
-          "application/json": components["schemas"]["APIResponseWithMetadata"] & {
-            data?: components["schemas"]["V2AssetListItem"][];
+          "application/json": {
+            data: components["schemas"]["V2AssetListItem"][];
+            error?: string;
           };
         };
       };
-      /** @description Client error response */
+      /** @description Bad Request */
       400: {
         content: {
-          "application/json": components["schemas"]["APIError"];
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
         };
       };
-      /** @description Server error response */
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
+        };
+      };
+      /** @description Internal Server Error */
       500: {
         content: {
-          "application/json": components["schemas"]["APIError"];
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
         };
       };
     };
   };
   /**
-   * Get Asset Timeseries Data
-   * @description Get timeseries data for a specific asset and dataset.
-   * This endpoint is only available for enterprise users.
+   * Get asset timeseries data
+   * @description Retrieve a specific asset's timeseries data
    */
   getAssetTimeseries: {
     parameters: {
       query?: {
-        /** @description Start time for the data range (ISO 8601 format) */
         start?: string;
-        /** @description End time for the data range (ISO 8601 format) */
         end?: string;
       };
-      header: {
-        "x-messari-api-key": components["parameters"]["apiKey"];
-      };
       path: {
-        /** @description Asset identifier (ID or slug) */
         entityIdentifier: string;
-        /** @description Slug of the dataset to retrieve data for */
         datasetSlug: string;
       };
     };
     responses: {
-      /** @description Successful response */
+      /** @description Default response */
       200: {
         content: {
-          "application/json": components["schemas"]["APIResponseWithMetadata"] & {
-            data?: components["schemas"]["TimeseriesData"];
+          "application/json": {
+            data: components["schemas"]["TimeseriesData"];
+            error?: string;
             metadata?: components["schemas"]["TimeseriesMetadata"];
           };
         };
       };
-      /** @description Client error response */
+      /** @description Bad Request */
       400: {
         content: {
-          "application/json": components["schemas"]["APIError"];
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
         };
       };
-      /** @description Forbidden - Enterprise access required */
-      403: {
+      /** @description Unauthorized */
+      401: {
         content: {
-          "application/json": components["schemas"]["APIError"];
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
         };
       };
-      /** @description Server error response */
+      /** @description Internal Server Error */
       500: {
         content: {
-          "application/json": components["schemas"]["APIError"];
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
         };
       };
     };
   };
   /**
-   * Get Asset Timeseries Data with Specific Granularity
-   * @description Get timeseries data for a specific asset and dataset with a specific time granularity.
-   * This endpoint is only available for enterprise users.
+   * Get asset timeseries data
+   * @description Retrieve a specific asset's timeseries data
    */
   getAssetTimeseriesWithGranularity: {
     parameters: {
       query?: {
-        /** @description Start time for the data range (ISO 8601 format) */
         start?: string;
-        /** @description End time for the data range (ISO 8601 format) */
         end?: string;
       };
-      header: {
-        "x-messari-api-key": components["parameters"]["apiKey"];
-      };
       path: {
-        /** @description Asset identifier (ID or slug) */
         entityIdentifier: string;
-        /** @description Slug of the dataset to retrieve data for */
         datasetSlug: string;
-        /** @description Time granularity for the data points */
-        granularity: components["schemas"]["TimeseriesInterval"];
+        granularity: string;
       };
     };
     responses: {
-      /** @description Successful response */
+      /** @description Default response */
       200: {
         content: {
-          "application/json": components["schemas"]["APIResponseWithMetadata"] & {
-            data?: components["schemas"]["TimeseriesData"];
+          "application/json": {
+            data: components["schemas"]["TimeseriesData"];
+            error?: string;
             metadata?: components["schemas"]["TimeseriesMetadata"];
           };
         };
       };
-      /** @description Client error response */
+      /** @description Bad Request */
       400: {
         content: {
-          "application/json": components["schemas"]["APIError"];
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
         };
       };
-      /** @description Forbidden - Enterprise access required */
-      403: {
+      /** @description Unauthorized */
+      401: {
         content: {
-          "application/json": components["schemas"]["APIError"];
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
         };
       };
-      /** @description Server error response */
+      /** @description Internal Server Error */
       500: {
         content: {
-          "application/json": components["schemas"]["APIError"];
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
         };
       };
     };
   };
   /**
-   * Get Assets All-Time High Information
-   * @description Get all-time high information for assets, with various filtering options.
+   * Get asset ATH
+   * @description Retrieve a specific asset's ATH
    */
   getAssetsV2ATH: {
     parameters: {
       query?: {
-        /** @description Comma-separated list of asset IDs */
         ids?: string;
-        /** @description Comma-separated list of asset slugs */
         slugs?: string;
-        /** @description Filter by asset category */
         category?: string;
-        /** @description Filter by asset sector */
         sector?: string;
-        /** @description Filter by asset tags (comma-separated) */
         tags?: string[];
-        /** @description Search query for assets */
         search?: string;
-        /** @description Limit the number of assets returned */
         limit?: number;
-      };
-      header: {
-        "x-messari-api-key": components["parameters"]["apiKey"];
       };
     };
     responses: {
-      /** @description Successful response */
+      /** @description Default response */
       200: {
         content: {
-          "application/json": components["schemas"]["APIResponseWithMetadata"] & {
-            data?: components["schemas"]["V2AssetAthItem"][];
+          "application/json": {
+            data: components["schemas"]["AssetComparisonItem"][];
+            error?: string;
           };
         };
       };
-      /** @description Client error response */
+      /** @description Bad Request */
       400: {
         content: {
-          "application/json": components["schemas"]["APIError"];
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
         };
       };
-      /** @description Server error response */
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
+        };
+      };
+      /** @description Internal Server Error */
       500: {
         content: {
-          "application/json": components["schemas"]["APIError"];
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
         };
       };
     };
   };
   /**
-   * Get Asset Details
-   * @description Get detailed information for specific assets by IDs or slugs.
+   * Get asset details
+   * @description Retrieve a specific asset's details
    */
   getAssetDetails: {
     parameters: {
       query?: {
-        /** @description Comma-separated list of asset IDs */
         ids?: string;
-        /** @description Comma-separated list of asset slugs */
         slugs?: string;
       };
-      header: {
-        "x-messari-api-key": components["parameters"]["apiKey"];
-      };
     };
     responses: {
-      /** @description Successful response */
+      /** @description Default response */
       200: {
         content: {
-          "application/json": components["schemas"]["APIResponse"] & {
-            data?: components["schemas"]["V2Asset"][];
+          "application/json": {
+            data: components["schemas"]["V2Asset"][];
+            error?: string;
           };
         };
       };
-      /** @description Client error response */
+      /** @description Bad Request */
       400: {
         content: {
-          "application/json": components["schemas"]["APIError"];
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
         };
       };
-      /** @description Server error response */
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
+        };
+      };
+      /** @description Internal Server Error */
       500: {
         content: {
-          "application/json": components["schemas"]["APIError"];
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
         };
       };
     };
   };
   /**
-   * Get Assets Timeseries Catalog
-   * @description Get a catalog of available timeseries datasets and metrics for assets.
-   * This endpoint is only available for enterprise users.
+   * List Exchange Metrics
+   * @description Get metric catalog of datasets for assets.
    */
   getAssetsTimeseriesCatalog: {
-    parameters: {
-      header: {
-        "x-messari-api-key": components["parameters"]["apiKey"];
-      };
-    };
     responses: {
-      /** @description Successful response */
+      /** @description Default response */
       200: {
         content: {
-          "application/json": components["schemas"]["APIResponse"] & {
-            data?: components["schemas"]["TimeseriesCatalog"];
+          "application/json": {
+            data: components["schemas"]["TimeseriesCatalog"];
+            error?: string;
           };
         };
       };
-      /** @description Client error response */
+      /** @description Bad Request */
       400: {
         content: {
-          "application/json": components["schemas"]["APIError"];
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
         };
       };
-      /** @description Forbidden - Enterprise access required */
-      403: {
+      /** @description Unauthorized */
+      401: {
         content: {
-          "application/json": components["schemas"]["APIError"];
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
         };
       };
-      /** @description Server error response */
+      /** @description Internal Server Error */
       500: {
         content: {
-          "application/json": components["schemas"]["APIError"];
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
         };
       };
     };
   };
   /**
-   * Get Assets Return on Investment Information
-   * @description Get return on investment information for assets, with various filtering options.
+   * Get asset ROI
+   * @description Retrieve a specific asset's ROI
    */
   getAssetsV2ROI: {
     parameters: {
       query?: {
-        /** @description Comma-separated list of asset IDs */
         ids?: string;
-        /** @description Comma-separated list of asset slugs */
         slugs?: string;
-        /** @description Filter by asset category */
         category?: string;
-        /** @description Filter by asset sector */
         sector?: string;
-        /** @description Filter by asset tags (comma-separated) */
         tags?: string[];
-        /** @description Search query for assets */
         search?: string;
-        /** @description Limit the number of assets returned */
         limit?: number;
-      };
-      header: {
-        "x-messari-api-key": components["parameters"]["apiKey"];
       };
     };
     responses: {
-      /** @description Successful response */
+      /** @description Default response */
       200: {
         content: {
-          "application/json": components["schemas"]["APIResponseWithMetadata"] & {
-            data?: components["schemas"]["V2AssetRoiItem"][];
+          "application/json": {
+            data: components["schemas"]["AssetComparisonItem"][];
+            error?: string;
           };
         };
       };
-      /** @description Client error response */
+      /** @description Bad Request */
       400: {
         content: {
-          "application/json": components["schemas"]["APIError"];
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
         };
       };
-      /** @description Server error response */
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
+        };
+      };
+      /** @description Internal Server Error */
       500: {
         content: {
-          "application/json": components["schemas"]["APIError"];
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
         };
       };
     };
@@ -3887,26 +4039,57 @@ export type operations = {
   };
   /**
    * Get a team's current credit allowance
-   * @description Get a team's current credit allowance
+   * @description #### Controller:
+   *
+   * `github.com/messari/user-service/internal/api/handler/permissioned/credit.(*creditHandler).GetTeamAllowance`
+   *
+   * ---
    */
   getTeamAllowance: {
     responses: {
-      /** @description OK */
+      /** @description Default response */
       200: {
         content: {
-          "application/json": components["schemas"]["AllowanceInfo"];
+          "application/json": {
+            data: components["schemas"]["AllowanceInfo"];
+            error?: string;
+          };
         };
       };
       /** @description Bad Request */
       400: {
         content: {
-          "application/json": components["schemas"]["APIError"];
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
         };
       };
       /** @description Internal Server Error */
       500: {
         content: {
-          "application/json": components["schemas"]["APIError"];
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
         };
       };
     };
@@ -3917,28 +4100,40 @@ export type operations = {
    */
   getPermissions: {
     responses: {
-      /** @description OK */
+      /** @description Default response */
       200: {
         content: {
-          "application/json": components["schemas"]["PermissionsResponse"];
+          "application/json": {
+            data: components["schemas"]["PermissionsResponse"];
+            error?: string;
+          };
         };
       };
       /** @description Bad Request */
       400: {
         content: {
-          "application/json": components["schemas"]["APIError"];
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
         };
       };
-      /** @description Bad Request */
+      /** @description Unauthorized */
       401: {
         content: {
-          "application/json": components["schemas"]["APIError"];
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
         };
       };
-      /** @description Bad Request */
+      /** @description Internal Server Error */
       500: {
         content: {
-          "application/json": components["schemas"]["APIError"];
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
         };
       };
     };
@@ -3949,18 +4144,40 @@ export type operations = {
    */
   listWatchlists: {
     responses: {
-      /** @description OK */
+      /** @description Default response */
       200: {
         content: {
-          "application/json": components["schemas"]["APIResponse"] & {
-            data?: components["schemas"]["Watchlist"][];
+          "application/json": {
+            data: components["schemas"]["Watchlist"][];
+            error?: string;
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
+        };
+      };
+      /** @description Forbidden */
+      403: {
+        content: {
+          "application/json": {
+            data: unknown;
+            error?: string;
           };
         };
       };
       /** @description Internal Server Error */
       500: {
         content: {
-          "application/json": components["schemas"]["APIError"];
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
         };
       };
     };
@@ -3970,37 +4187,46 @@ export type operations = {
    * @description Create a new watchlist for the authenticated user
    */
   createWatchlist: {
-    /** @description Create watchlist request */
     requestBody: {
       content: {
         "application/json": components["schemas"]["CreateWatchlistRequest"];
       };
     };
     responses: {
-      /** @description Created */
-      200: {
+      /** @description Default response */
+      201: {
         content: {
-          "application/json": components["schemas"]["APIResponse"] & {
-            data?: components["schemas"]["Watchlist"];
+          "application/json": {
+            data: components["schemas"]["Watchlist"];
+            error?: string;
           };
         };
       };
       /** @description Bad Request */
       400: {
         content: {
-          "application/json": components["schemas"]["APIError"];
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
         };
       };
-      /** @description Bad Request */
+      /** @description Forbidden */
       403: {
         content: {
-          "application/json": components["schemas"]["APIError"];
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
         };
       };
-      /** @description Bad Request */
+      /** @description Internal Server Error */
       500: {
         content: {
-          "application/json": components["schemas"]["APIError"];
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
         };
       };
     };
@@ -4012,35 +4238,53 @@ export type operations = {
   getWatchlist: {
     parameters: {
       path: {
-        /** @description Watchlist ID */
         id: string;
       };
     };
     responses: {
-      /** @description OK */
+      /** @description Default response */
       200: {
         content: {
-          "application/json": components["schemas"]["APIResponse"] & {
-            data?: components["schemas"]["Watchlist"];
+          "application/json": {
+            data: components["schemas"]["Watchlist"];
+            error?: string;
           };
         };
       };
       /** @description Bad Request */
       400: {
         content: {
-          "application/json": components["schemas"]["APIError"];
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
         };
       };
-      /** @description Bad Request */
+      /** @description Forbidden */
+      403: {
+        content: {
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
+        };
+      };
+      /** @description Not Found */
       404: {
         content: {
-          "application/json": components["schemas"]["APIError"];
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
         };
       };
-      /** @description Bad Request */
+      /** @description Internal Server Error */
       500: {
         content: {
-          "application/json": components["schemas"]["APIError"];
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
         };
       };
     };
@@ -4052,37 +4296,48 @@ export type operations = {
   deleteWatchlist: {
     parameters: {
       path: {
-        /** @description Watchlist ID */
         id: string;
       };
     };
     responses: {
-      /** @description OK */
+      /** @description No Content */
       200: {
         content: never;
       };
       /** @description Bad Request */
       400: {
         content: {
-          "application/json": components["schemas"]["APIError"];
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
         };
       };
-      /** @description Bad Request */
+      /** @description Forbidden */
       403: {
         content: {
-          "application/json": components["schemas"]["APIError"];
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
         };
       };
-      /** @description Bad Request */
+      /** @description Not Found */
       404: {
         content: {
-          "application/json": components["schemas"]["APIError"];
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
         };
       };
-      /** @description Bad Request */
+      /** @description Internal Server Error */
       500: {
         content: {
-          "application/json": components["schemas"]["APIError"];
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
         };
       };
     };
@@ -4094,47 +4349,58 @@ export type operations = {
   updateWatchlist: {
     parameters: {
       path: {
-        /** @description Watchlist ID */
         id: string;
       };
     };
-    /** @description Update watchlist request */
     requestBody: {
       content: {
         "application/json": components["schemas"]["UpdateWatchlistRequest"];
       };
     };
     responses: {
-      /** @description OK */
+      /** @description Default response */
       200: {
         content: {
-          "application/json": components["schemas"]["APIResponse"] & {
-            data?: components["schemas"]["Watchlist"];
+          "application/json": {
+            data: components["schemas"]["Watchlist"];
+            error?: string;
           };
         };
       };
       /** @description Bad Request */
       400: {
         content: {
-          "application/json": components["schemas"]["APIError"];
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
         };
       };
-      /** @description Bad Request */
+      /** @description Forbidden */
       403: {
         content: {
-          "application/json": components["schemas"]["APIError"];
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
         };
       };
-      /** @description Bad Request */
+      /** @description Not Found */
       404: {
         content: {
-          "application/json": components["schemas"]["APIError"];
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
         };
       };
-      /** @description Bad Request */
+      /** @description Internal Server Error */
       500: {
         content: {
-          "application/json": components["schemas"]["APIError"];
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
         };
       };
     };
@@ -4146,47 +4412,58 @@ export type operations = {
   modifyWatchlistAssets: {
     parameters: {
       path: {
-        /** @description Watchlist ID */
         id: string;
       };
     };
-    /** @description Modify watchlist assets request */
     requestBody: {
       content: {
         "application/json": components["schemas"]["ModifyWatchlistAssetsRequest"];
       };
     };
     responses: {
-      /** @description OK */
+      /** @description Default response */
       200: {
         content: {
-          "application/json": components["schemas"]["APIResponse"] & {
-            data?: components["schemas"]["Watchlist"];
+          "application/json": {
+            data: components["schemas"]["Watchlist"];
+            error?: string;
           };
         };
       };
       /** @description Bad Request */
       400: {
         content: {
-          "application/json": components["schemas"]["APIError"];
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
         };
       };
-      /** @description Bad Request */
+      /** @description Forbidden */
       403: {
         content: {
-          "application/json": components["schemas"]["APIError"];
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
         };
       };
-      /** @description Bad Request */
+      /** @description Not Found */
       404: {
         content: {
-          "application/json": components["schemas"]["APIError"];
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
         };
       };
-      /** @description Bad Request */
+      /** @description Internal Server Error */
       500: {
         content: {
-          "application/json": components["schemas"]["APIError"];
+          "application/json": {
+            data: unknown;
+            error?: string;
+          };
         };
       };
     };

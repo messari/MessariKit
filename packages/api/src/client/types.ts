@@ -64,10 +64,8 @@ export type PaginationParameters = {
 export type PaginationMetadata = {
   page: number;
   limit: number;
-  total?: number;
   totalRows?: number;
   totalPages?: number;
-  hasMore?: boolean;
 };
 
 export type PaginatedResponse<T> = APIResponseWithMetadata<T, PaginationMetadata>;

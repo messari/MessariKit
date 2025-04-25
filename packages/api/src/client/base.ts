@@ -98,9 +98,17 @@ import type {
   getTeamAllowanceResponse,
   getPermissionsResponse,
   createChatCompletionOpenAIResponse,
+  getExchangeTimeseriesMetadata,
+  getNetworksMetadata,
+  getNetworkTimeseriesMetadata,
+  getMarketsMetadata,
+  getMarketTimeseriesMetadata,
+  getAssetTimeseriesMetadata,
+  getAssetTimeseriesWithGranularityMetadata,
+  PaginationResult,
 } from "../types";
 import { LogLevel, type Logger, makeConsoleLogger, createFilteredLogger, noOpLogger } from "../logging";
-import type { PaginatedResult, RequestOptions, ClientEventMap, ClientEventType, ClientEventHandler } from "./types";
+import type { PaginatedResult, RequestOptions, ClientEventMap, ClientEventType, ClientEventHandler, PaginationMetadata } from "./types";
 
 /**
  * Interface for the AI API methods
@@ -144,7 +152,7 @@ export interface AssetInterface {
    * @param options Optional request configuration
    * @returns A paginated result of assets with extended information
    */
-  getAssetsV2(params?: getAssetsV2Parameters, options?: RequestOptions): Promise<APIResponseWithMetadata<getAssetsV2Response>>;
+  getAssetsV2(params?: getAssetsV2Parameters, options?: RequestOptions): Promise<getAssetsV2Response>;
 
   /**
    * Gets detailed information for specific assets by IDs or slugs
@@ -152,14 +160,14 @@ export interface AssetInterface {
    * @param options Optional request configuration
    * @returns Promise resolving to detailed asset information
    */
-  getAssetDetails(params: getAssetDetailsParameters, options?: RequestOptions): Promise<APIResponseWithMetadata<getAssetDetailsResponse>>;
+  getAssetDetails(params: getAssetDetailsParameters, options?: RequestOptions): Promise<getAssetDetailsResponse>;
 
   /**
    * Gets a catalog of available timeseries datasets and metrics for assets
    * @param options Optional request configuration
    * @returns Promise resolving to timeseries catalog information
    */
-  getAssetsTimeseriesCatalog(options?: RequestOptions): Promise<APIResponseWithMetadata<getAssetsTimeseriesCatalogResponse>>;
+  getAssetsTimeseriesCatalog(options?: RequestOptions): Promise<getAssetsTimeseriesCatalogResponse>;
 
   /**
    * Gets all-time high information for assets with various filtering options
@@ -167,7 +175,7 @@ export interface AssetInterface {
    * @param options Optional request configuration
    * @returns A paginated result of assets with ATH information
    */
-  getAssetsV2ATH(params?: getAssetsV2ATHParameters, options?: RequestOptions): Promise<APIResponseWithMetadata<getAssetsV2ATHResponse>>;
+  getAssetsV2ATH(params?: getAssetsV2ATHParameters, options?: RequestOptions): Promise<getAssetsV2ATHResponse>;
 
   /**
    * Gets return on investment information for assets with various filtering options
@@ -175,7 +183,7 @@ export interface AssetInterface {
    * @param options Optional request configuration
    * @returns A paginated result of assets with ROI information
    */
-  getAssetsV2ROI(params?: getAssetsV2ROIParameters, options?: RequestOptions): Promise<APIResponseWithMetadata<getAssetsV2ROIResponse>>;
+  getAssetsV2ROI(params?: getAssetsV2ROIParameters, options?: RequestOptions): Promise<getAssetsV2ROIResponse>;
 
   /**
    * Gets timeseries data for a specific asset and dataset
@@ -210,7 +218,7 @@ export interface ExchangesInterface {
    * @param options Optional request configuration
    * @returns A paginated result of exchanges
    */
-  getExchanges(params?: getExchangesParameters, options?: RequestOptions): Promise<APIResponseWithMetadata<getExchangesResponse>>;
+  getExchanges(params?: getExchangesParameters, options?: RequestOptions): Promise<APIResponseWithMetadata<getExchangesResponse, PaginationMetadata>>;
 
   /**
    * Gets a specific exchange by ID
@@ -218,7 +226,7 @@ export interface ExchangesInterface {
    * @param options Optional request configuration
    * @returns A promise resolving to the exchange
    */
-  getExchangeById(params: getExchangeParameters, options?: RequestOptions): Promise<APIResponseWithMetadata<getExchangeResponse>>;
+  getExchangeById(params: getExchangeParameters, options?: RequestOptions): Promise<getExchangeResponse>;
 
   /**
    * Gets a list of all metrics for an exchange
@@ -226,7 +234,7 @@ export interface ExchangesInterface {
    * @param options Optional request configuration
    * @returns A promise resolving to the metrics
    */
-  getExchangeMetrics(options?: RequestOptions): Promise<APIResponseWithMetadata<getExchangeMetricsResponse>>;
+  getExchangeMetrics(options?: RequestOptions): Promise<getExchangeMetricsResponse>;
 
   /**
    * Gets timeseries data for a specific exchange and metric group
@@ -250,7 +258,7 @@ export interface NetworksInterface {
    * @param options Optional request configuration
    * @returns A paginated result of networks
    */
-  getNetworks(params?: getNetworksParameters, options?: RequestOptions): Promise<APIResponseWithMetadata<getNetworksResponse>>;
+  getNetworks(params?: getNetworksParameters, options?: RequestOptions): Promise<APIResponseWithMetadata<getNetworksResponse, PaginationMetadata>>;
 
   /**
    * Gets a specific exchange by ID
@@ -258,7 +266,7 @@ export interface NetworksInterface {
    * @param options Optional request configuration
    * @returns A promise resolving to the exchange
    */
-  getNetworkById(params: getNetworkParameters, options?: RequestOptions): Promise<APIResponseWithMetadata<getNetworkResponse>>;
+  getNetworkById(params: getNetworkParameters, options?: RequestOptions): Promise<getNetworkResponse>;
 
   /**
    * Gets a list of all metrics for an network
@@ -266,7 +274,7 @@ export interface NetworksInterface {
    * @param options Optional request configuration
    * @returns A promise resolving to the metrics
    */
-  getNetworkMetrics(options?: RequestOptions): Promise<APIResponseWithMetadata<getNetworkMetricsResponse>>;
+  getNetworkMetrics(options?: RequestOptions): Promise<getNetworkMetricsResponse>;
 
   /**
    * Gets timeseries data for a specific network and metric group
@@ -290,7 +298,7 @@ export interface MarketsInterface {
    * @param options Optional request configuration
    * @returns A paginated result of markets
    */
-  getMarkets(params?: getMarketsParameters, options?: RequestOptions): Promise<APIResponseWithMetadata<getMarketsResponse>>;
+  getMarkets(params?: getMarketsParameters, options?: RequestOptions): Promise<APIResponseWithMetadata<getMarketsResponse, PaginationMetadata>>;
 
   /**
    * Gets a specific market by ID
@@ -298,7 +306,7 @@ export interface MarketsInterface {
    * @param options Optional request configuration
    * @returns A promise resolving to the market
    */
-  getMarketById(params: getMarketParameters, options?: RequestOptions): Promise<APIResponseWithMetadata<getMarketResponse>>;
+  getMarketById(params: getMarketParameters, options?: RequestOptions): Promise<getMarketResponse>;
 
   /**
    * Gets a list of all metrics for an Market
@@ -306,7 +314,7 @@ export interface MarketsInterface {
    * @param options Optional request configuration
    * @returns A promise resolving to the metrics
    */
-  getMarketMetrics(options?: RequestOptions): Promise<APIResponseWithMetadata<getMarketMetricsResponse>>;
+  getMarketMetrics(options?: RequestOptions): Promise<getMarketMetricsResponse>;
 
   /**
    * Gets timeseries data for a specific Market and metric group

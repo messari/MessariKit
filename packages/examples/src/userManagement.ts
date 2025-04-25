@@ -88,7 +88,6 @@ async function main() {
     const updatedTitle = `Updated Watchlist - ${new Date().toISOString()}`;
     const updatedWatchlist = await client.userManagement.updateWatchlist({
       id: watchlistId,
-      watchlistID: watchlistId,
       title: updatedTitle,
     });
 
@@ -103,7 +102,6 @@ async function main() {
     // Add Solana to the watchlist
     const modifiedWatchlist = await client.userManagement.modifyWatchlistAssets({
       id: watchlistId,
-      watchlistID: watchlistId,
       action: "add",
       assetIds: ["c16f5137-def3-4c5c-b3e8-7921f9c8f0d2"], // Solana
     });
@@ -119,7 +117,6 @@ async function main() {
     // Remove Ethereum from the watchlist
     const modifiedWatchlist2 = await client.userManagement.modifyWatchlistAssets({
       id: watchlistId,
-      watchlistID: watchlistId,
       action: "remove",
       assetIds: ["21c795f5-1bfd-40c3-858e-e9d7e820c6d0"], // Ethereum
     });

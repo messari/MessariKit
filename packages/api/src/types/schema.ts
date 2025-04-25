@@ -23,6 +23,8 @@ export type Announcement = components['schemas']['Announcement'];
 
 export type Asset = components['schemas']['Asset'];
 
+export type AssetComparisonItem = components['schemas']['AssetComparisonItem'];
+
 export type AssetList = components['schemas']['AssetList'];
 
 export type AssetReport = components['schemas']['AssetReport'];
@@ -57,6 +59,8 @@ export type ChatCompletionResponseMetadataV2 = components['schemas']['ChatComple
 
 export type ChatCompletionResponseOpenAI = components['schemas']['ChatCompletionResponseOpenAI'];
 
+export type ContractAddress = components['schemas']['ContractAddress'];
+
 export type CreateWatchlistRequest = components['schemas']['CreateWatchlistRequest'];
 
 export type Document = components['schemas']['Document'];
@@ -74,6 +78,10 @@ export type Event = components['schemas']['Event'];
 export type EventHistory = components['schemas']['EventHistory'];
 
 export type Exchange = components['schemas']['Exchange'];
+
+export type ExchangeEntity = components['schemas']['ExchangeEntity'];
+
+export type ExchangeMetrics = components['schemas']['ExchangeMetrics'];
 
 export type ExchangeNewsRecap = components['schemas']['ExchangeNewsRecap'];
 
@@ -107,6 +115,8 @@ export type GetAllEventsRequest = components['schemas']['GetAllEventsRequest'];
 
 export type GetEventResponse = components['schemas']['GetEventResponse'];
 
+export type GetNetworksV2Response = components['schemas']['GetNetworksV2Response'];
+
 export type GetPreviewsResponse = components['schemas']['GetPreviewsResponse'];
 
 export type GetProjectRecapResponse = components['schemas']['GetProjectRecapResponse'];
@@ -119,17 +129,49 @@ export type Investors = components['schemas']['Investors'];
 
 export type Market = components['schemas']['Market'];
 
-export type ModifyWatchlistAssetsAction = components['schemas']['ModifyWatchlistAssetsAction'];
+export type MarketCap = components['schemas']['MarketCap'];
+
+export type MarketMetrics = components['schemas']['MarketMetrics'];
 
 export type ModifyWatchlistAssetsRequest = components['schemas']['ModifyWatchlistAssetsRequest'];
 
 export type Network = components['schemas']['Network'];
 
+export type NetworkAddresses = components['schemas']['NetworkAddresses'];
+
+export type NetworkBlockProduction = components['schemas']['NetworkBlockProduction'];
+
+export type NetworkBlocks = components['schemas']['NetworkBlocks'];
+
+export type NetworkContracts = components['schemas']['NetworkContracts'];
+
+export type NetworkCore = components['schemas']['NetworkCore'];
+
+export type NetworkEntity = components['schemas']['NetworkEntity'];
+
+export type NetworkFees = components['schemas']['NetworkFees'];
+
+export type NetworkFinancial = components['schemas']['NetworkFinancial'];
+
 export type NetworkMetrics = components['schemas']['NetworkMetrics'];
+
+export type NetworkMetrics2 = components['schemas']['NetworkMetrics2'];
+
+export type NetworkMetricsV2 = components['schemas']['NetworkMetricsV2'];
+
+export type NetworkStablecoin = components['schemas']['NetworkStablecoin'];
+
+export type NetworkTransactions = components['schemas']['NetworkTransactions'];
+
+export type NetworkV2 = components['schemas']['NetworkV2'];
 
 export type NewsAsset = components['schemas']['NewsAsset'];
 
 export type NewsResponse = components['schemas']['NewsResponse'];
+
+export type OHLCV = components['schemas']['OHLCV'];
+
+export type Options = components['schemas']['Options'];
 
 export type Organization = components['schemas']['Organization'];
 
@@ -165,6 +207,8 @@ export type SelectedEntity = components['schemas']['SelectedEntity'];
 
 export type Series = components['schemas']['Series'];
 
+export type SnapshotListingMetadata = components['schemas']['SnapshotListingMetadata'];
+
 export type Source = components['schemas']['Source'];
 
 export type SourceList = components['schemas']['SourceList'];
@@ -175,6 +219,8 @@ export type StandardSource = components['schemas']['StandardSource'];
 
 export type SummaryResponse = components['schemas']['SummaryResponse'];
 
+export type Supply = components['schemas']['Supply'];
+
 export type Tag = components['schemas']['Tag'];
 
 export type TimeseriesCatalog = components['schemas']['TimeseriesCatalog'];
@@ -182,8 +228,6 @@ export type TimeseriesCatalog = components['schemas']['TimeseriesCatalog'];
 export type TimeseriesData = components['schemas']['TimeseriesData'];
 
 export type TimeseriesDataset = components['schemas']['TimeseriesDataset'];
-
-export type TimeseriesInterval = components['schemas']['TimeseriesInterval'];
 
 export type TimeseriesMetadata = components['schemas']['TimeseriesMetadata'];
 
@@ -209,15 +253,11 @@ export type V2Asset = components['schemas']['V2Asset'];
 
 export type V2AssetATH = components['schemas']['V2AssetATH'];
 
-export type V2AssetAthItem = components['schemas']['V2AssetAthItem'];
-
 export type V2AssetEntity = components['schemas']['V2AssetEntity'];
 
 export type V2AssetListItem = components['schemas']['V2AssetListItem'];
 
 export type V2AssetROI = components['schemas']['V2AssetROI'];
-
-export type V2AssetRoiItem = components['schemas']['V2AssetRoiItem'];
 
 export type VideoPodcastResponse = components['schemas']['VideoPodcastResponse'];
 

@@ -48,7 +48,7 @@ async function getAssetsV2WithCoverage() {
       limit: 10,
     });
 
-    console.log(`Retrieved ${response.data.length} assets with market data coverage`);
+    console.log(`Retrieved ${response.length} assets with market data coverage`);
 
     const t = new Table({
       columns: [
@@ -64,7 +64,7 @@ async function getAssetsV2WithCoverage() {
     });
 
     // Limit to at most 20 rows for console output
-    const dataToDisplay = response.data.slice(0, 20);
+    const dataToDisplay = response.slice(0, 20);
 
     for (const asset of dataToDisplay) {
       t.addRow({
@@ -80,8 +80,8 @@ async function getAssetsV2WithCoverage() {
     }
     t.printTable();
 
-    if (response.data.length > 20) {
-      console.log(`... and ${response.data.length - 20} more rows not displayed.`);
+    if (response.length > 20) {
+      console.log(`... and ${response.length - 20} more rows not displayed.`);
     }
 
     return response;
@@ -99,7 +99,7 @@ async function getAssetsBySlugs(slugs: string[]) {
     const response = await client.asset.getAssetDetails({
       slugs: slugs.join(","),
     });
-    const assets = response.data;
+    const assets = response;
 
     console.log(`Retrieved ${assets.length} assets matching symbols: ${slugs.join(", ")}`);
     const t = new Table({
@@ -142,9 +142,9 @@ async function getAssetsByCategory(category: string) {
       category,
     });
 
-    console.log(`Retrieved ${response.data.length} assets with category=${category}`);
+    console.log(`Retrieved ${response.length} assets with category=${category}`);
     const t = newAssetTable();
-    for (const asset of response.data.slice(0, 10)) {
+    for (const asset of response.slice(0, 10)) {
       t.addRow({
         Rank: asset.rank,
         Name: asset.name,
@@ -175,14 +175,14 @@ async function getAssetsWithMultipleFilters(sector: string, tags: string[]) {
       tags: tags,
     });
 
-    if (response.data.length === 0) {
+    if (response.length === 0) {
       console.log("No assets found with the given filters");
       return;
     }
 
-    console.log(`Retrieved ${response.data.length} assets with sector=${sector} and tags=[${tags.join(", ")}]`);
+    console.log(`Retrieved ${response.length} assets with sector=${sector} and tags=[${tags.join(", ")}]`);
     const t = newAssetTable();
-    for (const asset of response.data.slice(0, 10)) {
+    for (const asset of response.slice(0, 10)) {
       t.addRow({
         Rank: asset.rank,
         Name: asset.name,
@@ -212,10 +212,10 @@ async function getAssetDetailsBySlug(slugs: string[]) {
       slugs: slugs.join(","),
     });
 
-    const assets = response.data;
+    const assets = response;
     console.log(`Retrieved detailed information for ${assets.length} assets`);
 
-    for (const asset of response.data) {
+    for (const asset of response) {
       console.log(`\n${asset.name} (${asset.symbol})`);
       console.log(`Category: ${asset.category}`);
       console.log(`Sector: ${asset.sector}`);
@@ -224,7 +224,7 @@ async function getAssetDetailsBySlug(slugs: string[]) {
       console.log("\nLinks:");
       if (asset.links && asset.links.length > 0) {
         for (const link of asset.links.slice(0, 3)) {
-          console.log(`- ${link.name || link.type || "Link"}: ${link.url}`);
+          console.log(`- ${link.name || "Link"}: ${link.url}`);
         }
       } else {
         console.log("No links available");
@@ -232,9 +232,9 @@ async function getAssetDetailsBySlug(slugs: string[]) {
 
       console.log("\nMarket Data:");
       if (asset.marketData) {
-        console.log(`Price: $${asset.marketData.priceUsd?.toLocaleString() || asset.marketData.price?.toLocaleString() || "N/A"}`);
-        console.log(`Market Cap: $${asset.marketData.marketcap?.circulatingUsd?.toLocaleString() || asset.marketData.marketCap?.toLocaleString() || "N/A"}`);
-        console.log(`24h Volume: $${asset.marketData.volume24Hour?.toLocaleString() || asset.marketData.volume24h?.toLocaleString() || "N/A"}`);
+        console.log(`Price: $${asset.marketData.priceUsd?.toLocaleString() || asset.marketData.priceUsd?.toLocaleString() || "N/A"}`);
+        console.log(`Market Cap: $${asset.marketData.marketcap?.circulatingUsd?.toLocaleString() || asset.marketData.marketcap?.toLocaleString() || "N/A"}`);
+        console.log(`24h Volume: $${asset.marketData.volume24Hour?.toLocaleString() || asset.marketData.volume24Hour?.toLocaleString() || "N/A"}`);
       } else {
         console.log("No market data available");
       }
@@ -278,7 +278,7 @@ async function getAssetDetailsBySlug(slugs: string[]) {
 async function getTimeseriesCatalog() {
   try {
     const response = await client.asset.getAssetsTimeseriesCatalog();
-    const datasets = response.data.datasets;
+    const datasets = response.datasets;
     console.log(`Retrieved ${datasets.length} timeseries datasets`);
 
     for (const dataset of datasets.slice(0, 3)) {
@@ -302,9 +302,9 @@ async function getTimeseriesCatalog() {
 async function main() {
   console.log("\n====== 1. Get All Assets With Coverage Example ======");
   const assetsV2WithCoverageResponse = await getAssetsV2WithCoverage();
-  console.log(`Retrieved ${assetsV2WithCoverageResponse.data.length} assets with coverage.`);
+  console.log(`Retrieved ${assetsV2WithCoverageResponse.length} assets with coverage.`);
   console.log("First 3 assets with coverage:");
-  for (const asset of assetsV2WithCoverageResponse.data.slice(0, 3)) {
+  for (const asset of assetsV2WithCoverageResponse.slice(0, 3)) {
     console.log(`${asset.name} (${asset.symbol})`);
   }
 
@@ -314,14 +314,14 @@ async function main() {
 
   console.log("\n====== 3. Get Assets By Category Example ======");
   const assetsByCategoryResponse = await getAssetsByCategory("Networks");
-  console.log(`Retrieved ${assetsByCategoryResponse.data.length} assets by category.`);
+  console.log(`Retrieved ${assetsByCategoryResponse.length} assets by category.`);
 
   console.log("\n====== 4. Get Assets With Multiple Filters Example ======");
   const assetsWithFiltersResponse = await getAssetsWithMultipleFilters("Smart Contract Platform", ["EVM"]);
   if (assetsWithFiltersResponse) {
-    console.log(`Retrieved ${assetsWithFiltersResponse.data.length} assets with multiple filters.`);
+    console.log(`Retrieved ${assetsWithFiltersResponse.length} assets with multiple filters.`);
     console.log("First 3 filtered assets:");
-    for (const asset of assetsWithFiltersResponse.data.slice(0, 3)) {
+    for (const asset of assetsWithFiltersResponse.slice(0, 3)) {
       console.log(`${asset.name} (${asset.symbol})`);
     }
   } else {
@@ -330,7 +330,7 @@ async function main() {
 
   console.log("\n====== 5. Get Asset Details By Slug Example ======");
   const assetDetailsResponse = await getAssetDetailsBySlug(["bitcoin"]);
-  console.log(`Retrieved detailed information for ${assetDetailsResponse.data.length} assets.`);
+  console.log(`Retrieved detailed information for ${assetDetailsResponse.length} assets.`);
 }
 
 // Only run the main function if this file is executed directly
